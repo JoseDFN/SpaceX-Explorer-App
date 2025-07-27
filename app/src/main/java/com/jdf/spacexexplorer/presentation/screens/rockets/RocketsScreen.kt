@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.jdf.spacexexplorer.presentation.components.*
+import com.jdf.spacexexplorer.presentation.navigation.Screen
 
 /**
  * Main screen composable for displaying the rockets list.
@@ -87,7 +88,7 @@ fun RocketsScreen(
                         RocketCard(
                             rocket = rocket,
                             onClick = {
-                                viewModel.onEvent(RocketsEvent.RocketClicked(rocket))
+                                navController.navigate(Screen.RocketDetail.createRoute(rocket.id))
                             }
                         )
                     }
