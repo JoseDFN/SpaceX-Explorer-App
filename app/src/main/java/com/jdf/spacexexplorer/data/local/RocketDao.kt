@@ -38,6 +38,15 @@ interface RocketDao {
     suspend fun deleteAllRockets()
     
     /**
+     * Transactional method to delete all rockets and insert new ones
+     */
+    @androidx.room.Transaction
+    suspend fun deleteAllAndInsertRockets(rockets: List<RocketEntity>) {
+        deleteAllRockets()
+        insertRockets(rockets)
+    }
+    
+    /**
      * Get active rockets only
      */
     @Query("SELECT * FROM rockets WHERE active = 1 ORDER BY name ASC")
