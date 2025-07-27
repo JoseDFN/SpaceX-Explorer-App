@@ -2,11 +2,13 @@ package com.jdf.spacexexplorer.data.repository
 
 import com.jdf.spacexexplorer.data.local.LaunchDao
 import com.jdf.spacexexplorer.data.local.RocketDao
+import com.jdf.spacexexplorer.data.local.CapsuleDao
 import com.jdf.spacexexplorer.data.mappers.toDomain
 import com.jdf.spacexexplorer.data.mappers.toEntity
 import com.jdf.spacexexplorer.data.remote.ApiService
 import com.jdf.spacexexplorer.domain.model.Launch
 import com.jdf.spacexexplorer.domain.model.Rocket
+import com.jdf.spacexexplorer.domain.model.Capsule
 import com.jdf.spacexexplorer.domain.model.Result
 import com.jdf.spacexexplorer.domain.repository.SpaceXRepository
 import kotlinx.coroutines.flow.Flow
@@ -28,7 +30,8 @@ import javax.inject.Inject
 class SpaceXRepositoryImpl @Inject constructor(
     private val apiService: ApiService,
     private val launchDao: LaunchDao,
-    private val rocketDao: RocketDao
+    private val rocketDao: RocketDao,
+    private val capsuleDao: CapsuleDao
 ) : SpaceXRepository {
     
     override fun getLaunches(): Flow<Result<List<Launch>>> {
@@ -221,6 +224,71 @@ class SpaceXRepositoryImpl @Inject constructor(
             val remoteRockets = apiService.getRockets()
             val entities = remoteRockets.map { it.toEntity() }
             rocketDao.deleteAllAndInsertRockets(entities)
+        } catch (e: Exception) {
+            // Silently handle network errors - local data will still be emitted
+            // The error will be handled by the UI layer if needed
+        }
+    }
+    
+    // Capsule implementations
+    
+    override fun getCapsules(): Flow<Result<List<Capsule>>> {
+        return capsuleDao.getCapsules()
+            .onStart {
+                // Trigger network refresh when flow starts
+                refreshCapsulesFromNetwork()
+            }
+            .map { entities ->
+                val capsules = entities.map { it.toDomain() }
+                Result.success(capsules)
+            }
+            .catch { e ->
+                emit(Result.error(e))
+            }
+    }
+    
+    override suspend fun getCapsuleById(id: String): Result<Capsule> {
+        return try {
+            // Try to get from local database first
+            val localEntity = capsuleDao.getCapsuleById(id)
+            if (localEntity != null) {
+                return Result.success(localEntity.toDomain())
+            }
+            // If not found, fetch from API
+            val remoteDto = apiService.getCapsuleById(id)
+            val entity = remoteDto.toEntity()
+            capsuleDao.insertCapsules(listOf(entity))
+            Result.success(entity.toDomain())
+        } catch (e: Exception) {
+            Result.error(e)
+        }
+    }
+    
+    override suspend fun refreshCapsules(): Result<Unit> {
+        return try {
+            // Fetch fresh data from API
+            val remoteCapsules = apiService.getCapsules()
+            
+            // Convert DTOs to entities
+            val entities = remoteCapsules.map { it.toEntity() }
+            
+            // Use transactional "delete all and insert new" strategy
+            capsuleDao.deleteAllAndInsertCapsules(entities)
+            
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.error(e)
+        }
+    }
+    
+    /**
+     * Private method to refresh capsules from network without blocking the flow
+     */
+    private suspend fun refreshCapsulesFromNetwork() {
+        try {
+            val remoteCapsules = apiService.getCapsules()
+            val entities = remoteCapsules.map { it.toEntity() }
+            capsuleDao.deleteAllAndInsertCapsules(entities)
         } catch (e: Exception) {
             // Silently handle network errors - local data will still be emitted
             // The error will be handled by the UI layer if needed
