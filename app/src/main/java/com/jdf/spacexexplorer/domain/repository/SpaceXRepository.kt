@@ -1,6 +1,7 @@
 package com.jdf.spacexexplorer.domain.repository
 
 import com.jdf.spacexexplorer.domain.model.Launch
+import com.jdf.spacexexplorer.domain.model.Result
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -27,7 +28,7 @@ interface SpaceXRepository {
     /**
      * Get a specific launch by ID with Result wrapper
      */
-    suspend fun getLaunchById(launchId: String): Result<Launch?>
+    suspend fun getLaunchById(id: String): Result<Launch>
     
     /**
      * Get successful launches with optional limit and Result wrapper

@@ -20,8 +20,8 @@ interface LaunchDao {
     @Query("SELECT * FROM launches WHERE isUpcoming = 0 ORDER BY launchDateUnix DESC LIMIT :limit")
     fun getPastLaunches(limit: Int = 20): Flow<List<LaunchEntity>>
     
-    @Query("SELECT * FROM launches WHERE id = :launchId")
-    suspend fun getLaunchById(launchId: String): LaunchEntity?
+    @Query("SELECT * FROM launches WHERE id = :id LIMIT 1")
+    suspend fun getLaunchById(id: String): LaunchEntity?
     
     @Query("SELECT * FROM launches WHERE wasSuccessful = 1 ORDER BY launchDateUnix DESC LIMIT :limit")
     fun getSuccessfulLaunches(limit: Int = 10): Flow<List<LaunchEntity>>
