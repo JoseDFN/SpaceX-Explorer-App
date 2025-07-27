@@ -7,9 +7,20 @@ import androidx.room.PrimaryKey
 data class LaunchEntity(
     @PrimaryKey
     val id: String,
-    val name: String,
+    val missionName: String,
+    val launchDate: String,
+    val launchDateUnix: Long,
+    val wasSuccessful: Boolean?,
+    val isUpcoming: Boolean,
+    val patchImageUrl: String?,
+    val details: String?,
+    val rocketId: String,
+    val flightNumber: Int,
+    val webcastUrl: String?,
+    val articleUrl: String?,
+    val wikipediaUrl: String?,
+    // Additional fields for complete data storage
     val dateUtc: String,
-    val dateUnix: Long,
     val dateLocal: String,
     val datePrecision: String,
     val staticFireDateUtc: String?,
@@ -17,28 +28,10 @@ data class LaunchEntity(
     val tbd: Boolean,
     val net: Boolean,
     val window: Int?,
-    val rocket: String,
-    val success: Boolean?,
-    val upcoming: Boolean,
-    val details: String?,
+    val launchpad: String?,
     val crew: String?, // JSON string for List<String>
     val ships: String?, // JSON string for List<String>
     val capsules: String?, // JSON string for List<String>
     val payloads: String?, // JSON string for List<String>
-    val launchpad: String?,
-    val flightNumber: Int,
-    val missionName: String,
-    val launchDateUtc: String,
-    val launchDateUnix: Long,
-    val launchDateLocal: String,
-    val launchDatePrecision: String,
-    val isUpcoming: Boolean,
-    val isSuccess: Boolean?,
-    val missionDetails: String?,
-    val patchSmall: String?,
-    val patchLarge: String?,
-    val webcast: String?,
-    val youtubeId: String?,
-    val article: String?,
-    val wikipedia: String?
+    val failures: String? // JSON string for List<FailureDto>
 ) 

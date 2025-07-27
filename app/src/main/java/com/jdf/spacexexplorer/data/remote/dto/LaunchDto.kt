@@ -5,186 +5,162 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class LaunchDto(
-    @Json(name = "id")
+    @field:Json(name = "id")
     val id: String,
     
-    @Json(name = "name")
+    @field:Json(name = "name")
     val name: String,
     
-    @Json(name = "date_utc")
+    @field:Json(name = "date_utc")
     val dateUtc: String,
     
-    @Json(name = "date_unix")
+    @field:Json(name = "date_unix")
     val dateUnix: Long,
     
-    @Json(name = "date_local")
+    @field:Json(name = "date_local")
     val dateLocal: String,
     
-    @Json(name = "date_precision")
+    @field:Json(name = "date_precision")
     val datePrecision: String,
     
-    @Json(name = "static_fire_date_utc")
+    @field:Json(name = "static_fire_date_utc")
     val staticFireDateUtc: String?,
     
-    @Json(name = "static_fire_date_unix")
+    @field:Json(name = "static_fire_date_unix")
     val staticFireDateUnix: Long?,
     
-    @Json(name = "tbd")
+    @field:Json(name = "tbd")
     val tbd: Boolean,
     
-    @Json(name = "net")
+    @field:Json(name = "net")
     val net: Boolean,
     
-    @Json(name = "window")
+    @field:Json(name = "window")
     val window: Int?,
     
-    @Json(name = "rocket")
+    @field:Json(name = "rocket")
     val rocket: String,
     
-    @Json(name = "success")
+    @field:Json(name = "success")
     val success: Boolean?,
     
-    @Json(name = "failures")
+    @field:Json(name = "failures")
     val failures: List<FailureDto>?,
     
-    @Json(name = "upcoming")
+    @field:Json(name = "upcoming")
     val upcoming: Boolean,
     
-    @Json(name = "details")
+    @field:Json(name = "details")
     val details: String?,
     
-    @Json(name = "fairings")
+    @field:Json(name = "fairings")
     val fairings: FairingsDto?,
     
-    @Json(name = "crew")
+    @field:Json(name = "crew")
     val crew: List<String>?,
     
-    @Json(name = "ships")
+    @field:Json(name = "ships")
     val ships: List<String>?,
     
-    @Json(name = "capsules")
+    @field:Json(name = "capsules")
     val capsules: List<String>?,
     
-    @Json(name = "payloads")
+    @field:Json(name = "payloads")
     val payloads: List<String>?,
     
-    @Json(name = "launchpad")
+    @field:Json(name = "launchpad")
     val launchpad: String?,
     
-    @Json(name = "flight_number")
+    @field:Json(name = "flight_number")
     val flightNumber: Int,
     
-    @Json(name = "name")
-    val missionName: String,
-    
-    @Json(name = "date_utc")
-    val launchDateUtc: String,
-    
-    @Json(name = "date_unix")
-    val launchDateUnix: Long,
-    
-    @Json(name = "date_local")
-    val launchDateLocal: String,
-    
-    @Json(name = "date_precision")
-    val launchDatePrecision: String,
-    
-    @Json(name = "upcoming")
-    val isUpcoming: Boolean,
-    
-    @Json(name = "success")
-    val isSuccess: Boolean?,
-    
-    @Json(name = "details")
-    val missionDetails: String?,
-    
-    @Json(name = "links")
+    @field:Json(name = "links")
     val links: LinksDto?
 )
 
 @JsonClass(generateAdapter = true)
 data class FailureDto(
-    @Json(name = "time")
+    @field:Json(name = "time")
     val time: Int?,
     
-    @Json(name = "altitude")
+    @field:Json(name = "altitude")
     val altitude: Int?,
     
-    @Json(name = "reason")
+    @field:Json(name = "reason")
     val reason: String
 )
 
 @JsonClass(generateAdapter = true)
 data class FairingsDto(
-    @Json(name = "reused")
+    @field:Json(name = "reused")
     val reused: Boolean?,
     
-    @Json(name = "recovery_attempt")
+    @field:Json(name = "recovery_attempt")
     val recoveryAttempt: Boolean?,
     
-    @Json(name = "recovered")
+    @field:Json(name = "recovered")
     val recovered: Boolean?,
     
-    @Json(name = "ships")
+    @field:Json(name = "ships")
     val ships: List<String>?
 )
 
 @JsonClass(generateAdapter = true)
 data class LinksDto(
-    @Json(name = "patch")
+    @field:Json(name = "patch")
     val patch: PatchDto?,
     
-    @Json(name = "reddit")
+    @field:Json(name = "reddit")
     val reddit: RedditDto?,
     
-    @Json(name = "flickr")
+    @field:Json(name = "flickr")
     val flickr: FlickrDto?,
     
-    @Json(name = "presskit")
+    @field:Json(name = "presskit")
     val presskit: String?,
     
-    @Json(name = "webcast")
+    @field:Json(name = "webcast")
     val webcast: String?,
     
-    @Json(name = "youtube_id")
+    @field:Json(name = "youtube_id")
     val youtubeId: String?,
     
-    @Json(name = "article")
+    @field:Json(name = "article")
     val article: String?,
     
-    @Json(name = "wikipedia")
+    @field:Json(name = "wikipedia")
     val wikipedia: String?
 )
 
 @JsonClass(generateAdapter = true)
 data class PatchDto(
-    @Json(name = "small")
+    @field:Json(name = "small")
     val small: String?,
     
-    @Json(name = "large")
+    @field:Json(name = "large")
     val large: String?
 )
 
 @JsonClass(generateAdapter = true)
 data class RedditDto(
-    @Json(name = "campaign")
+    @field:Json(name = "campaign")
     val campaign: String?,
     
-    @Json(name = "launch")
+    @field:Json(name = "launch")
     val launch: String?,
     
-    @Json(name = "media")
+    @field:Json(name = "media")
     val media: String?,
     
-    @Json(name = "recovery")
+    @field:Json(name = "recovery")
     val recovery: String?
 )
 
 @JsonClass(generateAdapter = true)
 data class FlickrDto(
-    @Json(name = "small")
+    @field:Json(name = "small")
     val small: List<String>?,
     
-    @Json(name = "original")
+    @field:Json(name = "original")
     val original: List<String>?
 ) 

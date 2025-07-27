@@ -5,6 +5,8 @@ import androidx.room.Room
 import com.jdf.spacexexplorer.data.local.AppDatabase
 import com.jdf.spacexexplorer.data.local.LaunchDao
 import com.jdf.spacexexplorer.data.remote.ApiService
+import com.jdf.spacexexplorer.data.repository.SpaceXRepositoryImpl
+import com.jdf.spacexexplorer.domain.repository.SpaceXRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -76,5 +78,14 @@ object AppModule {
     @Singleton
     fun provideLaunchDao(database: AppDatabase): LaunchDao {
         return database.launchDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideSpaceXRepository(
+        apiService: ApiService,
+        launchDao: LaunchDao
+    ): SpaceXRepository {
+        return SpaceXRepositoryImpl(apiService, launchDao)
     }
 } 
