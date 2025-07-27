@@ -2,6 +2,7 @@ package com.jdf.spacexexplorer.data.remote
 
 import com.jdf.spacexexplorer.data.remote.dto.LaunchDto
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 /**
@@ -40,4 +41,8 @@ interface ApiService {
         @Query("limit") limit: Int = 20,
         @Query("offset") offset: Int = 0
     ): List<LaunchDto>
+
+    // New endpoint for fetching a single launch by ID
+    @GET("launches/{id}")
+    suspend fun getLaunchById(@Path("id") id: String): LaunchDto
 } 

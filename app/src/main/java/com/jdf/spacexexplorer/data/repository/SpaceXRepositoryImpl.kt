@@ -69,11 +69,18 @@ class SpaceXRepositoryImpl @Inject constructor(
             }
     }
     
-    override suspend fun getLaunchById(launchId: String): Result<Launch?> {
+    override suspend fun getLaunchById(id: String): Result<Launch> {
         return try {
-            val entity = launchDao.getLaunchById(launchId)
-            val launch = entity?.toDomain()
-            Result.success(launch)
+            // Try to get from local database first
+            val localEntity = launchDao.getLaunchById(id)
+            if (localEntity != null) {
+                return Result.success(localEntity.toDomain())
+            }
+            // If not found, fetch from API
+            val remoteDto = apiService.getLaunchById(id)
+            val entity = remoteDto.toEntity()
+            launchDao.insertLaunch(entity)
+            Result.success(entity.toDomain())
         } catch (e: Exception) {
             Result.error(e)
         }
