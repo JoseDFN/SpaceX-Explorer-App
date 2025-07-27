@@ -4,9 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.jdf.spacexexplorer.data.local.AppDatabase
 import com.jdf.spacexexplorer.data.local.LaunchDao
-import com.jdf.spacexexplorer.data.local.datasource.LocalDataSource
 import com.jdf.spacexexplorer.data.remote.ApiService
-import com.jdf.spacexexplorer.data.remote.datasource.RemoteDataSource
 import com.jdf.spacexexplorer.data.repository.SpaceXRepositoryImpl
 import com.jdf.spacexexplorer.domain.repository.SpaceXRepository
 import dagger.Module
@@ -84,22 +82,10 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideRemoteDataSource(apiService: ApiService): RemoteDataSource {
-        return RemoteDataSource(apiService)
-    }
-
-    @Provides
-    @Singleton
-    fun provideLocalDataSource(launchDao: LaunchDao): LocalDataSource {
-        return LocalDataSource(launchDao)
-    }
-
-    @Provides
-    @Singleton
     fun provideSpaceXRepository(
-        localDataSource: LocalDataSource,
-        remoteDataSource: RemoteDataSource
+        apiService: ApiService,
+        launchDao: LaunchDao
     ): SpaceXRepository {
-        return SpaceXRepositoryImpl(localDataSource, remoteDataSource)
+        return SpaceXRepositoryImpl(apiService, launchDao)
     }
 } 
