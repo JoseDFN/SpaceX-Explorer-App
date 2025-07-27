@@ -10,37 +10,37 @@ import kotlinx.coroutines.flow.Flow
 interface SpaceXRepository {
     
     /**
-     * Get all launches as a Flow for reactive updates
+     * Get all launches as a Flow for reactive updates with Result wrapper
      */
-    fun getAllLaunches(): Flow<List<Launch>>
+    fun getLaunches(): Flow<Result<List<Launch>>>
     
     /**
-     * Get upcoming launches as a Flow
+     * Get upcoming launches as a Flow with Result wrapper
      */
-    fun getUpcomingLaunches(): Flow<List<Launch>>
+    fun getUpcomingLaunches(): Flow<Result<List<Launch>>>
     
     /**
-     * Get past launches with optional limit
+     * Get past launches with optional limit and Result wrapper
      */
-    fun getPastLaunches(limit: Int = 20): Flow<List<Launch>>
+    fun getPastLaunches(limit: Int = 20): Flow<Result<List<Launch>>>
     
     /**
-     * Get a specific launch by ID
+     * Get a specific launch by ID with Result wrapper
      */
-    suspend fun getLaunchById(launchId: String): Launch?
+    suspend fun getLaunchById(launchId: String): Result<Launch?>
     
     /**
-     * Get successful launches with optional limit
+     * Get successful launches with optional limit and Result wrapper
      */
-    fun getSuccessfulLaunches(limit: Int = 10): Flow<List<Launch>>
+    fun getSuccessfulLaunches(limit: Int = 10): Flow<Result<List<Launch>>>
     
     /**
      * Refresh launches from the remote API
      */
-    suspend fun refreshLaunches()
+    suspend fun refreshLaunches(): Result<Unit>
     
     /**
      * Refresh upcoming launches from the remote API
      */
-    suspend fun refreshUpcomingLaunches()
+    suspend fun refreshUpcomingLaunches(): Result<Unit>
 } 
