@@ -1,8 +1,8 @@
 package com.jdf.spacexexplorer.data.repository
 
 import com.jdf.spacexexplorer.data.local.LaunchDao
-import com.jdf.spacexexplorer.data.mappers.toLaunch
-import com.jdf.spacexexplorer.data.mappers.toLaunchEntity
+import com.jdf.spacexexplorer.data.mappers.toDomain
+import com.jdf.spacexexplorer.data.mappers.toEntity
 import com.jdf.spacexexplorer.data.remote.ApiService
 import com.jdf.spacexexplorer.domain.model.Launch
 import com.jdf.spacexexplorer.domain.model.Result
@@ -35,7 +35,7 @@ class SpaceXRepositoryImpl @Inject constructor(
                 refreshLaunchesFromNetwork()
             }
             .map { entities ->
-                val launches = entities.map { it.toLaunch() }
+                val launches = entities.map { it.toDomain() }
                 Result.success(launches)
             }
             .catch { e ->
@@ -50,7 +50,7 @@ class SpaceXRepositoryImpl @Inject constructor(
                 refreshUpcomingLaunchesFromNetwork()
             }
             .map { entities ->
-                val launches = entities.map { it.toLaunch() }
+                val launches = entities.map { it.toDomain() }
                 Result.success(launches)
             }
             .catch { e ->
@@ -61,7 +61,7 @@ class SpaceXRepositoryImpl @Inject constructor(
     override fun getPastLaunches(limit: Int): Flow<Result<List<Launch>>> {
         return launchDao.getPastLaunches(limit)
             .map { entities ->
-                val launches = entities.map { it.toLaunch() }
+                val launches = entities.map { it.toDomain() }
                 Result.success(launches)
             }
             .catch { e ->
@@ -72,7 +72,7 @@ class SpaceXRepositoryImpl @Inject constructor(
     override suspend fun getLaunchById(launchId: String): Result<Launch?> {
         return try {
             val entity = launchDao.getLaunchById(launchId)
-            val launch = entity?.toLaunch()
+            val launch = entity?.toDomain()
             Result.success(launch)
         } catch (e: Exception) {
             Result.error(e)
@@ -82,7 +82,7 @@ class SpaceXRepositoryImpl @Inject constructor(
     override fun getSuccessfulLaunches(limit: Int): Flow<Result<List<Launch>>> {
         return launchDao.getSuccessfulLaunches(limit)
             .map { entities ->
-                val launches = entities.map { it.toLaunch() }
+                val launches = entities.map { it.toDomain() }
                 Result.success(launches)
             }
             .catch { e ->
@@ -96,7 +96,7 @@ class SpaceXRepositoryImpl @Inject constructor(
             val remoteLaunches = apiService.getLaunches()
             
             // Convert DTOs to entities
-            val entities = remoteLaunches.map { it.toLaunchEntity() }
+            val entities = remoteLaunches.map { it.toEntity() }
             
             // Use transactional "delete all and insert new" strategy
             launchDao.deleteAllAndInsertLaunches(entities)
@@ -113,7 +113,7 @@ class SpaceXRepositoryImpl @Inject constructor(
             val remoteLaunches = apiService.getUpcomingLaunches()
             
             // Convert DTOs to entities
-            val entities = remoteLaunches.map { it.toLaunchEntity() }
+            val entities = remoteLaunches.map { it.toEntity() }
             
             // Use transactional "delete all and insert new" strategy for upcoming launches
             launchDao.deleteAllAndInsertUpcomingLaunches(entities)
@@ -130,7 +130,7 @@ class SpaceXRepositoryImpl @Inject constructor(
     private suspend fun refreshLaunchesFromNetwork() {
         try {
             val remoteLaunches = apiService.getLaunches()
-            val entities = remoteLaunches.map { it.toLaunchEntity() }
+            val entities = remoteLaunches.map { it.toEntity() }
             launchDao.deleteAllAndInsertLaunches(entities)
         } catch (e: Exception) {
             // Silently handle network errors - local data will still be emitted
@@ -144,7 +144,7 @@ class SpaceXRepositoryImpl @Inject constructor(
     private suspend fun refreshUpcomingLaunchesFromNetwork() {
         try {
             val remoteLaunches = apiService.getUpcomingLaunches()
-            val entities = remoteLaunches.map { it.toLaunchEntity() }
+            val entities = remoteLaunches.map { it.toEntity() }
             launchDao.deleteAllAndInsertUpcomingLaunches(entities)
         } catch (e: Exception) {
             // Silently handle network errors - local data will still be emitted

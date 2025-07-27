@@ -7,8 +7,13 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 
 /**
- * Extension functions to convert between different data models for Launch
+ * Comprehensive data conversion utilities for the SpaceX Explorer app.
+ * This file contains all extension functions to convert between different data models.
  */
+
+// ============================================================================
+// DTO to Entity Conversions
+// ============================================================================
 
 /**
  * Convert LaunchDto to LaunchEntity for database storage
@@ -47,6 +52,17 @@ fun LaunchDto.toEntity(): LaunchEntity {
 }
 
 /**
+ * Convert list of LaunchDto to list of LaunchEntity
+ */
+fun List<LaunchDto>.toEntities(): List<LaunchEntity> {
+    return this.map { it.toEntity() }
+}
+
+// ============================================================================
+// Entity to Domain Conversions
+// ============================================================================
+
+/**
  * Convert LaunchEntity to Launch domain model
  */
 fun LaunchEntity.toDomain(): Launch {
@@ -66,6 +82,17 @@ fun LaunchEntity.toDomain(): Launch {
         wikipediaUrl = wikipediaUrl
     )
 }
+
+/**
+ * Convert list of LaunchEntity to list of Launch domain models
+ */
+fun List<LaunchEntity>.toDomains(): List<Launch> {
+    return this.map { it.toDomain() }
+}
+
+// ============================================================================
+// DTO to Domain Conversions
+// ============================================================================
 
 /**
  * Convert LaunchDto to Launch domain model
@@ -88,7 +115,20 @@ fun LaunchDto.toDomain(): Launch {
     )
 }
 
-// Helper extension functions for JSON conversion
+/**
+ * Convert list of LaunchDto to list of Launch domain models
+ */
+fun List<LaunchDto>.toDomains(): List<Launch> {
+    return this.map { it.toDomain() }
+}
+
+// ============================================================================
+// Helper Functions for JSON Conversion
+// ============================================================================
+
+/**
+ * Convert List<String> to JSON string for database storage
+ */
 private fun List<String>?.toJsonString(): String? {
     return this?.let { list ->
         val moshi = Moshi.Builder().build()
@@ -98,6 +138,9 @@ private fun List<String>?.toJsonString(): String? {
     }
 }
 
+/**
+ * Convert List<FailureDto> to JSON string for database storage
+ */
 private fun List<com.jdf.spacexexplorer.data.remote.dto.FailureDto>?.toJsonString(): String? {
     return this?.let { list ->
         val moshi = Moshi.Builder().build()
