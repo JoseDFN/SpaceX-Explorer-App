@@ -2,6 +2,7 @@ package com.jdf.spacexexplorer.data.remote.datasource
 
 import com.jdf.spacexexplorer.data.remote.ApiService
 import com.jdf.spacexexplorer.data.remote.dto.LaunchDto
+import com.jdf.spacexexplorer.data.remote.dto.RocketDto
 import com.jdf.spacexexplorer.domain.model.Result
 import javax.inject.Inject
 
@@ -55,6 +56,30 @@ class RemoteDataSource @Inject constructor(
         return try {
             val launch = apiService.getLatestLaunch()
             Result.success(launch)
+        } catch (e: Exception) {
+            Result.error(e)
+        }
+    }
+    
+    /**
+     * Fetch all rockets from the API
+     */
+    suspend fun getRockets(): Result<List<RocketDto>> {
+        return try {
+            val rockets = apiService.getRockets()
+            Result.success(rockets)
+        } catch (e: Exception) {
+            Result.error(e)
+        }
+    }
+    
+    /**
+     * Fetch a specific rocket by ID from the API
+     */
+    suspend fun getRocketById(id: String): Result<RocketDto> {
+        return try {
+            val rocket = apiService.getRocketById(id)
+            Result.success(rocket)
         } catch (e: Exception) {
             Result.error(e)
         }

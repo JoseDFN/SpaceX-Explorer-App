@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.jdf.spacexexplorer.data.local.AppDatabase
 import com.jdf.spacexexplorer.data.local.LaunchDao
+import com.jdf.spacexexplorer.data.local.RocketDao
 import com.jdf.spacexexplorer.data.remote.ApiService
 import com.jdf.spacexexplorer.data.repository.SpaceXRepositoryImpl
 import com.jdf.spacexexplorer.domain.repository.SpaceXRepository
@@ -82,10 +83,17 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideRocketDao(database: AppDatabase): RocketDao {
+        return database.rocketDao()
+    }
+
+    @Provides
+    @Singleton
     fun provideSpaceXRepository(
         apiService: ApiService,
-        launchDao: LaunchDao
+        launchDao: LaunchDao,
+        rocketDao: RocketDao
     ): SpaceXRepository {
-        return SpaceXRepositoryImpl(apiService, launchDao)
+        return SpaceXRepositoryImpl(apiService, launchDao, rocketDao)
     }
 } 

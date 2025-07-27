@@ -1,6 +1,7 @@
 package com.jdf.spacexexplorer.domain.repository
 
 import com.jdf.spacexexplorer.domain.model.Launch
+import com.jdf.spacexexplorer.domain.model.Rocket
 import com.jdf.spacexexplorer.domain.model.Result
 import kotlinx.coroutines.flow.Flow
 
@@ -44,4 +45,19 @@ interface SpaceXRepository {
      * Refresh upcoming launches from the remote API
      */
     suspend fun refreshUpcomingLaunches(): Result<Unit>
+    
+    /**
+     * Get all rockets as a Flow for reactive updates with Result wrapper
+     */
+    fun getRockets(): Flow<Result<List<Rocket>>>
+    
+    /**
+     * Get a specific rocket by ID with Result wrapper
+     */
+    suspend fun getRocketById(id: String): Result<Rocket>
+    
+    /**
+     * Refresh rockets from the remote API
+     */
+    suspend fun refreshRockets(): Result<Unit>
 } 

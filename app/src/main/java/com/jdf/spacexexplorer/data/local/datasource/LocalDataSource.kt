@@ -1,7 +1,9 @@
 package com.jdf.spacexexplorer.data.local.datasource
 
 import com.jdf.spacexexplorer.data.local.LaunchDao
+import com.jdf.spacexexplorer.data.local.RocketDao
 import com.jdf.spacexexplorer.data.local.entity.LaunchEntity
+import com.jdf.spacexexplorer.data.local.entity.RocketEntity
 import com.jdf.spacexexplorer.domain.model.Result
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -11,7 +13,8 @@ import javax.inject.Inject
  * Local data source for handling database operations
  */
 class LocalDataSource @Inject constructor(
-    private val launchDao: LaunchDao
+    private val launchDao: LaunchDao,
+    private val rocketDao: RocketDao
 ) {
     
     /**
@@ -116,6 +119,66 @@ class LocalDataSource @Inject constructor(
     suspend fun deleteAllLaunches(): Result<Unit> {
         return try {
             launchDao.deleteAllLaunches()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.error(e)
+        }
+    }
+    
+    // Rocket operations
+    
+    /**
+     * Get all rockets as a Flow
+     */
+    fun getAllRockets(): Flow<Result<List<RocketEntity>>> {
+        return rocketDao.getRockets().map { rockets ->
+            Result.success(rockets)
+        }
+    }
+    
+    /**
+     * Get a specific rocket by ID
+     */
+    suspend fun getRocketById(rocketId: String): Result<RocketEntity?> {
+        return try {
+            val rocket = rocketDao.getRocketById(rocketId)
+            Result.success(rocket)
+        } catch (e: Exception) {
+            Result.error(e)
+        }
+    }
+    
+    /**
+     * Insert multiple rockets
+     */
+    suspend fun insertRockets(rockets: List<RocketEntity>): Result<Unit> {
+        return try {
+            rocketDao.insertRockets(rockets)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.error(e)
+        }
+    }
+    
+    /**
+     * Delete all rockets and insert new ones (transaction)
+     */
+    suspend fun deleteAllAndInsertRockets(rockets: List<RocketEntity>): Result<Unit> {
+        return try {
+            rocketDao.deleteAllRockets()
+            rocketDao.insertRockets(rockets)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.error(e)
+        }
+    }
+    
+    /**
+     * Delete all rockets
+     */
+    suspend fun deleteAllRockets(): Result<Unit> {
+        return try {
+            rocketDao.deleteAllRockets()
             Result.success(Unit)
         } catch (e: Exception) {
             Result.error(e)

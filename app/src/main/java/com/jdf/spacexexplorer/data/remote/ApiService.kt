@@ -45,4 +45,16 @@ interface ApiService {
     // New endpoint for fetching a single launch by ID
     @GET("launches/{id}")
     suspend fun getLaunchById(@Path("id") id: String): LaunchDto
+    
+    /**
+     * Get all rockets
+     */
+    @GET("rockets")
+    suspend fun getRockets(): List<RocketDto>
+    
+    /**
+     * Get a specific rocket by ID
+     */
+    @GET("rockets/{id}")
+    suspend fun getRocketById(@Path("id") id: String): RocketDto
 } 
