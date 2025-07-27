@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.Satellite
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import kotlinx.coroutines.launch
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -48,6 +49,9 @@ fun AppShell(
                     label = { Text("Home") },
                     selected = navController.currentDestination?.route == Screen.Home.route,
                     onClick = {
+                        scope.launch {
+                            drawerState.close()
+                        }
                         navController.navigate(Screen.Home.route) {
                             // Pop up to the start destination of the graph to
                             // avoid building up a large stack of destinations
@@ -68,6 +72,9 @@ fun AppShell(
                     label = { Text("Launches") },
                     selected = navController.currentDestination?.route == Screen.Launches.route,
                     onClick = {
+                        scope.launch {
+                            drawerState.close()
+                        }
                         navController.navigate(Screen.Launches.route) {
                             popUpTo(navController.graph.startDestinationId) {
                                 saveState = true
@@ -84,6 +91,9 @@ fun AppShell(
                     label = { Text("Rockets") },
                     selected = navController.currentDestination?.route == Screen.Rockets.route,
                     onClick = {
+                        scope.launch {
+                            drawerState.close()
+                        }
                         navController.navigate(Screen.Rockets.route) {
                             popUpTo(navController.graph.startDestinationId) {
                                 saveState = true
