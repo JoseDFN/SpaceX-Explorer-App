@@ -1,6 +1,7 @@
 package com.jdf.spacexexplorer.data.remote
 
 import com.jdf.spacexexplorer.data.remote.dto.LaunchDto
+import com.jdf.spacexexplorer.data.remote.dto.RocketDto
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query

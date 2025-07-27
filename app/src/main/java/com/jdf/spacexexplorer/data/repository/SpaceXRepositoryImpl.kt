@@ -205,8 +205,7 @@ class SpaceXRepositoryImpl @Inject constructor(
             val entities = remoteRockets.map { it.toEntity() }
             
             // Use transactional "delete all and insert new" strategy
-            rocketDao.deleteAllRockets()
-            rocketDao.insertRockets(entities)
+            rocketDao.deleteAllAndInsertRockets(entities)
             
             Result.success(Unit)
         } catch (e: Exception) {
@@ -221,8 +220,7 @@ class SpaceXRepositoryImpl @Inject constructor(
         try {
             val remoteRockets = apiService.getRockets()
             val entities = remoteRockets.map { it.toEntity() }
-            rocketDao.deleteAllRockets()
-            rocketDao.insertRockets(entities)
+            rocketDao.deleteAllAndInsertRockets(entities)
         } catch (e: Exception) {
             // Silently handle network errors - local data will still be emitted
             // The error will be handled by the UI layer if needed
