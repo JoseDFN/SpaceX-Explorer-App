@@ -1,10 +1,12 @@
 package com.jdf.spacexexplorer.data.repository
 
 import com.jdf.spacexexplorer.data.local.LaunchDao
+import com.jdf.spacexexplorer.data.local.RocketDao
 import com.jdf.spacexexplorer.data.mappers.toDomain
 import com.jdf.spacexexplorer.data.mappers.toEntity
 import com.jdf.spacexexplorer.data.remote.ApiService
 import com.jdf.spacexexplorer.domain.model.Launch
+import com.jdf.spacexexplorer.domain.model.Rocket
 import com.jdf.spacexexplorer.domain.model.Result
 import com.jdf.spacexexplorer.domain.repository.SpaceXRepository
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +27,8 @@ import javax.inject.Inject
  */
 class SpaceXRepositoryImpl @Inject constructor(
     private val apiService: ApiService,
-    private val launchDao: LaunchDao
+    private val launchDao: LaunchDao,
+    private val rocketDao: RocketDao
 ) : SpaceXRepository {
     
     override fun getLaunches(): Flow<Result<List<Launch>>> {
@@ -153,6 +156,73 @@ class SpaceXRepositoryImpl @Inject constructor(
             val remoteLaunches = apiService.getUpcomingLaunches()
             val entities = remoteLaunches.map { it.toEntity() }
             launchDao.deleteAllAndInsertUpcomingLaunches(entities)
+        } catch (e: Exception) {
+            // Silently handle network errors - local data will still be emitted
+            // The error will be handled by the UI layer if needed
+        }
+    }
+    
+    // Rocket implementations
+    
+    override fun getRockets(): Flow<Result<List<Rocket>>> {
+        return rocketDao.getRockets()
+            .onStart {
+                // Trigger network refresh when flow starts
+                refreshRocketsFromNetwork()
+            }
+            .map { entities ->
+                val rockets = entities.map { it.toDomain() }
+                Result.success(rockets)
+            }
+            .catch { e ->
+                emit(Result.error(e))
+            }
+    }
+    
+    override suspend fun getRocketById(id: String): Result<Rocket> {
+        return try {
+            // Try to get from local database first
+            val localEntity = rocketDao.getRocketById(id)
+            if (localEntity != null) {
+                return Result.success(localEntity.toDomain())
+            }
+            // If not found, fetch from API
+            val remoteDto = apiService.getRocketById(id)
+            val entity = remoteDto.toEntity()
+            rocketDao.insertRockets(listOf(entity))
+            Result.success(entity.toDomain())
+        } catch (e: Exception) {
+            Result.error(e)
+        }
+    }
+    
+    override suspend fun refreshRockets(): Result<Unit> {
+        return try {
+            // Fetch fresh data from API
+            val remoteRockets = apiService.getRockets()
+            
+            // Convert DTOs to entities
+            val entities = remoteRockets.map { it.toEntity() }
+            
+            // Use transactional "delete all and insert new" strategy
+            rocketDao.deleteAllRockets()
+            rocketDao.insertRockets(entities)
+            
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.error(e)
+        }
+    }
+    
+    /**
+     * Private method to refresh rockets from network without blocking the flow
+     */
+    private suspend fun refreshRocketsFromNetwork() {
+        try {
+            val remoteRockets = apiService.getRockets()
+            val entities = remoteRockets.map { it.toEntity() }
+            rocketDao.deleteAllRockets()
+            rocketDao.insertRockets(entities)
         } catch (e: Exception) {
             // Silently handle network errors - local data will still be emitted
             // The error will be handled by the UI layer if needed
