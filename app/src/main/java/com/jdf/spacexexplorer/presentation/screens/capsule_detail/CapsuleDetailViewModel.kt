@@ -27,7 +27,7 @@ class CapsuleDetailViewModel @Inject constructor(
 
     init {
         // Retrieve capsule ID from navigation arguments
-        val capsuleId = savedStateHandle["capsuleId"]
+        val capsuleId = savedStateHandle.get<String>("capsuleId")
         if (capsuleId != null) {
             loadCapsule(capsuleId)
         } else {
@@ -60,6 +60,15 @@ class CapsuleDetailViewModel @Inject constructor(
                         )
                     }
                 }
+                is Result.Loading -> {
+                    _state.update { 
+                        it.copy(
+                            isLoading = true,
+                            error = null
+                        )
+                    }
+                }
+
             }
         }
     }

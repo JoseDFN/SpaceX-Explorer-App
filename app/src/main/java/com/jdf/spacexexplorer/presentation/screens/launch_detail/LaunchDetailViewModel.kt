@@ -89,6 +89,7 @@ class LaunchDetailViewModel @Inject constructor(
                         )
                     }
                 }
+
             }
         }
     }
