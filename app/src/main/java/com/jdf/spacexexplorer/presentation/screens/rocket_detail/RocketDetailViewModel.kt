@@ -60,6 +60,14 @@ class RocketDetailViewModel @Inject constructor(
                         )
                     }
                 }
+                is Result.Loading -> {
+                    _state.update { 
+                        it.copy(
+                            isLoading = true,
+                            error = null
+                        )
+                    }
+                }
             }
         }
     }

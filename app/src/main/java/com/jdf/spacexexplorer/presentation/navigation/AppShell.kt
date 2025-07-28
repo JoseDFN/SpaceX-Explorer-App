@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.jdf.spacexexplorer.presentation.screens.home.HomeScreen
+import com.jdf.spacexexplorer.presentation.navigation.Screen
 
 /**
  * Main app shell with hamburger menu navigation drawer.
