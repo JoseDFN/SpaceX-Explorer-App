@@ -1,8 +1,14 @@
 package com.jdf.spacexexplorer.data.mappers
 
 import com.jdf.spacexexplorer.data.local.entity.LaunchEntity
+import com.jdf.spacexexplorer.data.local.entity.RocketEntity
+import com.jdf.spacexexplorer.data.local.entity.CapsuleEntity
 import com.jdf.spacexexplorer.data.remote.dto.LaunchDto
+import com.jdf.spacexexplorer.data.remote.dto.RocketDto
+import com.jdf.spacexexplorer.data.remote.dto.CapsuleDto
 import com.jdf.spacexexplorer.domain.model.Launch
+import com.jdf.spacexexplorer.domain.model.Rocket
+import com.jdf.spacexexplorer.domain.model.Capsule
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 
@@ -12,7 +18,7 @@ import com.squareup.moshi.Types
  */
 
 // ============================================================================
-// DTO to Entity Conversions
+// LAUNCH MAPPERS
 // ============================================================================
 
 /**
@@ -58,10 +64,6 @@ fun List<LaunchDto>.toEntities(): List<LaunchEntity> {
     return this.map { it.toEntity() }
 }
 
-// ============================================================================
-// Entity to Domain Conversions
-// ============================================================================
-
 /**
  * Convert LaunchEntity to Launch domain model
  */
@@ -89,10 +91,6 @@ fun LaunchEntity.toDomain(): Launch {
 fun List<LaunchEntity>.toDomains(): List<Launch> {
     return this.map { it.toDomain() }
 }
-
-// ============================================================================
-// DTO to Domain Conversions
-// ============================================================================
 
 /**
  * Convert LaunchDto to Launch domain model
@@ -123,7 +121,183 @@ fun List<LaunchDto>.toDomains(): List<Launch> {
 }
 
 // ============================================================================
-// Helper Functions for JSON Conversion
+// ROCKET MAPPERS
+// ============================================================================
+
+/**
+ * Convert RocketDto to RocketEntity for database storage
+ */
+fun RocketDto.toEntity(): RocketEntity {
+    return RocketEntity(
+        id = id,
+        name = name,
+        type = type,
+        description = description,
+        height = height?.meters,
+        mass = mass?.kg,
+        active = active,
+        stages = stages,
+        boosters = boosters,
+        costPerLaunch = costPerLaunch,
+        successRatePct = successRatePct,
+        firstFlight = firstFlight,
+        country = country,
+        company = company,
+        wikipediaUrl = wikipediaUrl,
+        flickrImages = flickrImages.toJsonString()
+    )
+}
+
+/**
+ * Convert list of RocketDto to list of RocketEntity
+ */
+fun List<RocketDto>.toEntities(): List<RocketEntity> {
+    return this.map { it.toEntity() }
+}
+
+/**
+ * Convert RocketEntity to Rocket domain model
+ */
+fun RocketEntity.toDomain(): Rocket {
+    return Rocket(
+        id = id,
+        name = name,
+        type = type,
+        description = description,
+        height = height,
+        mass = mass,
+        active = active,
+        stages = stages,
+        boosters = boosters,
+        costPerLaunch = costPerLaunch,
+        successRatePct = successRatePct,
+        firstFlight = firstFlight,
+        country = country,
+        company = company,
+        wikipediaUrl = wikipediaUrl,
+        flickrImages = flickrImages.fromJsonString()
+    )
+}
+
+/**
+ * Convert list of RocketEntity to list of Rocket domain models
+ */
+fun List<RocketEntity>.toDomains(): List<Rocket> {
+    return this.map { it.toDomain() }
+}
+
+/**
+ * Convert RocketDto to Rocket domain model
+ */
+fun RocketDto.toDomain(): Rocket {
+    return Rocket(
+        id = id,
+        name = name,
+        type = type,
+        description = description,
+        height = height?.meters,
+        mass = mass?.kg,
+        active = active,
+        stages = stages,
+        boosters = boosters,
+        costPerLaunch = costPerLaunch,
+        successRatePct = successRatePct,
+        firstFlight = firstFlight,
+        country = country,
+        company = company,
+        wikipediaUrl = wikipediaUrl,
+        flickrImages = flickrImages
+    )
+}
+
+/**
+ * Convert list of RocketDto to list of Rocket domain models
+ */
+fun List<RocketDto>.toDomains(): List<Rocket> {
+    return this.map { it.toDomain() }
+}
+
+// ============================================================================
+// CAPSULE MAPPERS
+// ============================================================================
+
+/**
+ * Convert CapsuleDto to CapsuleEntity for database storage
+ */
+fun CapsuleDto.toEntity(): CapsuleEntity {
+    return CapsuleEntity(
+        id = id,
+        serial = serial,
+        type = type,
+        status = status,
+        reuseCount = reuseCount,
+        waterLandings = waterLandings,
+        landLandings = landLandings,
+        lastUpdate = lastUpdate,
+        launches = launches.toJsonString(),
+        dragonType = dragonType
+    )
+}
+
+/**
+ * Convert list of CapsuleDto to list of CapsuleEntity
+ */
+fun List<CapsuleDto>.toEntities(): List<CapsuleEntity> {
+    return this.map { it.toEntity() }
+}
+
+/**
+ * Convert CapsuleEntity to Capsule domain model
+ */
+fun CapsuleEntity.toDomain(): Capsule {
+    return Capsule(
+        id = id,
+        serial = serial,
+        type = type,
+        status = status,
+        reuseCount = reuseCount,
+        waterLandings = waterLandings,
+        landLandings = landLandings,
+        lastUpdate = lastUpdate,
+        launches = launches.fromJsonString(),
+        dragonType = dragonType
+    )
+}
+
+/**
+ * Convert list of CapsuleEntity to list of Capsule domain models
+ */
+fun List<CapsuleEntity>.toDomains(): List<Capsule> {
+    return this.map { it.toDomain() }
+}
+
+/**
+ * Convert CapsuleDto to Capsule domain model
+ */
+fun CapsuleDto.toDomain(): Capsule {
+    return Capsule(
+        id = id,
+        serial = serial,
+        type = type,
+        status = status,
+        reuseCount = reuseCount,
+        waterLandings = waterLandings,
+        landLandings = landLandings,
+        lastUpdate = lastUpdate,
+        launches = launches,
+        dragonType = dragonType
+    )
+}
+
+/**
+ * Convert list of CapsuleDto to list of Capsule domain models
+ */
+fun List<CapsuleDto>.toDomains(): List<Capsule> {
+    return this.map { it.toDomain() }
+}
+
+// ============================================================================
+// HELPER FUNCTIONS FOR JSON CONVERSION
 // ============================================================================
 
 /**
@@ -135,6 +309,30 @@ private fun List<String>?.toJsonString(): String? {
         val type = Types.newParameterizedType(List::class.java, String::class.java)
         val adapter = moshi.adapter<List<String>>(type)
         adapter.toJson(list)
+    }
+}
+
+/**
+ * Convert List<String> to JSON string for database storage (non-null version)
+ */
+private fun List<String>.toJsonString(): String {
+    val moshi = Moshi.Builder().build()
+    val type = Types.newParameterizedType(List::class.java, String::class.java)
+    val adapter = moshi.adapter<List<String>>(type)
+    return adapter.toJson(this)
+}
+
+/**
+ * Convert JSON string back to List<String> for domain model
+ */
+private fun String.fromJsonString(): List<String> {
+    return try {
+        val moshi = Moshi.Builder().build()
+        val type = Types.newParameterizedType(List::class.java, String::class.java)
+        val adapter = moshi.adapter<List<String>>(type)
+        adapter.fromJson(this) ?: emptyList()
+    } catch (e: Exception) {
+        emptyList()
     }
 }
 
