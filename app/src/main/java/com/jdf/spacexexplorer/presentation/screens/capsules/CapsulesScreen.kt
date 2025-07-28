@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.jdf.spacexexplorer.presentation.components.*
+import com.jdf.spacexexplorer.presentation.navigation.Screen
 
 /**
  * Main screen composable for displaying the capsules list.
@@ -87,7 +88,7 @@ fun CapsulesScreen(
                         CapsuleCard(
                             capsule = capsule,
                             onClick = {
-                                viewModel.onEvent(CapsulesEvent.CapsuleClicked(capsule))
+                                navController.navigate(Screen.CapsuleDetail.createRoute(capsule.id))
                             }
                         )
                     }
