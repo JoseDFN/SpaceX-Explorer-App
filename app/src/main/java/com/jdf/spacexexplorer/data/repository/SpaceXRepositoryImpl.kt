@@ -45,7 +45,7 @@ class SpaceXRepositoryImpl @Inject constructor(
                 Result.success(launches)
             }
             .catch { e ->
-                emit(Result.error(e))
+                emit(Result.error(Exception(e)))
             }
     }
     
@@ -60,7 +60,7 @@ class SpaceXRepositoryImpl @Inject constructor(
                 Result.success(launches)
             }
             .catch { e ->
-                emit(Result.error(e))
+                emit(Result.error(Exception(e)))
             }
     }
     
@@ -71,7 +71,7 @@ class SpaceXRepositoryImpl @Inject constructor(
                 Result.success(launches)
             }
             .catch { e ->
-                emit(Result.error(e))
+                emit(Result.error(Exception(e)))
             }
     }
     
@@ -99,7 +99,7 @@ class SpaceXRepositoryImpl @Inject constructor(
                 Result.success(launches)
             }
             .catch { e ->
-                emit(Result.error(e))
+                emit(Result.error(Exception(e)))
             }
     }
     
@@ -178,7 +178,7 @@ class SpaceXRepositoryImpl @Inject constructor(
                 Result.success(rockets)
             }
             .catch { e ->
-                emit(Result.error(e))
+                emit(Result.error(Exception(e)))
             }
     }
     
@@ -243,7 +243,7 @@ class SpaceXRepositoryImpl @Inject constructor(
                 Result.success(capsules)
             }
             .catch { e ->
-                emit(Result.error(e))
+                emit(Result.error(Exception(e)))
             }
     }
     
