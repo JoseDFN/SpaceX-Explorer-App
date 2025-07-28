@@ -12,6 +12,8 @@ import com.jdf.spacexexplorer.presentation.screens.launches.LaunchesScreen
 import com.jdf.spacexexplorer.presentation.screens.launch_detail.LaunchDetailScreen
 import com.jdf.spacexexplorer.presentation.screens.rockets.RocketsScreen
 import com.jdf.spacexexplorer.presentation.screens.rocket_detail.RocketDetailScreen
+import com.jdf.spacexexplorer.presentation.screens.capsules.CapsulesScreen
+import com.jdf.spacexexplorer.presentation.screens.capsule_detail.CapsuleDetailScreen
 
 @Composable
 fun SetupNavGraph(
@@ -35,6 +37,10 @@ fun SetupNavGraph(
             RocketsScreen(navController = navController)
         }
         
+        composable(route = Screen.Capsules.route) {
+            CapsulesScreen(navController = navController)
+        }
+        
         composable(
             route = Screen.LaunchDetail.route,
             arguments = listOf(
@@ -55,6 +61,17 @@ fun SetupNavGraph(
             )
         ) { navBackStackEntry ->
             RocketDetailScreen(navController = navController)
+        }
+        
+        composable(
+            route = Screen.CapsuleDetail.route,
+            arguments = listOf(
+                navArgument("capsuleId") {
+                    type = NavType.StringType
+                }
+            )
+        ) { navBackStackEntry ->
+            CapsuleDetailScreen(navController = navController)
         }
         
         // Add more composable destinations as needed
