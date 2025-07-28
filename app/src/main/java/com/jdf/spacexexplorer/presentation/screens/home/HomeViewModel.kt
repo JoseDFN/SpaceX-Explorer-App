@@ -105,6 +105,7 @@ class HomeViewModel @Inject constructor(
                             )
                         }
                     }
+
                 }
             }
         }
@@ -144,6 +145,7 @@ class HomeViewModel @Inject constructor(
                             )
                         }
                     }
+
                 }
             }
         }
@@ -183,6 +185,7 @@ class HomeViewModel @Inject constructor(
                             )
                         }
                     }
+
                 }
             }
         }
@@ -219,9 +222,7 @@ class HomeViewModel @Inject constructor(
                         )
                     }
                 }
-                else -> {
-                    _state.update { it.copy(isRefreshing = false) }
-                }
+
             }
         }
     }

@@ -128,7 +128,7 @@ fun AppShell(
                 Spacer(modifier = Modifier.weight(1f))
                 
                 // Footer
-                Divider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
                 Text(
                     text = "Version 1.0",
                     style = MaterialTheme.typography.bodySmall,

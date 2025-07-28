@@ -48,7 +48,7 @@ fun SetupNavGraph(
                     type = NavType.StringType
                 }
             )
-        ) { navBackStackEntry ->
+        ) { _ ->
             LaunchDetailScreen()
         }
         
@@ -59,7 +59,7 @@ fun SetupNavGraph(
                     type = NavType.StringType
                 }
             )
-        ) { navBackStackEntry ->
+        ) { _ ->
             RocketDetailScreen(navController = navController)
         }
         
@@ -70,7 +70,7 @@ fun SetupNavGraph(
                     type = NavType.StringType
                 }
             )
-        ) { navBackStackEntry ->
+        ) { _ ->
             CapsuleDetailScreen(navController = navController)
         }
         

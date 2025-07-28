@@ -91,6 +91,7 @@ class RocketsViewModel @Inject constructor(
                             )
                         }
                     }
+
                 }
             }
         }
@@ -121,6 +122,7 @@ class RocketsViewModel @Inject constructor(
                     // This shouldn't happen for refresh, but handle it gracefully
                     _state.update { it.copy(isRefreshing = false) }
                 }
+
             }
         }
     }

@@ -27,7 +27,7 @@ class RocketDetailViewModel @Inject constructor(
 
     init {
         // Retrieve rocket ID from navigation arguments
-        val rocketId = savedStateHandle["rocketId"]
+        val rocketId = savedStateHandle.get<String>("rocketId")
         if (rocketId != null) {
             loadRocket(rocketId)
         } else {
@@ -68,6 +68,7 @@ class RocketDetailViewModel @Inject constructor(
                         )
                     }
                 }
+
             }
         }
     }

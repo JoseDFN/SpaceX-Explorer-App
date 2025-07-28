@@ -49,18 +49,18 @@ fun LaunchDto.toEntity(): LaunchEntity {
         net = net,
         window = window,
         launchpad = launchpad,
-        crew = crew?.toJsonString(),
-        ships = ships?.toJsonString(),
-        capsules = capsules?.toJsonString(),
-        payloads = payloads?.toJsonString(),
-        failures = failures?.toJsonString()
+        crew = crew?.toNullableStringJson(),
+        ships = ships?.toNullableStringJson(),
+        capsules = capsules?.toNullableStringJson(),
+        payloads = payloads?.toNullableStringJson(),
+        failures = failures?.toFailureDtoJson()
     )
 }
 
 /**
  * Convert list of LaunchDto to list of LaunchEntity
  */
-fun List<LaunchDto>.toEntities(): List<LaunchEntity> {
+fun List<LaunchDto>.toLaunchEntities(): List<LaunchEntity> {
     return this.map { it.toEntity() }
 }
 
@@ -88,7 +88,7 @@ fun LaunchEntity.toDomain(): Launch {
 /**
  * Convert list of LaunchEntity to list of Launch domain models
  */
-fun List<LaunchEntity>.toDomains(): List<Launch> {
+fun List<LaunchEntity>.toLaunchDomainsFromEntity(): List<Launch> {
     return this.map { it.toDomain() }
 }
 
@@ -116,7 +116,7 @@ fun LaunchDto.toDomain(): Launch {
 /**
  * Convert list of LaunchDto to list of Launch domain models
  */
-fun List<LaunchDto>.toDomains(): List<Launch> {
+fun List<LaunchDto>.toLaunchDomainsFromDto(): List<Launch> {
     return this.map { it.toDomain() }
 }
 
@@ -144,14 +144,14 @@ fun RocketDto.toEntity(): RocketEntity {
         country = country,
         company = company,
         wikipediaUrl = wikipediaUrl,
-        flickrImages = flickrImages.toJsonString()
+        flickrImages = flickrImages.toStringJson()
     )
 }
 
 /**
  * Convert list of RocketDto to list of RocketEntity
  */
-fun List<RocketDto>.toEntities(): List<RocketEntity> {
+fun List<RocketDto>.toRocketEntities(): List<RocketEntity> {
     return this.map { it.toEntity() }
 }
 
@@ -182,7 +182,7 @@ fun RocketEntity.toDomain(): Rocket {
 /**
  * Convert list of RocketEntity to list of Rocket domain models
  */
-fun List<RocketEntity>.toDomains(): List<Rocket> {
+fun List<RocketEntity>.toRocketDomainsFromEntity(): List<Rocket> {
     return this.map { it.toDomain() }
 }
 
@@ -213,7 +213,7 @@ fun RocketDto.toDomain(): Rocket {
 /**
  * Convert list of RocketDto to list of Rocket domain models
  */
-fun List<RocketDto>.toDomains(): List<Rocket> {
+fun List<RocketDto>.toRocketDomainsFromDto(): List<Rocket> {
     return this.map { it.toDomain() }
 }
 
@@ -234,7 +234,7 @@ fun CapsuleDto.toEntity(): CapsuleEntity {
         waterLandings = waterLandings,
         landLandings = landLandings,
         lastUpdate = lastUpdate,
-        launches = launches.toJsonString(),
+        launches = launches.toStringJson(),
         dragonType = dragonType
     )
 }
@@ -242,7 +242,7 @@ fun CapsuleDto.toEntity(): CapsuleEntity {
 /**
  * Convert list of CapsuleDto to list of CapsuleEntity
  */
-fun List<CapsuleDto>.toEntities(): List<CapsuleEntity> {
+fun List<CapsuleDto>.toCapsuleEntities(): List<CapsuleEntity> {
     return this.map { it.toEntity() }
 }
 
@@ -267,7 +267,7 @@ fun CapsuleEntity.toDomain(): Capsule {
 /**
  * Convert list of CapsuleEntity to list of Capsule domain models
  */
-fun List<CapsuleEntity>.toDomains(): List<Capsule> {
+fun List<CapsuleEntity>.toCapsuleDomainsFromEntity(): List<Capsule> {
     return this.map { it.toDomain() }
 }
 
@@ -292,7 +292,7 @@ fun CapsuleDto.toDomain(): Capsule {
 /**
  * Convert list of CapsuleDto to list of Capsule domain models
  */
-fun List<CapsuleDto>.toDomains(): List<Capsule> {
+fun List<CapsuleDto>.toCapsuleDomainsFromDto(): List<Capsule> {
     return this.map { it.toDomain() }
 }
 
@@ -303,7 +303,7 @@ fun List<CapsuleDto>.toDomains(): List<Capsule> {
 /**
  * Convert List<String> to JSON string for database storage
  */
-private fun List<String>?.toJsonString(): String? {
+private fun List<String>?.toNullableStringJson(): String? {
     return this?.let { list ->
         val moshi = Moshi.Builder().build()
         val type = Types.newParameterizedType(List::class.java, String::class.java)
@@ -315,7 +315,7 @@ private fun List<String>?.toJsonString(): String? {
 /**
  * Convert List<String> to JSON string for database storage (non-null version)
  */
-private fun List<String>.toJsonString(): String {
+private fun List<String>.toStringJson(): String {
     val moshi = Moshi.Builder().build()
     val type = Types.newParameterizedType(List::class.java, String::class.java)
     val adapter = moshi.adapter<List<String>>(type)
@@ -339,7 +339,7 @@ private fun String.fromJsonString(): List<String> {
 /**
  * Convert List<FailureDto> to JSON string for database storage
  */
-private fun List<com.jdf.spacexexplorer.data.remote.dto.FailureDto>?.toJsonString(): String? {
+private fun List<com.jdf.spacexexplorer.data.remote.dto.FailureDto>?.toFailureDtoJson(): String? {
     return this?.let { list ->
         val moshi = Moshi.Builder().build()
         val type = Types.newParameterizedType(List::class.java, com.jdf.spacexexplorer.data.remote.dto.FailureDto::class.java)
