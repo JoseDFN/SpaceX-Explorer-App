@@ -104,7 +104,7 @@ fun HomeScreen(
             }
         }
     }
-}
+
 
 /**
  * Header component for each section with title, loading state, and error handling

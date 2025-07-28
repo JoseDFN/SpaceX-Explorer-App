@@ -185,12 +185,21 @@ fun RocketDetailScreen(
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
-                                
+
                                 InfoRow("Stages", rocket.stages.toString())
                                 InfoRow("Boosters", rocket.boosters.toString())
                                 rocket.height?.let { InfoRow("Height", "${it}m") }
-                                rocket.mass?.let { InfoRow("Mass", "${it}kg") }
-                                rocket.costPerLaunch?.let { InfoRow("Cost per Launch", "$${it:,}") }
+
+                                // Corrected formatting for mass with explicit Locale
+                                rocket.mass?.let { mass ->
+                                    InfoRow("Mass", "${String.format(java.util.Locale.US, "%,d", mass)}kg")
+                                }
+
+                                // Corrected formatting for cost with explicit Locale
+                                rocket.costPerLaunch?.let { cost ->
+                                    InfoRow("Cost per Launch", "$${String.format(java.util.Locale.US, "%,d", cost)}")
+                                }
+
                                 rocket.successRatePct?.let { InfoRow("Success Rate", "${it}%") }
                             }
                         }
