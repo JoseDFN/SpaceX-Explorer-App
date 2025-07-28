@@ -56,7 +56,7 @@ class CapsuleDetailViewModel @Inject constructor(
                     _state.update { 
                         it.copy(
                             isLoading = false,
-                            error = result.message ?: "Failed to load capsule details"
+                            error = result.exception.message ?: "Failed to load capsule details"
                         )
                     }
                 }

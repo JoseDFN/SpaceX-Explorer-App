@@ -55,7 +55,7 @@ fun CapsuleCard(
                 val statusColor = when (capsule.status.lowercase()) {
                     "active" -> Color.Green
                     "unknown" -> Color.Gray
-                    else -> Color.Orange
+                    else -> MaterialTheme.colorScheme.primary
                 }
                 
                 Text(

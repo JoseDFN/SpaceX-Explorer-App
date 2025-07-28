@@ -71,13 +71,13 @@ private fun LaunchDetailContent(
                 ) {
                     val statusColor = when {
                         launch.isUpcoming -> MaterialTheme.colorScheme.primary
-                        launch.wasSuccessful -> MaterialTheme.colorScheme.tertiary
+                        launch.wasSuccessful == true -> MaterialTheme.colorScheme.tertiary
                         else -> MaterialTheme.colorScheme.error
                     }
                     
                     val statusText = when {
                         launch.isUpcoming -> "Upcoming"
-                        launch.wasSuccessful -> "Successful"
+                        launch.wasSuccessful == true -> "Successful"
                         else -> "Failed"
                     }
                     
