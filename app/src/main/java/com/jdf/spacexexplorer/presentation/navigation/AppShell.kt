@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.jdf.spacexexplorer.presentation.screens.home.HomeScreen
+import com.jdf.spacexexplorer.presentation.navigation.Screen
 
 /**
  * Main app shell with hamburger menu navigation drawer.
@@ -127,7 +128,7 @@ fun AppShell(
                 Spacer(modifier = Modifier.weight(1f))
                 
                 // Footer
-                Divider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
                 Text(
                     text = "Version 1.0",
                     style = MaterialTheme.typography.bodySmall,

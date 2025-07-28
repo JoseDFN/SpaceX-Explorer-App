@@ -47,7 +47,6 @@ fun HomeScreen(
             item {
                 SectionHeader(
                     title = "Latest Launches",
-                    isLoading = state.isLatestLaunchesLoading,
                     error = state.latestLaunchesError,
                     onRetry = { viewModel.onEvent(HomeEvent.Retry) }
                 )
@@ -67,7 +66,6 @@ fun HomeScreen(
             item {
                 SectionHeader(
                     title = "Upcoming Launches",
-                    isLoading = state.isUpcomingLaunchesLoading,
                     error = state.upcomingLaunchesError,
                     onRetry = { viewModel.onEvent(HomeEvent.Retry) }
                 )
@@ -87,7 +85,6 @@ fun HomeScreen(
             item {
                 SectionHeader(
                     title = "Rockets",
-                    isLoading = state.isRocketsLoading,
                     error = state.rocketsError,
                     onRetry = { viewModel.onEvent(HomeEvent.Retry) }
                 )
@@ -104,7 +101,7 @@ fun HomeScreen(
             }
         }
     }
-}
+
 
 /**
  * Header component for each section with title, loading state, and error handling
@@ -112,7 +109,6 @@ fun HomeScreen(
 @Composable
 private fun SectionHeader(
     title: String,
-    isLoading: Boolean,
     error: String?,
     onRetry: () -> Unit
 ) {

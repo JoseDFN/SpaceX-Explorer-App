@@ -27,7 +27,7 @@ class RocketDetailViewModel @Inject constructor(
 
     init {
         // Retrieve rocket ID from navigation arguments
-        val rocketId = savedStateHandle["rocketId"]
+        val rocketId = savedStateHandle.get<String>("rocketId")
         if (rocketId != null) {
             loadRocket(rocketId)
         } else {
@@ -56,10 +56,19 @@ class RocketDetailViewModel @Inject constructor(
                     _state.update { 
                         it.copy(
                             isLoading = false,
-                            error = result.message ?: "Failed to load rocket details"
+                            error = result.exception.message ?: "Failed to load rocket details"
                         )
                     }
                 }
+                is Result.Loading -> {
+                    _state.update { 
+                        it.copy(
+                            isLoading = true,
+                            error = null
+                        )
+                    }
+                }
+
             }
         }
     }

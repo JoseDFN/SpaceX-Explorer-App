@@ -1,18 +1,35 @@
 package com.jdf.spacexexplorer.presentation.screens.capsule_detail
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -45,7 +62,7 @@ fun CapsuleDetailScreen(
                 navigationIcon = {
                     IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back"
                         )
                     }
@@ -149,9 +166,9 @@ fun CapsuleDetailScreen(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    StatCard("Reuses", capsule.reuseCount.toString(), Color.Blue)
-                                    StatCard("Water Landings", capsule.waterLandings.toString(), Color.Cyan)
-                                    StatCard("Land Landings", capsule.landLandings.toString(), Color.Green)
+                                    StatCard("Reuses", capsule.reuseCount.toString(), Color.Blue, Modifier.weight(1f))
+                                    StatCard("Water Landings", capsule.waterLandings.toString(), Color.Cyan, Modifier.weight(1f))
+                                    StatCard("Land Landings", capsule.landLandings.toString(), Color.Green, Modifier.weight(1f))
                                 }
                             }
                         }
@@ -235,7 +252,7 @@ fun CapsuleDetailScreen(
                                 val statusColor = when (capsule.status.lowercase()) {
                                     "active" -> Color.Green
                                     "unknown" -> Color.Gray
-                                    else -> Color.Orange
+                                    else -> MaterialTheme.colorScheme.primary
                                 }
                                 
                                 Row(
@@ -304,7 +321,6 @@ private fun StatCard(
 ) {
     Card(
         modifier = modifier
-            .weight(1f)
             .height(80.dp),
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
