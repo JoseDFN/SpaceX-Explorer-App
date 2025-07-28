@@ -12,6 +12,7 @@ import com.jdf.spacexexplorer.presentation.screens.launches.LaunchesScreen
 import com.jdf.spacexexplorer.presentation.screens.launch_detail.LaunchDetailScreen
 import com.jdf.spacexexplorer.presentation.screens.rockets.RocketsScreen
 import com.jdf.spacexexplorer.presentation.screens.rocket_detail.RocketDetailScreen
+import com.jdf.spacexexplorer.presentation.screens.capsules.CapsulesScreen
 
 @Composable
 fun SetupNavGraph(
@@ -33,6 +34,10 @@ fun SetupNavGraph(
         
         composable(route = Screen.Rockets.route) {
             RocketsScreen(navController = navController)
+        }
+        
+        composable(route = Screen.Capsules.route) {
+            CapsulesScreen(navController = navController)
         }
         
         composable(
