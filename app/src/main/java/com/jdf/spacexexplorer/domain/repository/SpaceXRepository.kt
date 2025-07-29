@@ -3,6 +3,7 @@ package com.jdf.spacexexplorer.domain.repository
 import com.jdf.spacexexplorer.domain.model.Launch
 import com.jdf.spacexexplorer.domain.model.Rocket
 import com.jdf.spacexexplorer.domain.model.Capsule
+import com.jdf.spacexexplorer.domain.model.Core
 import com.jdf.spacexexplorer.domain.model.Result
 import kotlinx.coroutines.flow.Flow
 
@@ -76,4 +77,19 @@ interface SpaceXRepository {
      * Refresh capsules from the remote API
      */
     suspend fun refreshCapsules(): Result<Unit>
+    
+    /**
+     * Get all cores as a Flow for reactive updates with Result wrapper
+     */
+    fun getCores(): Flow<Result<List<Core>>>
+    
+    /**
+     * Get a specific core by ID with Result wrapper
+     */
+    suspend fun getCoreById(id: String): Result<Core>
+    
+    /**
+     * Refresh cores from the remote API
+     */
+    suspend fun refreshCores(): Result<Unit>
 } 
