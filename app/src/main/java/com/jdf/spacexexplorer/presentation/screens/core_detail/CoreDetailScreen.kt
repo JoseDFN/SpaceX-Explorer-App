@@ -166,8 +166,8 @@ fun CoreDetailScreen(
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
                                     StatCard("Reuses", core.reuseCount.toString(), Color.Blue, Modifier.weight(1f))
-                                    StatCard("RTLS Attempts", core.rtlsAttempts.toString(), Color.Orange, Modifier.weight(1f))
-                                    StatCard("ASDS Attempts", core.asdsAttempts.toString(), Color.Purple, Modifier.weight(1f))
+                                    StatCard("RTLS Attempts", core.rtlsAttempts.toString(), Color(0xFFFF9800), Modifier.weight(1f))
+                                    StatCard("ASDS Attempts", core.asdsAttempts.toString(), Color(0xFF9C27B0), Modifier.weight(1f))
                                 }
                             }
                         }

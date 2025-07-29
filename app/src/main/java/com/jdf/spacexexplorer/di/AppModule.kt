@@ -74,7 +74,9 @@ object AppModule {
             context,
             AppDatabase::class.java,
             "spacex_explorer_db"
-        ).build()
+        )
+        .fallbackToDestructiveMigration()
+        .build()
     }
 
     @Provides

@@ -9,7 +9,7 @@ import com.jdf.spacexexplorer.data.local.entity.CoreEntity
 
 @Database(
     entities = [LaunchEntity::class, RocketEntity::class, CapsuleEntity::class, CoreEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
