@@ -125,6 +125,25 @@ fun AppShell(
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
                 
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.Rocket, contentDescription = null) },
+                    label = { Text("Cores") },
+                    selected = navController.currentDestination?.route == Screen.Cores.route,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                        }
+                        navController.navigate(Screen.Cores.route) {
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+                
                 Spacer(modifier = Modifier.weight(1f))
                 
                 // Footer
@@ -201,6 +220,7 @@ private fun getScreenTitle(route: String?): String {
         Screen.Launches.route -> "Launches"
         Screen.Rockets.route -> "Rockets"
         Screen.Capsules.route -> "Capsules"
+        Screen.Cores.route -> "Cores"
         Screen.LaunchDetail.route -> "Launch Details"
         Screen.RocketDetail.route -> "Rocket Details"
         Screen.CapsuleDetail.route -> "Capsule Details"
