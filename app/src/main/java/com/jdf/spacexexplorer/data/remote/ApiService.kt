@@ -3,6 +3,7 @@ package com.jdf.spacexexplorer.data.remote
 import com.jdf.spacexexplorer.data.remote.dto.LaunchDto
 import com.jdf.spacexexplorer.data.remote.dto.RocketDto
 import com.jdf.spacexexplorer.data.remote.dto.CapsuleDto
+import com.jdf.spacexexplorer.data.remote.dto.CoreDto
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -71,4 +72,16 @@ interface ApiService {
      */
     @GET("capsules/{id}")
     suspend fun getCapsuleById(@Path("id") id: String): CapsuleDto
+    
+    /**
+     * Get all cores
+     */
+    @GET("cores")
+    suspend fun getCores(): List<CoreDto>
+    
+    /**
+     * Get a specific core by ID
+     */
+    @GET("cores/{id}")
+    suspend fun getCoreById(@Path("id") id: String): CoreDto
 } 

@@ -5,6 +5,7 @@ sealed class Screen(val route: String) {
     object Launches : Screen("launches_screen")
     object Rockets : Screen("rockets_screen")
     object Capsules : Screen("capsules_screen")
+    object Cores : Screen("cores_screen")
     object LaunchDetail : Screen("launch_detail_screen/{launchId}") {
         fun createRoute(launchId: String) = "launch_detail_screen/$launchId"
     }
@@ -13,6 +14,9 @@ sealed class Screen(val route: String) {
     }
     object CapsuleDetail : Screen("capsule_detail_screen/{capsuleId}") {
         fun createRoute(capsuleId: String) = "capsule_detail_screen/$capsuleId"
+    }
+    object CoreDetail : Screen("core_detail_screen/{coreId}") {
+        fun createRoute(coreId: String) = "core_detail_screen/$coreId"
     }
     // Add more screens as needed
 } 

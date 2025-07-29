@@ -3,12 +3,15 @@ package com.jdf.spacexexplorer.data.mappers
 import com.jdf.spacexexplorer.data.local.entity.LaunchEntity
 import com.jdf.spacexexplorer.data.local.entity.RocketEntity
 import com.jdf.spacexexplorer.data.local.entity.CapsuleEntity
+import com.jdf.spacexexplorer.data.local.entity.CoreEntity
 import com.jdf.spacexexplorer.data.remote.dto.LaunchDto
 import com.jdf.spacexexplorer.data.remote.dto.RocketDto
 import com.jdf.spacexexplorer.data.remote.dto.CapsuleDto
+import com.jdf.spacexexplorer.data.remote.dto.CoreDto
 import com.jdf.spacexexplorer.domain.model.Launch
 import com.jdf.spacexexplorer.domain.model.Rocket
 import com.jdf.spacexexplorer.domain.model.Capsule
+import com.jdf.spacexexplorer.domain.model.Core
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 
@@ -293,6 +296,88 @@ fun CapsuleDto.toDomain(): Capsule {
  * Convert list of CapsuleDto to list of Capsule domain models
  */
 fun List<CapsuleDto>.toCapsuleDomainsFromDto(): List<Capsule> {
+    return this.map { it.toDomain() }
+}
+
+// ============================================================================
+// CORE MAPPERS
+// ============================================================================
+
+/**
+ * Convert CoreDto to CoreEntity for database storage
+ */
+fun CoreDto.toEntity(): CoreEntity {
+    return CoreEntity(
+        id = id,
+        serial = serial,
+        block = block,
+        status = status,
+        reuseCount = reuseCount,
+        rtlsAttempts = rtlsAttempts,
+        rtlsLandings = rtlsLandings,
+        asdsAttempts = asdsAttempts,
+        asdsLandings = asdsLandings,
+        lastUpdate = lastUpdate,
+        launches = launches.toStringJson()
+    )
+}
+
+/**
+ * Convert list of CoreDto to list of CoreEntity
+ */
+fun List<CoreDto>.toCoreEntities(): List<CoreEntity> {
+    return this.map { it.toEntity() }
+}
+
+/**
+ * Convert CoreEntity to Core domain model
+ */
+fun CoreEntity.toDomain(): Core {
+    return Core(
+        id = id,
+        serial = serial,
+        block = block,
+        status = status,
+        reuseCount = reuseCount,
+        rtlsAttempts = rtlsAttempts,
+        rtlsLandings = rtlsLandings,
+        asdsAttempts = asdsAttempts,
+        asdsLandings = asdsLandings,
+        lastUpdate = lastUpdate,
+        launches = launches.fromJsonString()
+    )
+}
+
+/**
+ * Convert list of CoreEntity to list of Core domain models
+ */
+fun List<CoreEntity>.toCoreDomainsFromEntity(): List<Core> {
+    return this.map { it.toDomain() }
+}
+
+/**
+ * Convert CoreDto to Core domain model
+ */
+fun CoreDto.toDomain(): Core {
+    return Core(
+        id = id,
+        serial = serial,
+        block = block,
+        status = status,
+        reuseCount = reuseCount,
+        rtlsAttempts = rtlsAttempts,
+        rtlsLandings = rtlsLandings,
+        asdsAttempts = asdsAttempts,
+        asdsLandings = asdsLandings,
+        lastUpdate = lastUpdate,
+        launches = launches
+    )
+}
+
+/**
+ * Convert list of CoreDto to list of Core domain models
+ */
+fun List<CoreDto>.toCoreDomainsFromDto(): List<Core> {
     return this.map { it.toDomain() }
 }
 

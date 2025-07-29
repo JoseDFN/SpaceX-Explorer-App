@@ -6,6 +6,7 @@ import com.jdf.spacexexplorer.data.local.AppDatabase
 import com.jdf.spacexexplorer.data.local.LaunchDao
 import com.jdf.spacexexplorer.data.local.RocketDao
 import com.jdf.spacexexplorer.data.local.CapsuleDao
+import com.jdf.spacexexplorer.data.local.CoreDao
 import com.jdf.spacexexplorer.data.remote.ApiService
 import com.jdf.spacexexplorer.data.repository.SpaceXRepositoryImpl
 import com.jdf.spacexexplorer.domain.repository.SpaceXRepository
@@ -73,7 +74,9 @@ object AppModule {
             context,
             AppDatabase::class.java,
             "spacex_explorer_db"
-        ).build()
+        )
+        .fallbackToDestructiveMigration()
+        .build()
     }
 
     @Provides
@@ -96,12 +99,19 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideCoreDao(database: AppDatabase): CoreDao {
+        return database.coreDao()
+    }
+
+    @Provides
+    @Singleton
     fun provideSpaceXRepository(
         apiService: ApiService,
         launchDao: LaunchDao,
         rocketDao: RocketDao,
-        capsuleDao: CapsuleDao
+        capsuleDao: CapsuleDao,
+        coreDao: CoreDao
     ): SpaceXRepository {
-        return SpaceXRepositoryImpl(apiService, launchDao, rocketDao, capsuleDao)
+        return SpaceXRepositoryImpl(apiService, launchDao, rocketDao, capsuleDao, coreDao)
     }
 } 
