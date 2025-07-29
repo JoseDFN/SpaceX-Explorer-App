@@ -88,8 +88,7 @@ fun CoresScreen(
                         CoreCard(
                             core = core,
                             onClick = {
-                                // TODO: Navigate to core detail screen when implemented
-                                // navController.navigate(Screen.CoreDetail.createRoute(core.id))
+                                navController.navigate(Screen.CoreDetail.createRoute(core.id))
                             }
                         )
                     }

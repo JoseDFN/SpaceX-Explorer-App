@@ -15,5 +15,8 @@ sealed class Screen(val route: String) {
     object CapsuleDetail : Screen("capsule_detail_screen/{capsuleId}") {
         fun createRoute(capsuleId: String) = "capsule_detail_screen/$capsuleId"
     }
+    object CoreDetail : Screen("core_detail_screen/{coreId}") {
+        fun createRoute(coreId: String) = "core_detail_screen/$coreId"
+    }
     // Add more screens as needed
 } 

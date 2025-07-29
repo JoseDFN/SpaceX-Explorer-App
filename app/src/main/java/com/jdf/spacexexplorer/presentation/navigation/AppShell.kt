@@ -224,6 +224,7 @@ private fun getScreenTitle(route: String?): String {
         Screen.LaunchDetail.route -> "Launch Details"
         Screen.RocketDetail.route -> "Rocket Details"
         Screen.CapsuleDetail.route -> "Capsule Details"
+        Screen.CoreDetail.route -> "Core Details"
         else -> "SpaceX Explorer"
     }
 } 
