@@ -4,6 +4,7 @@ import com.jdf.spacexexplorer.domain.model.Launch
 import com.jdf.spacexexplorer.domain.model.Rocket
 import com.jdf.spacexexplorer.domain.model.Capsule
 import com.jdf.spacexexplorer.domain.model.Core
+import com.jdf.spacexexplorer.domain.model.CrewMember
 import com.jdf.spacexexplorer.domain.model.Result
 import kotlinx.coroutines.flow.Flow
 
@@ -92,4 +93,19 @@ interface SpaceXRepository {
      * Refresh cores from the remote API
      */
     suspend fun refreshCores(): Result<Unit>
+    
+    /**
+     * Get all crew members as a Flow for reactive updates with Result wrapper
+     */
+    fun getCrew(): Flow<Result<List<CrewMember>>>
+    
+    /**
+     * Get a specific crew member by ID with Result wrapper
+     */
+    suspend fun getCrewById(id: String): Result<CrewMember>
+    
+    /**
+     * Refresh crew members from the remote API
+     */
+    suspend fun refreshCrew(): Result<Unit>
 } 
