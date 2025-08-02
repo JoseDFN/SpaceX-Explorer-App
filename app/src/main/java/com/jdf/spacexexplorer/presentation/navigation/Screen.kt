@@ -18,5 +18,9 @@ sealed class Screen(val route: String) {
     object CoreDetail : Screen("core_detail_screen/{coreId}") {
         fun createRoute(coreId: String) = "core_detail_screen/$coreId"
     }
+    object Crew : Screen("crew_screen")
+    object CrewDetail : Screen("crew_detail_screen/{crewId}") {
+        fun createRoute(crewId: String) = "crew_detail_screen/$crewId"
+    }
     // Add more screens as needed
 } 

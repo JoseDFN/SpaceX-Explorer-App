@@ -6,10 +6,11 @@ import com.jdf.spacexexplorer.data.local.entity.LaunchEntity
 import com.jdf.spacexexplorer.data.local.entity.RocketEntity
 import com.jdf.spacexexplorer.data.local.entity.CapsuleEntity
 import com.jdf.spacexexplorer.data.local.entity.CoreEntity
+import com.jdf.spacexexplorer.data.local.entity.CrewEntity
 
 @Database(
-    entities = [LaunchEntity::class, RocketEntity::class, CapsuleEntity::class, CoreEntity::class],
-    version = 2,
+    entities = [LaunchEntity::class, RocketEntity::class, CapsuleEntity::class, CoreEntity::class, CrewEntity::class],
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -17,4 +18,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun rocketDao(): RocketDao
     abstract fun capsuleDao(): CapsuleDao
     abstract fun coreDao(): CoreDao
+    abstract fun crewDao(): CrewDao
 } 

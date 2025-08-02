@@ -4,14 +4,17 @@ import com.jdf.spacexexplorer.data.local.entity.LaunchEntity
 import com.jdf.spacexexplorer.data.local.entity.RocketEntity
 import com.jdf.spacexexplorer.data.local.entity.CapsuleEntity
 import com.jdf.spacexexplorer.data.local.entity.CoreEntity
+import com.jdf.spacexexplorer.data.local.entity.CrewEntity
 import com.jdf.spacexexplorer.data.remote.dto.LaunchDto
 import com.jdf.spacexexplorer.data.remote.dto.RocketDto
 import com.jdf.spacexexplorer.data.remote.dto.CapsuleDto
 import com.jdf.spacexexplorer.data.remote.dto.CoreDto
+import com.jdf.spacexexplorer.data.remote.dto.CrewDto
 import com.jdf.spacexexplorer.domain.model.Launch
 import com.jdf.spacexexplorer.domain.model.Rocket
 import com.jdf.spacexexplorer.domain.model.Capsule
 import com.jdf.spacexexplorer.domain.model.Core
+import com.jdf.spacexexplorer.domain.model.CrewMember
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 
@@ -431,4 +434,74 @@ private fun List<com.jdf.spacexexplorer.data.remote.dto.FailureDto>?.toFailureDt
         val adapter = moshi.adapter<List<com.jdf.spacexexplorer.data.remote.dto.FailureDto>>(type)
         adapter.toJson(list)
     }
+}
+
+// ============================================================================
+// CREW MAPPERS
+// ============================================================================
+
+/**
+ * Convert CrewDto to CrewEntity for database storage
+ */
+fun CrewDto.toEntity(): CrewEntity {
+    return CrewEntity(
+        id = id,
+        name = name,
+        agency = agency,
+        image = image,
+        wikipedia = wikipedia,
+        launches = launches.toStringJson(),
+        status = status
+    )
+}
+
+/**
+ * Convert list of CrewDto to list of CrewEntity
+ */
+fun List<CrewDto>.toCrewEntities(): List<CrewEntity> {
+    return this.map { it.toEntity() }
+}
+
+/**
+ * Convert CrewEntity to CrewMember domain model
+ */
+fun CrewEntity.toDomain(): CrewMember {
+    return CrewMember(
+        id = id,
+        name = name,
+        agency = agency,
+        image = image,
+        wikipedia = wikipedia,
+        launches = launches.fromJsonString(),
+        status = status
+    )
+}
+
+/**
+ * Convert list of CrewEntity to list of CrewMember domain models
+ */
+fun List<CrewEntity>.toCrewDomainsFromEntity(): List<CrewMember> {
+    return this.map { it.toDomain() }
+}
+
+/**
+ * Convert CrewDto to CrewMember domain model
+ */
+fun CrewDto.toDomain(): CrewMember {
+    return CrewMember(
+        id = id,
+        name = name,
+        agency = agency,
+        image = image,
+        wikipedia = wikipedia,
+        launches = launches,
+        status = status
+    )
+}
+
+/**
+ * Convert list of CrewDto to list of CrewMember domain models
+ */
+fun List<CrewDto>.toCrewDomainsFromDto(): List<CrewMember> {
+    return this.map { it.toDomain() }
 } 
