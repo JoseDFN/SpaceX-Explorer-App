@@ -17,6 +17,7 @@ import com.jdf.spacexexplorer.presentation.screens.capsule_detail.CapsuleDetailS
 import com.jdf.spacexexplorer.presentation.screens.cores.CoresScreen
 import com.jdf.spacexexplorer.presentation.screens.core_detail.CoreDetailScreen
 import com.jdf.spacexexplorer.presentation.screens.crew.CrewScreen
+import com.jdf.spacexexplorer.presentation.screens.crew_detail.CrewDetailScreen
 
 @Composable
 fun SetupNavGraph(
@@ -49,7 +50,22 @@ fun SetupNavGraph(
         }
         
         composable(route = Screen.Crew.route) {
-            CrewScreen()
+            CrewScreen(navController = navController)
+        }
+        
+        composable(
+            route = Screen.CrewDetail.route,
+            arguments = listOf(
+                navArgument("crewId") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val crewId = backStackEntry.arguments?.getString("crewId") ?: ""
+            CrewDetailScreen(
+                navController = navController,
+                crewId = crewId
+            )
         }
         
         composable(

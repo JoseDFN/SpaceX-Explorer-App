@@ -1,5 +1,6 @@
 package com.jdf.spacexexplorer.presentation.screens.crew
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,9 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.jdf.spacexexplorer.presentation.components.CrewCard
 import com.jdf.spacexexplorer.presentation.components.ErrorMessage
 import com.jdf.spacexexplorer.presentation.components.LoadingIndicator
+import com.jdf.spacexexplorer.presentation.navigation.Screen
 
 /**
  * Screen for displaying the list of crew members
@@ -24,6 +27,7 @@ import com.jdf.spacexexplorer.presentation.components.LoadingIndicator
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CrewScreen(
+    navController: NavController,
     viewModel: CrewViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
@@ -97,7 +101,12 @@ fun CrewScreen(
                             items = state.crew,
                             key = { it.id }
                         ) { crewMember ->
-                            CrewCard(crewMember = crewMember)
+                            CrewCard(
+                                crewMember = crewMember,
+                                modifier = Modifier.clickable {
+                                    navController.navigate(Screen.CrewDetail.createRoute(crewMember.id))
+                                }
+                            )
                         }
                     }
                 }
