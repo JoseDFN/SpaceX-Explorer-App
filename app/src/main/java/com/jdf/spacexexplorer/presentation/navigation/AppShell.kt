@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Rocket
 import androidx.compose.material.icons.filled.Satellite
 import androidx.compose.material3.*
@@ -144,6 +145,25 @@ fun AppShell(
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
                 
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.Person, contentDescription = null) },
+                    label = { Text("Crew") },
+                    selected = navController.currentDestination?.route == Screen.Crew.route,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                        }
+                        navController.navigate(Screen.Crew.route) {
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+                
                 Spacer(modifier = Modifier.weight(1f))
                 
                 // Footer
@@ -221,6 +241,7 @@ private fun getScreenTitle(route: String?): String {
         Screen.Rockets.route -> "Rockets"
         Screen.Capsules.route -> "Capsules"
         Screen.Cores.route -> "Cores"
+        Screen.Crew.route -> "Crew"
         Screen.LaunchDetail.route -> "Launch Details"
         Screen.RocketDetail.route -> "Rocket Details"
         Screen.CapsuleDetail.route -> "Capsule Details"
