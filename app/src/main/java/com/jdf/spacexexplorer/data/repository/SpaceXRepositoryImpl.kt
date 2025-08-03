@@ -106,17 +106,25 @@ class SpaceXRepositoryImpl @Inject constructor(
     
     override suspend fun getLaunchById(id: String): Result<Launch> {
         return try {
+            println("DEBUG REPOSITORY: Getting launch by ID: $id")
             // Try to get from local database first
             val localEntity = launchDao.getLaunchById(id)
             if (localEntity != null) {
+                println("DEBUG REPOSITORY: Found in local database")
+                println("DEBUG REPOSITORY: Local launch date: ${localEntity.launchDate}")
+                println("DEBUG REPOSITORY: Local isUpcoming: ${localEntity.isUpcoming}")
                 return Result.success(localEntity.toDomain())
             }
+            println("DEBUG REPOSITORY: Not found in local database, fetching from API")
             // If not found, fetch from API
             val remoteDto = apiService.getLaunchById(id)
+            println("DEBUG REPOSITORY: API launch date: ${remoteDto.dateUtc}")
+            println("DEBUG REPOSITORY: API upcoming: ${remoteDto.upcoming}")
             val entity = remoteDto.toEntity()
             launchDao.insertLaunch(entity)
             Result.success(entity.toDomain())
         } catch (e: Exception) {
+            println("DEBUG REPOSITORY: Error getting launch by ID: ${e.message}")
             Result.error(e)
         }
     }

@@ -105,7 +105,7 @@ fun SetupNavGraph(
                 }
             )
         ) { _ ->
-            LaunchDetailScreen()
+            LaunchDetailScreen(navController = navController)
         }
         
         composable(

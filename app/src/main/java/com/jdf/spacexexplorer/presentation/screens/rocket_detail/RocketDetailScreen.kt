@@ -194,7 +194,7 @@ fun RocketDetailScreen(
 
                                 // Corrected formatting for mass with explicit Locale
                                 rocket.mass?.let { mass ->
-                                    InfoRow("Mass", "${String.format(java.util.Locale.US, "%,d", mass)}kg")
+                                    InfoRow("Mass", "${String.format(java.util.Locale.US, "%,.0f", mass)}kg")
                                 }
 
                                 // Corrected formatting for cost with explicit Locale

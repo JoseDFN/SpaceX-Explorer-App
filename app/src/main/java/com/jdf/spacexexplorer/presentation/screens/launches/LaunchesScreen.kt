@@ -95,7 +95,7 @@ fun LaunchesScreen(
             items(state.launches) { launch ->
                 LaunchCard(
                     launch = launch,
-                    modifier = Modifier.clickable {
+                    onClick = {
                         viewModel.onEvent(LaunchesEvent.LaunchClicked(launch.id))
                     }
                 )

@@ -207,11 +207,17 @@ class HomeViewModel @Inject constructor(
      */
     private fun refreshAllData() {
         viewModelScope.launch {
+            println("DEBUG HOME: Starting refresh of all data")
             _state.update { it.copy(isRefreshing = true) }
             
             // Refresh both launches and rockets
+            println("DEBUG HOME: Refreshing launches...")
             val launchesRefreshResult = refreshLaunchesUseCase()
+            println("DEBUG HOME: Launches refresh result: $launchesRefreshResult")
+            
+            println("DEBUG HOME: Refreshing rockets...")
             val rocketsRefreshResult = refreshRocketsUseCase()
+            println("DEBUG HOME: Rockets refresh result: $rocketsRefreshResult")
             
             when {
                 launchesRefreshResult is Result.Success && rocketsRefreshResult is Result.Success -> {

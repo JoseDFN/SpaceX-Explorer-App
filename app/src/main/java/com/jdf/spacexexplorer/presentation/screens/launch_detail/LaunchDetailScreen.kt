@@ -3,6 +3,8 @@ package com.jdf.spacexexplorer.presentation.screens.launch_detail
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -12,24 +14,86 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.jdf.spacexexplorer.presentation.components.ErrorMessage
 import com.jdf.spacexexplorer.presentation.components.LoadingIndicator
+import java.text.SimpleDateFormat
+import java.util.*
+
+/**
+ * Format launch date from ISO string to readable format
+ */
+private fun formatLaunchDate(dateString: String): String {
+    // Check if the string contains an ID concatenated to it
+    val cleanDateString = if (dateString.contains("5e9d0d95eda69973a809d")) {
+        // Remove the ID part
+        dateString.substringBefore("5e9d0d95eda69973a809d")
+    } else {
+        dateString
+    }
+    
+    return try {
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US)
+        inputFormat.timeZone = TimeZone.getTimeZone("UTC")
+        val date = inputFormat.parse(cleanDateString)
+        
+        val outputFormat = SimpleDateFormat("MMM dd, yyyy 'at' HH:mm UTC", Locale.US)
+        outputFormat.format(date ?: Date())
+    } catch (e: Exception) {
+        // Fallback: try without milliseconds
+        try {
+            val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
+            inputFormat.timeZone = TimeZone.getTimeZone("UTC")
+            val date = inputFormat.parse(cleanDateString)
+            
+            val outputFormat = SimpleDateFormat("MMM dd, yyyy 'at' HH:mm UTC", Locale.US)
+            outputFormat.format(date ?: Date())
+        } catch (e2: Exception) {
+            // If all parsing fails, return the cleaned string
+            cleanDateString
+        }
+    }
+}
 
 /**
  * Main screen composable for displaying launch details.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LaunchDetailScreen(
+    navController: NavController,
     viewModel: LaunchDetailViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
 
-    when {
-        state.isInLoadingState -> LoadingIndicator()
-        state.hasError -> ErrorMessage(message = state.error ?: "Unknown error")
-        state.hasContent -> {
-            state.launch?.let { launch ->
-                LaunchDetailContent(launch = launch)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Launch Details") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            when {
+                state.isInLoadingState -> LoadingIndicator()
+                state.hasError -> ErrorMessage(message = state.error ?: "Unknown error")
+                state.hasContent -> {
+                    state.launch?.let { launch ->
+                        LaunchDetailContent(launch = launch)
+                    }
+                }
             }
         }
     }
@@ -111,7 +175,7 @@ private fun LaunchDetailContent(
                 )
                 
                 DetailRow("Flight Number", launch.flightNumber.toString())
-                DetailRow("Launch Date", launch.launchDate)
+                DetailRow("Launch Date", formatLaunchDate(launch.launchDate))
                 DetailRow("Rocket ID", launch.rocketId)
                 
                 launch.details?.let { details ->
