@@ -3,6 +3,10 @@ package com.jdf.spacexexplorer.data.remote
 import com.jdf.spacexexplorer.data.remote.dto.LaunchDto
 import com.jdf.spacexexplorer.data.remote.dto.RocketDto
 import com.jdf.spacexexplorer.data.remote.dto.CapsuleDto
+import com.jdf.spacexexplorer.data.remote.dto.CoreDto
+import com.jdf.spacexexplorer.data.remote.dto.CrewDto
+import com.jdf.spacexexplorer.data.remote.dto.ShipDto
+import com.jdf.spacexexplorer.data.remote.dto.DragonDto
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -71,4 +75,52 @@ interface ApiService {
      */
     @GET("capsules/{id}")
     suspend fun getCapsuleById(@Path("id") id: String): CapsuleDto
+    
+    /**
+     * Get all cores
+     */
+    @GET("cores")
+    suspend fun getCores(): List<CoreDto>
+    
+    /**
+     * Get a specific core by ID
+     */
+    @GET("cores/{id}")
+    suspend fun getCoreById(@Path("id") id: String): CoreDto
+    
+    /**
+     * Get all crew members
+     */
+    @GET("crew")
+    suspend fun getCrew(): List<CrewDto>
+    
+    /**
+     * Get a specific crew member by ID
+     */
+    @GET("crew/{id}")
+    suspend fun getCrewById(@Path("id") id: String): CrewDto
+    
+    /**
+     * Get all ships
+     */
+    @GET("ships")
+    suspend fun getShips(): List<ShipDto>
+    
+    /**
+     * Get a specific ship by ID
+     */
+    @GET("ships/{id}")
+    suspend fun getShipById(@Path("id") id: String): ShipDto
+    
+    /**
+     * Get all dragons
+     */
+    @GET("dragons")
+    suspend fun getDragons(): List<DragonDto>
+    
+    /**
+     * Get a specific dragon by ID
+     */
+    @GET("dragons/{id}")
+    suspend fun getDragonById(@Path("id") id: String): DragonDto
 } 

@@ -10,7 +10,10 @@ data class LaunchesState(
     val isLoading: Boolean = false,
     val launches: List<Launch> = emptyList(),
     val error: String? = null,
-    val isRefreshing: Boolean = false
+    val isRefreshing: Boolean = false,
+    val isLoadingMore: Boolean = false,
+    val endReached: Boolean = false,
+    val currentPage: Int = 0
 ) {
     /**
      * Check if the screen is in loading state (initial load)

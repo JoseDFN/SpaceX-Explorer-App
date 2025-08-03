@@ -7,8 +7,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -16,7 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.jdf.spacexexplorer.presentation.components.*
-import com.jdf.spacexexplorer.presentation.navigation.Screen
+import com.jdf.spacexexplorer.presentation.navigation.NavigationEvent
+import com.jdf.spacexexplorer.presentation.shared.SharedViewModel
 
 /**
  * Main screen composable for displaying the capsules list.
@@ -25,9 +28,36 @@ import com.jdf.spacexexplorer.presentation.navigation.Screen
 @Composable
 fun CapsulesScreen(
     navController: NavController,
-    viewModel: CapsulesViewModel = hiltViewModel()
+    viewModel: CapsulesViewModel = hiltViewModel(),
+    sharedViewModel: SharedViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
+
+    // Register refresh handler with SharedViewModel
+    DisposableEffect(Unit) {
+        sharedViewModel.registerRefreshHandler {
+            viewModel.onEvent(CapsulesEvent.Refresh)
+        }
+        
+        // Clean up when the screen is disposed
+        onDispose {
+            sharedViewModel.clearRefreshHandler()
+        }
+    }
+
+    // Collect navigation events from ViewModel
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvents.collect { event ->
+            when (event) {
+                is NavigationEvent.NavigateToCapsuleDetail -> {
+                    navController.navigate(event.route)
+                }
+                else -> {
+                    // Handle other navigation events if needed
+                }
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -38,16 +68,6 @@ fun CapsulesScreen(
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold
                     )
-                },
-                actions = {
-                    IconButton(
-                        onClick = { viewModel.onEvent(CapsulesEvent.Refresh) }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = "Refresh"
-                        )
-                    }
                 }
             )
         }
@@ -88,7 +108,7 @@ fun CapsulesScreen(
                         CapsuleCard(
                             capsule = capsule,
                             onClick = {
-                                navController.navigate(Screen.CapsuleDetail.createRoute(capsule.id))
+                                viewModel.onEvent(CapsulesEvent.CapsuleClicked(capsule))
                             }
                         )
                     }

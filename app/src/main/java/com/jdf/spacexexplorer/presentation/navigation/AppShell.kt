@@ -5,8 +5,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Rocket
 import androidx.compose.material.icons.filled.Satellite
+import androidx.compose.material.icons.filled.DirectionsBoat
+import androidx.compose.material.icons.filled.Flight
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -15,8 +18,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.jdf.spacexexplorer.presentation.screens.home.HomeScreen
 import com.jdf.spacexexplorer.presentation.navigation.Screen
+import com.jdf.spacexexplorer.presentation.shared.SharedViewModel
 
 /**
  * Main app shell with hamburger menu navigation drawer.
@@ -25,10 +30,12 @@ import com.jdf.spacexexplorer.presentation.navigation.Screen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppShell(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    sharedViewModel: SharedViewModel = hiltViewModel()
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val sharedState by sharedViewModel.state.collectAsState()
     
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -125,6 +132,82 @@ fun AppShell(
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
                 
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.Rocket, contentDescription = null) },
+                    label = { Text("Cores") },
+                    selected = navController.currentDestination?.route == Screen.Cores.route,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                        }
+                        navController.navigate(Screen.Cores.route) {
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+                
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.Person, contentDescription = null) },
+                    label = { Text("Crew") },
+                    selected = navController.currentDestination?.route == Screen.Crew.route,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                        }
+                        navController.navigate(Screen.Crew.route) {
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+                
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.DirectionsBoat, contentDescription = null) },
+                    label = { Text("Ships") },
+                    selected = navController.currentDestination?.route == Screen.Ships.route,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                        }
+                        navController.navigate(Screen.Ships.route) {
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+                
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.Flight, contentDescription = null) },
+                    label = { Text("Dragons") },
+                    selected = navController.currentDestination?.route == Screen.Dragons.route,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                        }
+                        navController.navigate(Screen.Dragons.route) {
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+                
                 Spacer(modifier = Modifier.weight(1f))
                 
                 // Footer
@@ -164,12 +247,11 @@ fun AppShell(
                         }
                     },
                     actions = {
-                        // Show refresh button only on Home screen
-                        if (navController.currentDestination?.route == Screen.Home.route) {
+                        // Show refresh button when a refresh handler is available
+                        if (sharedState.onRefresh != null) {
                             IconButton(
                                 onClick = {
-                                    // TODO: Trigger refresh for the current screen
-                                    // This will be implemented when we add screen-specific actions
+                                    sharedState.onRefresh?.invoke()
                                 }
                             ) {
                                 Icon(
@@ -185,6 +267,7 @@ fun AppShell(
             // NavHost content
             SetupNavGraph(
                 navController = navController,
+                sharedViewModel = sharedViewModel,
                 modifier = Modifier.padding(paddingValues)
             )
         }
@@ -201,9 +284,17 @@ private fun getScreenTitle(route: String?): String {
         Screen.Launches.route -> "Launches"
         Screen.Rockets.route -> "Rockets"
         Screen.Capsules.route -> "Capsules"
+        Screen.Cores.route -> "Cores"
+        Screen.Crew.route -> "Crew"
+        Screen.Ships.route -> "Ships"
+        Screen.Dragons.route -> "Dragons"
+        Screen.DragonDetail.route -> "Dragon Details"
+        Screen.ShipDetail.route -> "Ship Details"
         Screen.LaunchDetail.route -> "Launch Details"
         Screen.RocketDetail.route -> "Rocket Details"
         Screen.CapsuleDetail.route -> "Capsule Details"
+        Screen.CoreDetail.route -> "Core Details"
+        Screen.CrewDetail.route -> "Crew Member Details"
         else -> "SpaceX Explorer"
     }
 } 

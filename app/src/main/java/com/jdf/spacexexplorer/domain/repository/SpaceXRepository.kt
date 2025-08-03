@@ -3,6 +3,10 @@ package com.jdf.spacexexplorer.domain.repository
 import com.jdf.spacexexplorer.domain.model.Launch
 import com.jdf.spacexexplorer.domain.model.Rocket
 import com.jdf.spacexexplorer.domain.model.Capsule
+import com.jdf.spacexexplorer.domain.model.Core
+import com.jdf.spacexexplorer.domain.model.CrewMember
+import com.jdf.spacexexplorer.domain.model.Ship
+import com.jdf.spacexexplorer.domain.model.Dragon
 import com.jdf.spacexexplorer.domain.model.Result
 import kotlinx.coroutines.flow.Flow
 
@@ -16,6 +20,11 @@ interface SpaceXRepository {
      * Get all launches as a Flow for reactive updates with Result wrapper
      */
     fun getLaunches(): Flow<Result<List<Launch>>>
+    
+    /**
+     * Get launches with pagination support
+     */
+    suspend fun getLaunchesPage(page: Int, limit: Int = 20): Result<List<Launch>>
     
     /**
      * Get upcoming launches as a Flow with Result wrapper
@@ -76,4 +85,64 @@ interface SpaceXRepository {
      * Refresh capsules from the remote API
      */
     suspend fun refreshCapsules(): Result<Unit>
+    
+    /**
+     * Get all cores as a Flow for reactive updates with Result wrapper
+     */
+    fun getCores(): Flow<Result<List<Core>>>
+    
+    /**
+     * Get a specific core by ID with Result wrapper
+     */
+    suspend fun getCoreById(id: String): Result<Core>
+    
+    /**
+     * Refresh cores from the remote API
+     */
+    suspend fun refreshCores(): Result<Unit>
+    
+    /**
+     * Get all crew members as a Flow for reactive updates with Result wrapper
+     */
+    fun getCrew(): Flow<Result<List<CrewMember>>>
+    
+    /**
+     * Get a specific crew member by ID with Result wrapper
+     */
+    suspend fun getCrewById(id: String): Result<CrewMember>
+    
+    /**
+     * Refresh crew members from the remote API
+     */
+    suspend fun refreshCrew(): Result<Unit>
+    
+    /**
+     * Get all ships as a Flow for reactive updates with Result wrapper
+     */
+    fun getShips(): Flow<Result<List<Ship>>>
+    
+    /**
+     * Get a specific ship by ID with Result wrapper
+     */
+    suspend fun getShipById(id: String): Result<Ship>
+    
+    /**
+     * Refresh ships from the remote API
+     */
+    suspend fun refreshShips(): Result<Unit>
+    
+    /**
+     * Get all dragons as a Flow for reactive updates with Result wrapper
+     */
+    fun getDragons(): Flow<Result<List<Dragon>>>
+    
+    /**
+     * Get a specific dragon by ID with Result wrapper
+     */
+    suspend fun getDragonById(id: String): Result<Dragon>
+    
+    /**
+     * Refresh dragons from the remote API
+     */
+    suspend fun refreshDragons(): Result<Unit>
 } 

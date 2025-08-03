@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -33,6 +34,7 @@ fun RocketDetailScreen(
     viewModel: RocketDetailViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val uriHandler = LocalUriHandler.current
 
     Scaffold(
         topBar = {
@@ -192,7 +194,7 @@ fun RocketDetailScreen(
 
                                 // Corrected formatting for mass with explicit Locale
                                 rocket.mass?.let { mass ->
-                                    InfoRow("Mass", "${String.format(java.util.Locale.US, "%,d", mass)}kg")
+                                    InfoRow("Mass", "${String.format(java.util.Locale.US, "%,.0f", mass)}kg")
                                 }
 
                                 // Corrected formatting for cost with explicit Locale
@@ -251,7 +253,7 @@ fun RocketDetailScreen(
                     }
 
                     // Wikipedia Link Section
-                    rocket.wikipediaUrl?.let { _ ->
+                    rocket.wikipediaUrl?.let { url ->
                         item {
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
@@ -272,7 +274,7 @@ fun RocketDetailScreen(
                                     )
                                     
                                     Button(
-                                        onClick = { /* TODO: Open Wikipedia URL */ },
+                                        onClick = { uriHandler.openUri(url) },
                                         modifier = Modifier.fillMaxWidth(),
                                         colors = ButtonDefaults.buttonColors(
                                             containerColor = MaterialTheme.colorScheme.primary
