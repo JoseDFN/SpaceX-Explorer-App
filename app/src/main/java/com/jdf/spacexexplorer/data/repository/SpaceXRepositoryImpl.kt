@@ -525,13 +525,22 @@ class SpaceXRepositoryImpl @Inject constructor(
         return dragonDao.getDragons()
             .onStart {
                 // Trigger network refresh when flow starts
-                refreshDragonsFromNetwork()
+                try {
+                    refreshDragonsFromNetwork()
+                } catch (e: Exception) {
+                    // Log the error but don't emit it here - let the database flow handle it
+                    println("Network refresh failed: ${e.message}")
+                }
             }
             .map { entities ->
+                println("Retrieved ${entities.size} dragons from database")
                 val dragons = entities.map { it.toDomain() }
+                println("Converted to ${dragons.size} domain models")
                 Result.success(dragons)
             }
             .catch { e ->
+                println("Error in getDragons flow: ${e.message}")
+                e.printStackTrace()
                 emit(Result.error(Exception(e)))
             }
     }
@@ -575,10 +584,30 @@ class SpaceXRepositoryImpl @Inject constructor(
      */
     private suspend fun refreshDragonsFromNetwork() {
         try {
+            println("Fetching dragons from API...")
             val remoteDragons = apiService.getDragons()
-            val entities = remoteDragons.map { it.toEntity() }
-            dragonDao.deleteAllAndInsertDragons(entities)
+            println("Received ${remoteDragons.size} dragons from API")
+            
+            if (remoteDragons.isNotEmpty()) {
+                println("First dragon: ${remoteDragons.first().name}")
+                println("First dragon ID: ${remoteDragons.first().id}")
+                println("First dragon type: ${remoteDragons.first().type}")
+            }
+            
+            try {
+                val entities = remoteDragons.map { it.toEntity() }
+                println("Converted to ${entities.size} entities")
+                dragonDao.deleteAllAndInsertDragons(entities)
+                println("Successfully saved dragons to database")
+            } catch (mappingError: Exception) {
+                println("Error during mapping: ${mappingError.message}")
+                mappingError.printStackTrace()
+                throw mappingError
+            }
         } catch (e: Exception) {
+            // Log the error for debugging
+            println("Error refreshing dragons from network: ${e.message}")
+            e.printStackTrace()
             // Silently handle network errors - local data will still be emitted
             // The error will be handled by the UI layer if needed
         }

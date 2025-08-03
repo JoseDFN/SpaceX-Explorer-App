@@ -20,7 +20,7 @@ data class Dragon(
     val returnPayloadMass: Mass?,
     val pressurizedCapsule: PressurizedCapsule?,
     val trunk: Trunk?,
-    val heightWTrunk: Double?,
+    val heightWTrunk: Diameter?,
     val diameter: Diameter?,
     val flickrImages: List<String>,
     val wikipedia: String?,

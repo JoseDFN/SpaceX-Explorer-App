@@ -21,7 +21,7 @@ data class DragonEntity(
     val returnPayloadMass: String?, // Stored as JSON string
     val pressurizedCapsule: String?, // Stored as JSON string
     val trunk: String?, // Stored as JSON string
-    val heightWTrunk: Double?,
+    val heightWTrunk: String?, // Stored as JSON string
     val diameter: String?, // Stored as JSON string
     val flickrImages: String, // Stored as JSON string
     val wikipedia: String?,

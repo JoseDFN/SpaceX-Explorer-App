@@ -43,6 +43,8 @@ class DragonsViewModel @Inject constructor(
     val navigationEvents = _navigationEvents.receiveAsFlow()
     
     init {
+        // Set initial loading state
+        _state.update { it.copy(isLoading = true) }
         // Launch a coroutine to collect the flow from the use case
         loadDragons()
     }
@@ -92,6 +94,17 @@ class DragonsViewModel @Inject constructor(
                                 error = null
                             )
                         }
+                        // Log the number of dragons loaded for debugging
+                        println("Dragons loaded: ${result.data.size}")
+                        
+                        // If no dragons loaded and we're not in error state, show a message
+                        if (result.data.isEmpty()) {
+                            _state.update { currentState ->
+                                currentState.copy(
+                                    error = "No dragons found. Please check your internet connection and try again."
+                                )
+                            }
+                        }
                     }
                     is Result.Error -> {
                         _state.update { currentState ->
@@ -100,6 +113,9 @@ class DragonsViewModel @Inject constructor(
                                 error = result.exception.message ?: "Unknown error occurred"
                             )
                         }
+                        // Log the error for debugging
+                        println("Error loading dragons: ${result.exception.message}")
+                        result.exception.printStackTrace()
                     }
 
                 }

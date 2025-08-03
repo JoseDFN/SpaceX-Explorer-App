@@ -21,7 +21,7 @@ data class DragonDto(
     @field:Json(name = "return_payload_mass") val returnPayloadMass: MassDto?,
     @field:Json(name = "pressurized_capsule") val pressurizedCapsule: PressurizedCapsuleDto?,
     @field:Json(name = "trunk") val trunk: TrunkDto?,
-    @field:Json(name = "height_w_trunk") val heightWTrunk: Double?,
+    @field:Json(name = "height_w_trunk") val heightWTrunk: DiameterDto?,
     @field:Json(name = "diameter") val diameter: DiameterDto?,
     @field:Json(name = "flickr_images") val flickrImages: List<String>,
     @field:Json(name = "wikipedia") val wikipedia: String?,

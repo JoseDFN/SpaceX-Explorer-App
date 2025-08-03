@@ -12,7 +12,7 @@ import com.jdf.spacexexplorer.data.local.entity.DragonEntity
 
 @Database(
     entities = [LaunchEntity::class, RocketEntity::class, CapsuleEntity::class, CoreEntity::class, CrewEntity::class, ShipEntity::class, DragonEntity::class],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
