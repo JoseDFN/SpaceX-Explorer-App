@@ -17,8 +17,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.jdf.spacexexplorer.presentation.screens.home.HomeScreen
 import com.jdf.spacexexplorer.presentation.navigation.Screen
+import com.jdf.spacexexplorer.presentation.shared.SharedViewModel
 
 /**
  * Main app shell with hamburger menu navigation drawer.
@@ -27,10 +29,12 @@ import com.jdf.spacexexplorer.presentation.navigation.Screen
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppShell(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    sharedViewModel: SharedViewModel = hiltViewModel()
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val sharedState by sharedViewModel.state.collectAsState()
     
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -223,12 +227,11 @@ fun AppShell(
                         }
                     },
                     actions = {
-                        // Show refresh button only on Home screen
-                        if (navController.currentDestination?.route == Screen.Home.route) {
+                        // Show refresh button when a refresh handler is available
+                        if (sharedState.onRefresh != null) {
                             IconButton(
                                 onClick = {
-                                    // TODO: Trigger refresh for the current screen
-                                    // This will be implemented when we add screen-specific actions
+                                    sharedState.onRefresh?.invoke()
                                 }
                             ) {
                                 Icon(
@@ -244,6 +247,7 @@ fun AppShell(
             // NavHost content
             SetupNavGraph(
                 navController = navController,
+                sharedViewModel = sharedViewModel,
                 modifier = Modifier.padding(paddingValues)
             )
         }

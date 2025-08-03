@@ -12,6 +12,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -21,6 +22,7 @@ import com.jdf.spacexexplorer.presentation.components.LaunchCard
 import com.jdf.spacexexplorer.presentation.components.LoadingIndicator
 import com.jdf.spacexexplorer.presentation.components.ErrorMessage
 import com.jdf.spacexexplorer.presentation.navigation.NavigationEvent
+import com.jdf.spacexexplorer.presentation.shared.SharedViewModel
 
 /**
  * Main screen composable for displaying the launches list.
@@ -28,10 +30,23 @@ import com.jdf.spacexexplorer.presentation.navigation.NavigationEvent
 @Composable
 fun LaunchesScreen(
     navController: NavController,
-    viewModel: LaunchesViewModel = hiltViewModel()
+    viewModel: LaunchesViewModel = hiltViewModel(),
+    sharedViewModel: SharedViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
     val listState = rememberLazyListState()
+
+    // Register refresh handler with SharedViewModel
+    DisposableEffect(Unit) {
+        sharedViewModel.registerRefreshHandler {
+            viewModel.onEvent(LaunchesEvent.Refresh)
+        }
+        
+        // Clean up when the screen is disposed
+        onDispose {
+            sharedViewModel.clearRefreshHandler()
+        }
+    }
 
     // Collect navigation events from ViewModel
     LaunchedEffect(Unit) {

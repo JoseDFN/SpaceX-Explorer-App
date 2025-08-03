@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -18,6 +19,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.jdf.spacexexplorer.presentation.components.*
 import com.jdf.spacexexplorer.presentation.navigation.NavigationEvent
+import com.jdf.spacexexplorer.presentation.shared.SharedViewModel
 
 /**
  * Main screen composable for displaying the cores list.
@@ -26,9 +28,22 @@ import com.jdf.spacexexplorer.presentation.navigation.NavigationEvent
 @Composable
 fun CoresScreen(
     navController: NavController,
-    viewModel: CoresViewModel = hiltViewModel()
+    viewModel: CoresViewModel = hiltViewModel(),
+    sharedViewModel: SharedViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
+
+    // Register refresh handler with SharedViewModel
+    DisposableEffect(Unit) {
+        sharedViewModel.registerRefreshHandler {
+            viewModel.onEvent(CoresEvent.Refresh)
+        }
+        
+        // Clean up when the screen is disposed
+        onDispose {
+            sharedViewModel.clearRefreshHandler()
+        }
+    }
 
     // Collect navigation events from ViewModel
     LaunchedEffect(Unit) {
@@ -53,16 +68,6 @@ fun CoresScreen(
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold
                     )
-                },
-                actions = {
-                    IconButton(
-                        onClick = { viewModel.onEvent(CoresEvent.Refresh) }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = "Refresh"
-                        )
-                    }
                 }
             )
         }

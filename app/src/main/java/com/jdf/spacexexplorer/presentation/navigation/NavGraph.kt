@@ -20,10 +20,12 @@ import com.jdf.spacexexplorer.presentation.screens.crew.CrewScreen
 import com.jdf.spacexexplorer.presentation.screens.crew_detail.CrewDetailScreen
 import com.jdf.spacexexplorer.presentation.screens.ships.ShipsScreen
 import com.jdf.spacexexplorer.presentation.screens.ship_detail.ShipDetailScreen
+import com.jdf.spacexexplorer.presentation.shared.SharedViewModel
 
 @Composable
 fun SetupNavGraph(
     navController: NavHostController,
+    sharedViewModel: SharedViewModel,
     modifier: Modifier = Modifier
 ) {
     NavHost(
@@ -32,31 +34,31 @@ fun SetupNavGraph(
         modifier = modifier
     ) {
         composable(route = Screen.Home.route) {
-            HomeScreen(navController = navController)
+            HomeScreen(navController = navController, sharedViewModel = sharedViewModel)
         }
         
         composable(route = Screen.Launches.route) {
-            LaunchesScreen(navController = navController)
+            LaunchesScreen(navController = navController, sharedViewModel = sharedViewModel)
         }
         
         composable(route = Screen.Rockets.route) {
-            RocketsScreen(navController = navController)
+            RocketsScreen(navController = navController, sharedViewModel = sharedViewModel)
         }
         
         composable(route = Screen.Capsules.route) {
-            CapsulesScreen(navController = navController)
+            CapsulesScreen(navController = navController, sharedViewModel = sharedViewModel)
         }
         
         composable(route = Screen.Cores.route) {
-            CoresScreen(navController = navController)
+            CoresScreen(navController = navController, sharedViewModel = sharedViewModel)
         }
         
         composable(route = Screen.Crew.route) {
-            CrewScreen(navController = navController)
+            CrewScreen(navController = navController, sharedViewModel = sharedViewModel)
         }
         
         composable(route = Screen.Ships.route) {
-            ShipsScreen(navController = navController)
+            ShipsScreen(navController = navController, sharedViewModel = sharedViewModel)
         }
         
         composable(

@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -20,6 +21,7 @@ import com.jdf.spacexexplorer.presentation.components.CrewCard
 import com.jdf.spacexexplorer.presentation.components.ErrorMessage
 import com.jdf.spacexexplorer.presentation.components.LoadingIndicator
 import com.jdf.spacexexplorer.presentation.navigation.Screen
+import com.jdf.spacexexplorer.presentation.shared.SharedViewModel
 
 /**
  * Screen for displaying the list of crew members
@@ -29,25 +31,27 @@ import com.jdf.spacexexplorer.presentation.navigation.Screen
 fun CrewScreen(
     navController: NavController,
     viewModel: CrewViewModel = hiltViewModel(),
+    sharedViewModel: SharedViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.state.collectAsState()
 
+    // Register refresh handler with SharedViewModel
+    DisposableEffect(Unit) {
+        sharedViewModel.registerRefreshHandler {
+            viewModel.onEvent(CrewEvent.RefreshCrew)
+        }
+        
+        // Clean up when the screen is disposed
+        onDispose {
+            sharedViewModel.clearRefreshHandler()
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Crew Members") },
-                actions = {
-                    IconButton(
-                        onClick = { viewModel.onEvent(CrewEvent.RefreshCrew) },
-                        enabled = !state.isRefreshing
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = "Refresh"
-                        )
-                    }
-                }
+                title = { Text("Crew Members") }
             )
         },
         modifier = modifier
