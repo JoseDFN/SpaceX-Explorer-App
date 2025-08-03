@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jdf.spacexexplorer.domain.model.Result
 import com.jdf.spacexexplorer.domain.usecase.GetLaunchesUseCase
+import com.jdf.spacexexplorer.domain.usecase.GetLaunchesPageUseCase
 import com.jdf.spacexexplorer.domain.usecase.RefreshLaunchesUseCase
 import com.jdf.spacexexplorer.presentation.navigation.NavigationEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,6 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LaunchesViewModel @Inject constructor(
     private val getLaunchesUseCase: GetLaunchesUseCase,
+    private val getLaunchesPageUseCase: GetLaunchesPageUseCase,
     private val refreshLaunchesUseCase: RefreshLaunchesUseCase
 ) : ViewModel() {
     
@@ -67,8 +69,7 @@ class LaunchesViewModel @Inject constructor(
                 }
             }
             is LaunchesEvent.LoadMore -> {
-                // TODO: Implement pagination
-                // This will be implemented when we add pagination support
+                loadMoreLaunches()
             }
         }
     }
@@ -146,6 +147,61 @@ class LaunchesViewModel @Inject constructor(
      */
     private fun clearError() {
         _state.update { it.copy(error = null) }
+    }
+    
+    /**
+     * Load more launches for pagination
+     */
+    private fun loadMoreLaunches() {
+        val currentState = _state.value
+        
+        // Don't load more if already loading or if end is reached
+        if (currentState.isLoadingMore || currentState.endReached) {
+            return
+        }
+        
+        viewModelScope.launch {
+            _state.update { it.copy(isLoadingMore = true) }
+            
+            val nextPage = currentState.currentPage + 1
+            val result = getLaunchesPageUseCase(nextPage)
+            
+            when (result) {
+                is Result.Success -> {
+                    val newLaunches = result.data
+                    if (newLaunches.isEmpty()) {
+                        // No more data available
+                        _state.update { 
+                            it.copy(
+                                isLoadingMore = false,
+                                endReached = true
+                            )
+                        }
+                    } else {
+                        // Append new launches to existing list
+                        _state.update { 
+                            it.copy(
+                                launches = it.launches + newLaunches,
+                                isLoadingMore = false,
+                                currentPage = nextPage
+                            )
+                        }
+                    }
+                }
+                is Result.Error -> {
+                    _state.update { 
+                        it.copy(
+                            isLoadingMore = false,
+                            error = result.exception.message ?: "Failed to load more launches"
+                        )
+                    }
+                }
+                is Result.Loading -> {
+                    // This shouldn't happen for pagination, but handle it gracefully
+                    _state.update { it.copy(isLoadingMore = false) }
+                }
+            }
+        }
     }
     
     /**

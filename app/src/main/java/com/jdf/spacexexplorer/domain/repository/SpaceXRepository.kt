@@ -21,6 +21,11 @@ interface SpaceXRepository {
     fun getLaunches(): Flow<Result<List<Launch>>>
     
     /**
+     * Get launches with pagination support
+     */
+    suspend fun getLaunchesPage(page: Int, limit: Int = 20): Result<List<Launch>>
+    
+    /**
      * Get upcoming launches as a Flow with Result wrapper
      */
     fun getUpcomingLaunches(): Flow<Result<List<Launch>>>

@@ -84,6 +84,23 @@ class SpaceXRepositoryImpl @Inject constructor(
             }
     }
     
+    override suspend fun getLaunchesPage(page: Int, limit: Int): Result<List<Launch>> {
+        return try {
+            // Calculate offset from page number
+            val offset = page * limit
+            
+            // Fetch from API with pagination
+            val remoteLaunches = apiService.getLaunches(limit = limit, offset = offset)
+            
+            // Convert DTOs to domain models
+            val launches = remoteLaunches.map { it.toDomain() }
+            
+            Result.success(launches)
+        } catch (e: Exception) {
+            Result.error(e)
+        }
+    }
+    
     override suspend fun getLaunchById(id: String): Result<Launch> {
         return try {
             // Try to get from local database first
