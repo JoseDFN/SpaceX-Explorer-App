@@ -18,6 +18,7 @@ import com.jdf.spacexexplorer.presentation.screens.cores.CoresScreen
 import com.jdf.spacexexplorer.presentation.screens.core_detail.CoreDetailScreen
 import com.jdf.spacexexplorer.presentation.screens.crew.CrewScreen
 import com.jdf.spacexexplorer.presentation.screens.crew_detail.CrewDetailScreen
+import com.jdf.spacexexplorer.presentation.screens.ships.ShipsScreen
 
 @Composable
 fun SetupNavGraph(
@@ -51,6 +52,10 @@ fun SetupNavGraph(
         
         composable(route = Screen.Crew.route) {
             CrewScreen(navController = navController)
+        }
+        
+        composable(route = Screen.Ships.route) {
+            ShipsScreen()
         }
         
         composable(

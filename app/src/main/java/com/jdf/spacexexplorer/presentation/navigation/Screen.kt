@@ -22,5 +22,6 @@ sealed class Screen(val route: String) {
     object CrewDetail : Screen("crew_detail_screen/{crewId}") {
         fun createRoute(crewId: String) = "crew_detail_screen/$crewId"
     }
+    object Ships : Screen("ships_screen")
     // Add more screens as needed
 } 
