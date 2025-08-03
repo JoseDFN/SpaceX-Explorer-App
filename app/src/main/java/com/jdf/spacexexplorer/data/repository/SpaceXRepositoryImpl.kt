@@ -5,6 +5,7 @@ import com.jdf.spacexexplorer.data.local.RocketDao
 import com.jdf.spacexexplorer.data.local.CapsuleDao
 import com.jdf.spacexexplorer.data.local.CoreDao
 import com.jdf.spacexexplorer.data.local.CrewDao
+import com.jdf.spacexexplorer.data.local.ShipDao
 import com.jdf.spacexexplorer.data.mappers.toDomain
 import com.jdf.spacexexplorer.data.mappers.toEntity
 import com.jdf.spacexexplorer.data.remote.ApiService
@@ -13,6 +14,7 @@ import com.jdf.spacexexplorer.domain.model.Rocket
 import com.jdf.spacexexplorer.domain.model.Capsule
 import com.jdf.spacexexplorer.domain.model.Core
 import com.jdf.spacexexplorer.domain.model.CrewMember
+import com.jdf.spacexexplorer.domain.model.Ship
 import com.jdf.spacexexplorer.domain.model.Result
 import com.jdf.spacexexplorer.domain.repository.SpaceXRepository
 import kotlinx.coroutines.flow.Flow
@@ -37,7 +39,8 @@ class SpaceXRepositoryImpl @Inject constructor(
     private val rocketDao: RocketDao,
     private val capsuleDao: CapsuleDao,
     private val coreDao: CoreDao,
-    private val crewDao: CrewDao
+    private val crewDao: CrewDao,
+    private val shipDao: ShipDao
 ) : SpaceXRepository {
     
     override fun getLaunches(): Flow<Result<List<Launch>>> {
@@ -425,6 +428,71 @@ class SpaceXRepositoryImpl @Inject constructor(
             val remoteCrew = apiService.getCrew()
             val entities = remoteCrew.map { it.toEntity() }
             crewDao.deleteAllAndInsertCrew(entities)
+        } catch (e: Exception) {
+            // Silently handle network errors - local data will still be emitted
+            // The error will be handled by the UI layer if needed
+        }
+    }
+    
+    // Ship implementations
+    
+    override fun getShips(): Flow<Result<List<Ship>>> {
+        return shipDao.getShips()
+            .onStart {
+                // Trigger network refresh when flow starts
+                refreshShipsFromNetwork()
+            }
+            .map { entities ->
+                val ships = entities.map { it.toDomain() }
+                Result.success(ships)
+            }
+            .catch { e ->
+                emit(Result.error(Exception(e)))
+            }
+    }
+    
+    override suspend fun getShipById(id: String): Result<Ship> {
+        return try {
+            // Try to get from local database first
+            val localEntity = shipDao.getShipById(id)
+            if (localEntity != null) {
+                return Result.success(localEntity.toDomain())
+            }
+            // If not found, fetch from API
+            val remoteDto = apiService.getShipById(id)
+            val entity = remoteDto.toEntity()
+            shipDao.insertShips(listOf(entity))
+            Result.success(entity.toDomain())
+        } catch (e: Exception) {
+            Result.error(e)
+        }
+    }
+    
+    override suspend fun refreshShips(): Result<Unit> {
+        return try {
+            // Fetch fresh data from API
+            val remoteShips = apiService.getShips()
+            
+            // Convert DTOs to entities
+            val entities = remoteShips.map { it.toEntity() }
+            
+            // Use transactional "delete all and insert new" strategy
+            shipDao.deleteAllAndInsertShips(entities)
+            
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.error(e)
+        }
+    }
+    
+    /**
+     * Private method to refresh ships from network without blocking the flow
+     */
+    private suspend fun refreshShipsFromNetwork() {
+        try {
+            val remoteShips = apiService.getShips()
+            val entities = remoteShips.map { it.toEntity() }
+            shipDao.deleteAllAndInsertShips(entities)
         } catch (e: Exception) {
             // Silently handle network errors - local data will still be emitted
             // The error will be handled by the UI layer if needed

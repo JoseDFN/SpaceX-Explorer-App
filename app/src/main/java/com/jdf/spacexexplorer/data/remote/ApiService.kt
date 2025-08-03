@@ -5,6 +5,7 @@ import com.jdf.spacexexplorer.data.remote.dto.RocketDto
 import com.jdf.spacexexplorer.data.remote.dto.CapsuleDto
 import com.jdf.spacexexplorer.data.remote.dto.CoreDto
 import com.jdf.spacexexplorer.data.remote.dto.CrewDto
+import com.jdf.spacexexplorer.data.remote.dto.ShipDto
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -97,4 +98,16 @@ interface ApiService {
      */
     @GET("crew/{id}")
     suspend fun getCrewById(@Path("id") id: String): CrewDto
+    
+    /**
+     * Get all ships
+     */
+    @GET("ships")
+    suspend fun getShips(): List<ShipDto>
+    
+    /**
+     * Get a specific ship by ID
+     */
+    @GET("ships/{id}")
+    suspend fun getShipById(@Path("id") id: String): ShipDto
 } 
