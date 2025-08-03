@@ -14,6 +14,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -31,6 +32,7 @@ fun ShipDetailScreen(
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.state.collectAsState()
+    val uriHandler = LocalUriHandler.current
 
     LaunchedEffect(shipId) {
         viewModel.onEvent(ShipDetailEvent.LoadShip(shipId))
@@ -212,11 +214,11 @@ fun ShipDetailScreen(
                                 DetailRow("Launches", "${ship.launches.size} missions")
                                 
                                 // URL link
-                                ship.url?.let { _ ->
+                                ship.url?.let { url ->
                                     Spacer(modifier = Modifier.height(16.dp))
                                     Button(
                                         onClick = {
-                                            // TODO: Open URL in browser
+                                            uriHandler.openUri(url)
                                         },
                                         modifier = Modifier.fillMaxWidth()
                                     ) {
