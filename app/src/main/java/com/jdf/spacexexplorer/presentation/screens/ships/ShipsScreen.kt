@@ -14,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import com.jdf.spacexexplorer.presentation.navigation.Screen
 
 import com.jdf.spacexexplorer.presentation.components.ErrorMessage
 import com.jdf.spacexexplorer.presentation.components.LoadingIndicator
@@ -22,6 +24,7 @@ import com.jdf.spacexexplorer.presentation.components.ShipCard
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShipsScreen(
+    navController: NavController,
     viewModel: ShipsViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
@@ -92,8 +95,7 @@ fun ShipsScreen(
                             ShipCard(
                                 ship = ship,
                                 onClick = {
-                                    // TODO: Navigate to ship detail screen when implemented
-                                    // navController.navigate(Screen.ShipDetail.createRoute(ship.id))
+                                    navController.navigate(Screen.ShipDetail.createRoute(ship.id))
                                 }
                             )
                         }
