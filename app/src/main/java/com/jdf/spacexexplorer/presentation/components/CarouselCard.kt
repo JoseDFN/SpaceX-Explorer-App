@@ -19,6 +19,11 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.jdf.spacexexplorer.domain.model.Launch
 import com.jdf.spacexexplorer.domain.model.Rocket
+import com.jdf.spacexexplorer.domain.model.Capsule
+import com.jdf.spacexexplorer.domain.model.Core
+import com.jdf.spacexexplorer.domain.model.CrewMember
+import com.jdf.spacexexplorer.domain.model.Ship
+import com.jdf.spacexexplorer.domain.model.Dragon
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -265,4 +270,353 @@ fun RocketCarouselCard(
             }
         }
     }
-} 
+}
+
+/**
+ * Carousel card specifically for Capsule items
+ */
+@Composable
+fun CapsuleCarouselCard(
+    capsule: Capsule,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
+) {
+    CarouselCard(
+        modifier = modifier,
+        onClick = onClick
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            // Fallback background color
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.tertiaryContainer)
+            )
+            
+            // Content overlay
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Capsule serial
+                Text(
+                    text = capsule.serial,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                
+                // Capsule details
+                Column {
+                    Text(
+                        text = capsule.type,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White.copy(alpha = 0.8f)
+                    )
+                    
+                    // Status
+                    val statusText = capsule.status
+                    val statusColor = when (capsule.status.lowercase()) {
+                        "active", "unknown" -> Color.Green
+                        else -> Color.Gray
+                    }
+                    
+                    Text(
+                        text = statusText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = statusColor
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Carousel card specifically for Core items
+ */
+@Composable
+fun CoreCarouselCard(
+    core: Core,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
+) {
+    CarouselCard(
+        modifier = modifier,
+        onClick = onClick
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            // Fallback background color
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.primaryContainer)
+            )
+            
+            // Content overlay
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Core serial
+                Text(
+                    text = core.serial,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                
+                // Core details
+                Column {
+                    Text(
+                        text = "Block ${core.block}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White.copy(alpha = 0.8f)
+                    )
+                    
+                    // Status
+                    val statusText = core.status
+                    val statusColor = when (core.status.lowercase()) {
+                        "active", "unknown" -> Color.Green
+                        else -> Color.Gray
+                    }
+                    
+                    Text(
+                        text = statusText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = statusColor
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Carousel card specifically for Crew Member items
+ */
+@Composable
+fun CrewMemberCarouselCard(
+    crewMember: CrewMember,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
+) {
+    CarouselCard(
+        modifier = modifier,
+        onClick = onClick
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            // Background image if available
+            crewMember.image?.let { imageUrl ->
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription = "Image of ${crewMember.name}",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            } ?: run {
+                // Fallback background color
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.secondaryContainer)
+                )
+            }
+            
+            // Content overlay
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Crew member name
+                Text(
+                    text = crewMember.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                
+                // Crew member details
+                Column {
+                    Text(
+                        text = crewMember.agency,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White.copy(alpha = 0.8f)
+                    )
+                    
+                    // Status
+                    val statusText = crewMember.status
+                    val statusColor = when (crewMember.status.lowercase()) {
+                        "active", "unknown" -> Color.Green
+                        else -> Color.Gray
+                    }
+                    
+                    Text(
+                        text = statusText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = statusColor
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Carousel card specifically for Ship items
+ */
+@Composable
+fun ShipCarouselCard(
+    ship: Ship,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
+) {
+    CarouselCard(
+        modifier = modifier,
+        onClick = onClick
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            // Background image if available
+            ship.image?.let { imageUrl ->
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription = "Image of ${ship.name}",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            } ?: run {
+                // Fallback background color
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.tertiaryContainer)
+                )
+            }
+            
+            // Content overlay
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Ship name
+                Text(
+                    text = ship.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                
+                // Ship details
+                Column {
+                    Text(
+                        text = ship.type ?: "Ship",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White.copy(alpha = 0.8f)
+                    )
+                    
+                    // Status
+                    val statusText = if (ship.active) "Active" else "Inactive"
+                    val statusColor = if (ship.active) Color.Green else Color.Gray
+                    
+                    Text(
+                        text = statusText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = statusColor
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Carousel card specifically for Dragon items
+ */
+@Composable
+fun DragonCarouselCard(
+    dragon: Dragon,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
+) {
+    CarouselCard(
+        modifier = modifier,
+        onClick = onClick
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            // Background image if available
+            dragon.flickrImages.firstOrNull()?.let { imageUrl ->
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription = "Image of ${dragon.name}",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            } ?: run {
+                // Fallback background color
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.primaryContainer)
+                )
+            }
+            
+            // Content overlay
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(12.dp),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Dragon name
+                Text(
+                    text = dragon.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                
+                // Dragon details
+                Column {
+                    Text(
+                        text = dragon.type ?: "Dragon",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White.copy(alpha = 0.8f)
+                    )
+                    
+                    // Status
+                    val statusText = if (dragon.active) "Active" else "Inactive"
+                    val statusColor = if (dragon.active) Color.Green else Color.Gray
+                    
+                    Text(
+                        text = statusText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = statusColor
+                    )
+                }
+            }
+        }
+    }
+}

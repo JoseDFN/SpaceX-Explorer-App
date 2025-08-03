@@ -1,7 +1,10 @@
 package com.jdf.spacexexplorer.presentation.screens.ship_detail
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -14,12 +17,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.jdf.spacexexplorer.presentation.components.ErrorMessage
 import com.jdf.spacexexplorer.presentation.components.LoadingIndicator
 
@@ -94,140 +100,142 @@ fun ShipDetailScreen(
                 }
                 else -> {
                     val ship = state.ship!!
-                    Column(
+                    LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
-                            .padding(16.dp)
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        // Ship name and status
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = ship.name,
-                                style = MaterialTheme.typography.headlineMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Surface(
-                                shape = MaterialTheme.shapes.small,
-                                color = if (ship.active) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
-                            ) {
-                                Text(
-                                    text = if (ship.active) "Active" else "Inactive",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = if (ship.active) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                                )
-                            }
-                        }
-                        
-                        Spacer(modifier = Modifier.height(24.dp))
-                        
-                        // Ship image placeholder
-                        Surface(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(200.dp),
-                            shape = MaterialTheme.shapes.medium,
-                            color = MaterialTheme.colorScheme.surfaceVariant
-                        ) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.DirectionsBoat,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(64.dp),
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    Text(
-                                        text = ship.name,
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-                        }
-                        
-                        Spacer(modifier = Modifier.height(24.dp))
-                        
-                        // Ship details
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                        ) {
-                            Column(
+                        // Hero Image Section
+                        item {
+                            Card(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(16.dp)
-                            ) {
-                                Text(
-                                    text = "Ship Information",
-                                    style = MaterialTheme.typography.titleLarge,
-                                    fontWeight = FontWeight.Bold
+                                    .height(250.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant
                                 )
-                                
-                                Spacer(modifier = Modifier.height(16.dp))
-                                
-                                // Type
-                                ship.type?.let { type ->
-                                    DetailRow("Type", type)
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                }
-                                
-                                // Home Port
-                                DetailRow("Home Port", ship.homePort)
-                                Spacer(modifier = Modifier.height(8.dp))
-                                
-                                // Year Built
-                                ship.yearBuilt?.let { year ->
-                                    DetailRow("Year Built", year.toString())
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                }
-                                
-                                // Mass
-                                if (ship.massKg != null || ship.massLbs != null) {
-                                    val massText = buildString {
-                                        ship.massKg?.let { append("${it} kg") }
-                                        if (ship.massKg != null && ship.massLbs != null) append(" / ")
-                                        ship.massLbs?.let { append("${it} lbs") }
-                                    }
-                                    DetailRow("Mass", massText)
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                }
-                                
-                                // Roles
-                                if (ship.roles.isNotEmpty()) {
-                                    DetailRow("Roles", ship.roles.joinToString(", "))
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                }
-                                
-                                // Launches
-                                DetailRow("Launches", "${ship.launches.size} missions")
-                                
-                                // URL link
-                                ship.url?.let { url ->
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    Button(
-                                        onClick = {
-                                            uriHandler.openUri(url)
-                                        },
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.AutoMirrored.Filled.Launch,
-                                            contentDescription = null
+                            ) {
+                                Box(modifier = Modifier.fillMaxSize()) {
+                                    ship.image?.let { imageUrl ->
+                                        AsyncImage(
+                                            model = imageUrl,
+                                            contentDescription = "Image of ${ship.name}",
+                                            modifier = Modifier.fillMaxSize(),
+                                            contentScale = ContentScale.Crop
                                         )
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Text("View on SpaceX Website")
+                                    } ?: run {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .background(MaterialTheme.colorScheme.secondaryContainer),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Column(
+                                                horizontalAlignment = Alignment.CenterHorizontally
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.DirectionsBoat,
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(64.dp),
+                                                    tint = MaterialTheme.colorScheme.onSecondaryContainer
+                                                )
+                                                Spacer(modifier = Modifier.height(8.dp))
+                                                Text(
+                                                    text = "No Image Available",
+                                                    style = MaterialTheme.typography.bodyLarge,
+                                                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // Ship Information Section
+                        item {
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                )
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(16.dp),
+                                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    Text(
+                                        text = "Ship Information",
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    
+                                    InfoRow("Name", ship.name)
+                                    ship.type?.let { InfoRow("Type", it) }
+                                    InfoRow("Home Port", ship.homePort)
+                                    ship.yearBuilt?.let { InfoRow("Year Built", it.toString()) }
+                                    
+                                    if (ship.massKg != null || ship.massLbs != null) {
+                                        val massText = buildString {
+                                            ship.massKg?.let { append("${it} kg") }
+                                            if (ship.massKg != null && ship.massLbs != null) append(" / ")
+                                            ship.massLbs?.let { append("${it} lbs") }
+                                        }
+                                        InfoRow("Mass", massText)
+                                    }
+                                    
+                                    if (ship.roles.isNotEmpty()) {
+                                        InfoRow("Roles", ship.roles.joinToString(", "))
+                                    }
+                                    
+                                    InfoRow("Launches", "${ship.launches.size} missions")
+                                    
+                                    // Status
+                                    val statusText = if (ship.active) "Active" else "Inactive"
+                                    val statusColor = if (ship.active) Color.Green else Color.Gray
+                                    InfoRow("Status", statusText, statusColor)
+                                }
+                            }
+                        }
+
+                        // URL link (if available)
+                        ship.url?.let { url ->
+                            item {
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                    )
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(16.dp),
+                                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                                    ) {
+                                        Text(
+                                            text = "More Information",
+                                            style = MaterialTheme.typography.titleLarge,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                        
+                                        Button(
+                                            onClick = {
+                                                uriHandler.openUri(url)
+                                            },
+                                            modifier = Modifier.fillMaxWidth()
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.AutoMirrored.Filled.Launch,
+                                                contentDescription = null
+                                            )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text("View on SpaceX Website")
+                                        }
                                     }
                                 }
                             }
@@ -240,25 +248,30 @@ fun ShipDetailScreen(
 }
 
 @Composable
-private fun DetailRow(
+private fun InfoRow(
     label: String,
     value: String,
+    valueColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Top
     ) {
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+            modifier = Modifier.weight(1f)
         )
         Text(
             text = value,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface
+            color = valueColor,
+            modifier = Modifier.weight(2f),
+            textAlign = TextAlign.End
         )
     }
 } 
