@@ -28,4 +28,8 @@ sealed class NavigationEvent {
     data class NavigateToShipDetail(val shipId: String) : NavigationEvent() {
         val route: String = Screen.ShipDetail.createRoute(shipId)
     }
+    
+    data class NavigateToDragonDetail(val dragonId: String) : NavigationEvent() {
+        val route: String = Screen.DragonDetail.createRoute(dragonId)
+    }
 } 

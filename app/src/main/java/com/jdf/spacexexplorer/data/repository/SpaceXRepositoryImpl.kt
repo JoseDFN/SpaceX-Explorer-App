@@ -6,6 +6,7 @@ import com.jdf.spacexexplorer.data.local.CapsuleDao
 import com.jdf.spacexexplorer.data.local.CoreDao
 import com.jdf.spacexexplorer.data.local.CrewDao
 import com.jdf.spacexexplorer.data.local.ShipDao
+import com.jdf.spacexexplorer.data.local.DragonDao
 import com.jdf.spacexexplorer.data.mappers.toDomain
 import com.jdf.spacexexplorer.data.mappers.toEntity
 import com.jdf.spacexexplorer.data.remote.ApiService
@@ -15,6 +16,7 @@ import com.jdf.spacexexplorer.domain.model.Capsule
 import com.jdf.spacexexplorer.domain.model.Core
 import com.jdf.spacexexplorer.domain.model.CrewMember
 import com.jdf.spacexexplorer.domain.model.Ship
+import com.jdf.spacexexplorer.domain.model.Dragon
 import com.jdf.spacexexplorer.domain.model.Result
 import com.jdf.spacexexplorer.domain.repository.SpaceXRepository
 import kotlinx.coroutines.flow.Flow
@@ -40,7 +42,8 @@ class SpaceXRepositoryImpl @Inject constructor(
     private val capsuleDao: CapsuleDao,
     private val coreDao: CoreDao,
     private val crewDao: CrewDao,
-    private val shipDao: ShipDao
+    private val shipDao: ShipDao,
+    private val dragonDao: DragonDao
 ) : SpaceXRepository {
     
     override fun getLaunches(): Flow<Result<List<Launch>>> {
@@ -511,6 +514,100 @@ class SpaceXRepositoryImpl @Inject constructor(
             val entities = remoteShips.map { it.toEntity() }
             shipDao.deleteAllAndInsertShips(entities)
         } catch (e: Exception) {
+            // Silently handle network errors - local data will still be emitted
+            // The error will be handled by the UI layer if needed
+        }
+    }
+    
+    // Dragon implementations
+    
+    override fun getDragons(): Flow<Result<List<Dragon>>> {
+        return dragonDao.getDragons()
+            .onStart {
+                // Trigger network refresh when flow starts
+                try {
+                    refreshDragonsFromNetwork()
+                } catch (e: Exception) {
+                    // Log the error but don't emit it here - let the database flow handle it
+                    println("Network refresh failed: ${e.message}")
+                }
+            }
+            .map { entities ->
+                println("Retrieved ${entities.size} dragons from database")
+                val dragons = entities.map { it.toDomain() }
+                println("Converted to ${dragons.size} domain models")
+                Result.success(dragons)
+            }
+            .catch { e ->
+                println("Error in getDragons flow: ${e.message}")
+                e.printStackTrace()
+                emit(Result.error(Exception(e)))
+            }
+    }
+    
+    override suspend fun getDragonById(id: String): Result<Dragon> {
+        return try {
+            // Try to get from local database first
+            val localEntity = dragonDao.getDragonById(id)
+            if (localEntity != null) {
+                return Result.success(localEntity.toDomain())
+            }
+            // If not found, fetch from API
+            val remoteDto = apiService.getDragonById(id)
+            val entity = remoteDto.toEntity()
+            dragonDao.insertDragons(listOf(entity))
+            Result.success(entity.toDomain())
+        } catch (e: Exception) {
+            Result.error(e)
+        }
+    }
+    
+    override suspend fun refreshDragons(): Result<Unit> {
+        return try {
+            // Fetch fresh data from API
+            val remoteDragons = apiService.getDragons()
+            
+            // Convert DTOs to entities
+            val entities = remoteDragons.map { it.toEntity() }
+            
+            // Use transactional "delete all and insert new" strategy
+            dragonDao.deleteAllAndInsertDragons(entities)
+            
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.error(e)
+        }
+    }
+    
+    /**
+     * Private method to refresh dragons from network without blocking the flow
+     */
+    private suspend fun refreshDragonsFromNetwork() {
+        try {
+            println("Fetching dragons from API...")
+            val remoteDragons = apiService.getDragons()
+            println("Received ${remoteDragons.size} dragons from API")
+            
+            if (remoteDragons.isNotEmpty()) {
+                println("First dragon: ${remoteDragons.first().name}")
+                println("First dragon ID: ${remoteDragons.first().id}")
+                println("First dragon type: ${remoteDragons.first().type}")
+            }
+            
+            try {
+                val entities = remoteDragons.map { it.toEntity() }
+                println("Converted to ${entities.size} entities")
+                dragonDao.deleteAllAndInsertDragons(entities)
+                println("Successfully saved dragons to database")
+            } catch (mappingError: Exception) {
+                println("Error during mapping: ${mappingError.message}")
+                mappingError.printStackTrace()
+                throw mappingError
+            }
+        } catch (e: Exception) {
+            // Log the error for debugging
+            println("Error refreshing dragons from network: ${e.message}")
+            e.printStackTrace()
             // Silently handle network errors - local data will still be emitted
             // The error will be handled by the UI layer if needed
         }

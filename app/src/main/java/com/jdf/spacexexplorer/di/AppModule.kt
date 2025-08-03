@@ -9,6 +9,7 @@ import com.jdf.spacexexplorer.data.local.CapsuleDao
 import com.jdf.spacexexplorer.data.local.CoreDao
 import com.jdf.spacexexplorer.data.local.CrewDao
 import com.jdf.spacexexplorer.data.local.ShipDao
+import com.jdf.spacexexplorer.data.local.DragonDao
 import com.jdf.spacexexplorer.data.remote.ApiService
 import com.jdf.spacexexplorer.data.repository.SpaceXRepositoryImpl
 import com.jdf.spacexexplorer.domain.repository.SpaceXRepository
@@ -40,6 +41,9 @@ object AppModule {
     fun provideOkHttpClient(loggingInterceptor: HttpLoggingInterceptor): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
+            .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+            .readTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+            .writeTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
             .build()
     }
 
@@ -119,6 +123,12 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideDragonDao(database: AppDatabase): DragonDao {
+        return database.dragonDao()
+    }
+
+    @Provides
+    @Singleton
     fun provideSpaceXRepository(
         apiService: ApiService,
         launchDao: LaunchDao,
@@ -126,8 +136,9 @@ object AppModule {
         capsuleDao: CapsuleDao,
         coreDao: CoreDao,
         crewDao: CrewDao,
-        shipDao: ShipDao
+        shipDao: ShipDao,
+        dragonDao: DragonDao
     ): SpaceXRepository {
-        return SpaceXRepositoryImpl(apiService, launchDao, rocketDao, capsuleDao, coreDao, crewDao, shipDao)
+        return SpaceXRepositoryImpl(apiService, launchDao, rocketDao, capsuleDao, coreDao, crewDao, shipDao, dragonDao)
     }
 } 

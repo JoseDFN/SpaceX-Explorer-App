@@ -20,6 +20,8 @@ import com.jdf.spacexexplorer.presentation.screens.crew.CrewScreen
 import com.jdf.spacexexplorer.presentation.screens.crew_detail.CrewDetailScreen
 import com.jdf.spacexexplorer.presentation.screens.ships.ShipsScreen
 import com.jdf.spacexexplorer.presentation.screens.ship_detail.ShipDetailScreen
+import com.jdf.spacexexplorer.presentation.screens.dragons.DragonsScreen
+import com.jdf.spacexexplorer.presentation.screens.dragon_detail.DragonDetailScreen
 import com.jdf.spacexexplorer.presentation.shared.SharedViewModel
 
 @Composable
@@ -59,6 +61,10 @@ fun SetupNavGraph(
         
         composable(route = Screen.Ships.route) {
             ShipsScreen(navController = navController, sharedViewModel = sharedViewModel)
+        }
+        
+        composable(route = Screen.Dragons.route) {
+            DragonsScreen(navController = navController, sharedViewModel = sharedViewModel)
         }
         
         composable(
@@ -133,6 +139,17 @@ fun SetupNavGraph(
             )
         ) { _ ->
             CoreDetailScreen(navController = navController)
+        }
+        
+        composable(
+            route = Screen.DragonDetail.route,
+            arguments = listOf(
+                navArgument("dragonId") {
+                    type = NavType.StringType
+                }
+            )
+        ) { _ ->
+            DragonDetailScreen(navController = navController)
         }
         
         // Add more composable destinations as needed
