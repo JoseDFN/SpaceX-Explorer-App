@@ -58,6 +58,18 @@ La aplicación contará con las siguientes funcionalidades clave:
 - ✅ **Ver detalles de un cohete:** Mostrar información técnica detallada, imágenes y especificaciones de cada cohete.
 - ✅ **Manejo de estados de UI:** La interfaz mostrará indicadores de carga mientras se obtienen los datos y mensajes de error si la conexión a la API falla.
 
+## Registro de Cambios
+
+Para un seguimiento detallado de todas las modificaciones, mejoras y correcciones realizadas en el proyecto, consulta el archivo [Changelog.md](Changelog.md). Este archivo sigue el formato de [Keep a Changelog](https://keepachangelog.com/) y documenta:
+
+- **Nuevas funcionalidades** añadidas en cada versión
+- **Cambios** realizados en funcionalidades existentes
+- **Correcciones** de errores y bugs
+- **Mejoras** en la experiencia de usuario
+- **Actualizaciones** técnicas y de dependencias
+
+El proyecto utiliza [Semantic Versioning](https://semver.org/) para el control de versiones, asegurando una gestión clara y predecible de las actualizaciones.
+
 ## Diseño (Wireframes / Esquemas de Página)
 
 A continuación se presentan esquemas básicos de las pantallas principales para visualizar la estructura y disposición de los elementos.
