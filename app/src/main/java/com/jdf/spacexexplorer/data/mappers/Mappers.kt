@@ -5,16 +5,19 @@ import com.jdf.spacexexplorer.data.local.entity.RocketEntity
 import com.jdf.spacexexplorer.data.local.entity.CapsuleEntity
 import com.jdf.spacexexplorer.data.local.entity.CoreEntity
 import com.jdf.spacexexplorer.data.local.entity.CrewEntity
+import com.jdf.spacexexplorer.data.local.entity.ShipEntity
 import com.jdf.spacexexplorer.data.remote.dto.LaunchDto
 import com.jdf.spacexexplorer.data.remote.dto.RocketDto
 import com.jdf.spacexexplorer.data.remote.dto.CapsuleDto
 import com.jdf.spacexexplorer.data.remote.dto.CoreDto
 import com.jdf.spacexexplorer.data.remote.dto.CrewDto
+import com.jdf.spacexexplorer.data.remote.dto.ShipDto
 import com.jdf.spacexexplorer.domain.model.Launch
 import com.jdf.spacexexplorer.domain.model.Rocket
 import com.jdf.spacexexplorer.domain.model.Capsule
 import com.jdf.spacexexplorer.domain.model.Core
 import com.jdf.spacexexplorer.domain.model.CrewMember
+import com.jdf.spacexexplorer.domain.model.Ship
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 
@@ -503,5 +506,90 @@ fun CrewDto.toDomain(): CrewMember {
  * Convert list of CrewDto to list of CrewMember domain models
  */
 fun List<CrewDto>.toCrewDomainsFromDto(): List<CrewMember> {
+    return this.map { it.toDomain() }
+}
+
+// ============================================================================
+// SHIP MAPPERS
+// ============================================================================
+
+/**
+ * Convert ShipDto to ShipEntity for database storage
+ */
+fun ShipDto.toEntity(): ShipEntity {
+    return ShipEntity(
+        id = id,
+        name = name,
+        active = active,
+        launches = launches.toStringJson(),
+        homePort = homePort,
+        yearBuilt = yearBuilt,
+        massKg = massKg,
+        massLbs = massLbs,
+        type = type,
+        roles = roles.toStringJson(),
+        image = image,
+        url = url
+    )
+}
+
+/**
+ * Convert list of ShipDto to list of ShipEntity
+ */
+fun List<ShipDto>.toShipEntities(): List<ShipEntity> {
+    return this.map { it.toEntity() }
+}
+
+/**
+ * Convert ShipEntity to Ship domain model
+ */
+fun ShipEntity.toDomain(): Ship {
+    return Ship(
+        id = id,
+        name = name,
+        active = active,
+        launches = launches.fromJsonString(),
+        homePort = homePort,
+        yearBuilt = yearBuilt,
+        massKg = massKg,
+        massLbs = massLbs,
+        type = type,
+        roles = roles.fromJsonString(),
+        image = image,
+        url = url
+    )
+}
+
+/**
+ * Convert list of ShipEntity to list of Ship domain models
+ */
+fun List<ShipEntity>.toShipDomainsFromEntity(): List<Ship> {
+    return this.map { it.toDomain() }
+}
+
+/**
+ * Convert ShipDto to Ship domain model
+ */
+fun ShipDto.toDomain(): Ship {
+    return Ship(
+        id = id,
+        name = name,
+        active = active,
+        launches = launches,
+        homePort = homePort,
+        yearBuilt = yearBuilt,
+        massKg = massKg,
+        massLbs = massLbs,
+        type = type,
+        roles = roles,
+        image = image,
+        url = url
+    )
+}
+
+/**
+ * Convert list of ShipDto to list of Ship domain models
+ */
+fun List<ShipDto>.toShipDomainsFromDto(): List<Ship> {
     return this.map { it.toDomain() }
 } 
