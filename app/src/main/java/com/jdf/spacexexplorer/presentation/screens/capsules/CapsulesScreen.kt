@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -16,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.jdf.spacexexplorer.presentation.components.*
-import com.jdf.spacexexplorer.presentation.navigation.Screen
+import com.jdf.spacexexplorer.presentation.navigation.NavigationEvent
 
 /**
  * Main screen composable for displaying the capsules list.
@@ -28,6 +29,20 @@ fun CapsulesScreen(
     viewModel: CapsulesViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
+
+    // Collect navigation events from ViewModel
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvents.collect { event ->
+            when (event) {
+                is NavigationEvent.NavigateToCapsuleDetail -> {
+                    navController.navigate(event.route)
+                }
+                else -> {
+                    // Handle other navigation events if needed
+                }
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -88,7 +103,7 @@ fun CapsulesScreen(
                         CapsuleCard(
                             capsule = capsule,
                             onClick = {
-                                navController.navigate(Screen.CapsuleDetail.createRoute(capsule.id))
+                                viewModel.onEvent(CapsulesEvent.CapsuleClicked(capsule))
                             }
                         )
                     }

@@ -5,10 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.jdf.spacexexplorer.domain.model.Result
 import com.jdf.spacexexplorer.domain.usecase.GetCoresUseCase
 import com.jdf.spacexexplorer.domain.usecase.RefreshCoresUseCase
+import com.jdf.spacexexplorer.presentation.navigation.NavigationEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,6 +27,9 @@ class CoresViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(CoresState())
     val state: StateFlow<CoresState> = _state.asStateFlow()
+    
+    private val _navigationEvents = Channel<NavigationEvent>()
+    val navigationEvents = _navigationEvents.receiveAsFlow()
 
     init {
         loadCores()
@@ -44,8 +50,9 @@ class CoresViewModel @Inject constructor(
                 clearError()
             }
             is CoresEvent.CoreClicked -> {
-                // TODO: Navigate to core details screen
-                // This will be implemented when we add navigation
+                viewModelScope.launch {
+                    _navigationEvents.send(NavigationEvent.NavigateToCoreDetail(event.core.id))
+                }
             }
         }
     }

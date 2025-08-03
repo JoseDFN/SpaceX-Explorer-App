@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.jdf.spacexexplorer.presentation.components.*
-import com.jdf.spacexexplorer.presentation.navigation.Screen
+import com.jdf.spacexexplorer.presentation.navigation.NavigationEvent
 
 /**
  * Main screen composable for the Home dashboard.
@@ -32,9 +32,21 @@ fun HomeScreen(
 ) {
     val state by viewModel.state.collectAsState()
     
-    // Handle refresh on pull-to-refresh
+    // Collect navigation events from ViewModel
     LaunchedEffect(Unit) {
-        // Initial load is handled by ViewModel init
+        viewModel.navigationEvents.collect { event ->
+            when (event) {
+                is NavigationEvent.NavigateToLaunchDetail -> {
+                    navController.navigate(event.route)
+                }
+                is NavigationEvent.NavigateToRocketDetail -> {
+                    navController.navigate(event.route)
+                }
+                else -> {
+                    // Handle other navigation events if needed
+                }
+            }
+        }
     }
     
     LazyColumn(
@@ -95,7 +107,7 @@ fun HomeScreen(
                     rockets = state.rockets,
                     isLoading = state.isRocketsLoading,
                     onRocketClick = { rocket ->
-                        navController.navigate(Screen.RocketDetail.createRoute(rocket.id))
+                        viewModel.onEvent(HomeEvent.RocketClicked(rocket))
                     }
                 )
             }

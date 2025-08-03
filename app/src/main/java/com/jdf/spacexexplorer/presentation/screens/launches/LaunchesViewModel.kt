@@ -5,10 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.jdf.spacexexplorer.domain.model.Result
 import com.jdf.spacexexplorer.domain.usecase.GetLaunchesUseCase
 import com.jdf.spacexexplorer.domain.usecase.RefreshLaunchesUseCase
+import com.jdf.spacexexplorer.presentation.navigation.NavigationEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -33,6 +36,12 @@ class LaunchesViewModel @Inject constructor(
      */
     val state: StateFlow<LaunchesState> = _state.asStateFlow()
     
+    /**
+     * Navigation events channel for one-time navigation events
+     */
+    private val _navigationEvents = Channel<NavigationEvent>()
+    val navigationEvents = _navigationEvents.receiveAsFlow()
+    
     init {
         // Launch a coroutine to collect the flow from the use case
         loadLaunches()
@@ -53,8 +62,9 @@ class LaunchesViewModel @Inject constructor(
                 clearError()
             }
             is LaunchesEvent.LaunchClicked -> {
-                // TODO: Navigate to launch details screen
-                // This will be implemented when we add navigation
+                viewModelScope.launch {
+                    _navigationEvents.send(NavigationEvent.NavigateToLaunchDetail(event.launchId))
+                }
             }
             is LaunchesEvent.LoadMore -> {
                 // TODO: Implement pagination

@@ -8,10 +8,13 @@ import com.jdf.spacexexplorer.domain.usecase.GetRocketsUseCase
 import com.jdf.spacexexplorer.domain.usecase.GetUpcomingLaunchesUseCase
 import com.jdf.spacexexplorer.domain.usecase.RefreshLaunchesUseCase
 import com.jdf.spacexexplorer.domain.usecase.RefreshRocketsUseCase
+import com.jdf.spacexexplorer.presentation.navigation.NavigationEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -39,6 +42,12 @@ class HomeViewModel @Inject constructor(
      */
     val state: StateFlow<HomeState> = _state.asStateFlow()
     
+    /**
+     * Navigation events channel for one-time navigation events
+     */
+    private val _navigationEvents = Channel<NavigationEvent>()
+    val navigationEvents = _navigationEvents.receiveAsFlow()
+    
     init {
         // Launch separate coroutines to fetch data for each section
         loadLatestLaunches()
@@ -61,12 +70,14 @@ class HomeViewModel @Inject constructor(
                 clearAllErrors()
             }
             is HomeEvent.LaunchClicked -> {
-                // TODO: Navigate to launch details screen
-                // This will be implemented when we add navigation
+                viewModelScope.launch {
+                    _navigationEvents.send(NavigationEvent.NavigateToLaunchDetail(event.launch.id))
+                }
             }
             is HomeEvent.RocketClicked -> {
-                // TODO: Navigate to rocket details screen
-                // This will be implemented when we add navigation
+                viewModelScope.launch {
+                    _navigationEvents.send(NavigationEvent.NavigateToRocketDetail(event.rocket.id))
+                }
             }
         }
     }
