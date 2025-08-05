@@ -8,6 +8,7 @@ import com.jdf.spacexexplorer.data.local.entity.CrewEntity
 import com.jdf.spacexexplorer.data.local.entity.ShipEntity
 import com.jdf.spacexexplorer.data.local.entity.DragonEntity
 import com.jdf.spacexexplorer.data.local.entity.LandpadEntity
+import com.jdf.spacexexplorer.data.local.entity.LaunchpadEntity
 import com.jdf.spacexexplorer.data.remote.dto.LaunchDto
 import com.jdf.spacexexplorer.data.remote.dto.RocketDto
 import com.jdf.spacexexplorer.data.remote.dto.CapsuleDto
@@ -16,6 +17,8 @@ import com.jdf.spacexexplorer.data.remote.dto.CrewDto
 import com.jdf.spacexexplorer.data.remote.dto.ShipDto
 import com.jdf.spacexexplorer.data.remote.dto.DragonDto
 import com.jdf.spacexexplorer.data.remote.dto.LandpadDto
+import com.jdf.spacexexplorer.data.remote.dto.LaunchpadDto
+import com.jdf.spacexexplorer.data.remote.dto.LaunchpadImagesDto
 import com.jdf.spacexexplorer.domain.model.Launch
 import com.jdf.spacexexplorer.domain.model.Rocket
 import com.jdf.spacexexplorer.domain.model.Capsule
@@ -24,6 +27,8 @@ import com.jdf.spacexexplorer.domain.model.CrewMember
 import com.jdf.spacexexplorer.domain.model.Ship
 import com.jdf.spacexexplorer.domain.model.Dragon
 import com.jdf.spacexexplorer.domain.model.Landpad
+import com.jdf.spacexexplorer.domain.model.Launchpad
+import com.jdf.spacexexplorer.domain.model.LaunchpadImages
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 
@@ -1008,4 +1013,127 @@ fun LandpadDto.toDomain(): Landpad {
  */
 fun List<LandpadDto>.toLandpadDomainsFromDto(): List<Landpad> {
     return this.map { it.toDomain() }
+}
+
+// ============================================================================
+// LAUNCHPAD MAPPERS
+// ============================================================================
+
+/**
+ * Convert LaunchpadDto to LaunchpadEntity for database storage
+ */
+fun LaunchpadDto.toEntity(): LaunchpadEntity {
+    return LaunchpadEntity(
+        id = id,
+        name = name,
+        fullName = fullName,
+        locality = locality,
+        region = region,
+        latitude = latitude,
+        longitude = longitude,
+        launchAttempts = launchAttempts,
+        launchSuccesses = launchSuccesses,
+        rockets = rockets.toStringJson(),
+        timezone = timezone,
+        launches = launches.toStringJson(),
+        status = status,
+        details = details,
+        images = images?.toJson()
+    )
+}
+
+/**
+ * Convert list of LaunchpadDto to list of LaunchpadEntity
+ */
+fun List<LaunchpadDto>.toLaunchpadEntities(): List<LaunchpadEntity> {
+    return this.map { it.toEntity() }
+}
+
+/**
+ * Convert LaunchpadEntity to Launchpad domain model
+ */
+fun LaunchpadEntity.toDomain(): Launchpad {
+    return Launchpad(
+        id = id,
+        name = name,
+        fullName = fullName,
+        locality = locality,
+        region = region,
+        latitude = latitude,
+        longitude = longitude,
+        launchAttempts = launchAttempts,
+        launchSuccesses = launchSuccesses,
+        rockets = rockets.fromJsonString(),
+        timezone = timezone,
+        launches = launches.fromJsonString(),
+        status = status,
+        details = details,
+        images = images?.fromLaunchpadImagesJson()
+    )
+}
+
+/**
+ * Convert list of LaunchpadEntity to list of Launchpad domain models
+ */
+fun List<LaunchpadEntity>.toLaunchpadDomainsFromEntity(): List<Launchpad> {
+    return this.map { it.toDomain() }
+}
+
+/**
+ * Convert LaunchpadDto to Launchpad domain model
+ */
+fun LaunchpadDto.toDomain(): Launchpad {
+    return Launchpad(
+        id = id,
+        name = name,
+        fullName = fullName,
+        locality = locality,
+        region = region,
+        latitude = latitude,
+        longitude = longitude,
+        launchAttempts = launchAttempts,
+        launchSuccesses = launchSuccesses,
+        rockets = rockets,
+        timezone = timezone,
+        launches = launches,
+        status = status,
+        details = details,
+        images = images?.toLaunchpadImagesDomain()
+    )
+}
+
+/**
+ * Convert list of LaunchpadDto to list of Launchpad domain models
+ */
+fun List<LaunchpadDto>.toLaunchpadDomainsFromDto(): List<Launchpad> {
+    return this.map { it.toDomain() }
+}
+
+/**
+ * Convert LaunchpadImagesDto to JSON string for database storage
+ */
+private fun LaunchpadImagesDto.toJson(): String {
+    val moshi = Moshi.Builder().build()
+    val adapter = moshi.adapter<LaunchpadImagesDto>(LaunchpadImagesDto::class.java)
+    return adapter.toJson(this)
+}
+
+/**
+ * Convert LaunchpadImagesDto to LaunchpadImages domain model
+ */
+private fun LaunchpadImagesDto.toLaunchpadImagesDomain(): LaunchpadImages {
+    return LaunchpadImages(
+        large = large
+    )
+}
+
+/**
+ * Convert JSON string to LaunchpadImages for database retrieval
+ */
+private fun String?.fromLaunchpadImagesJson(): LaunchpadImages? {
+    return this?.let { json ->
+        val moshi = Moshi.Builder().build()
+        val adapter = moshi.adapter<LaunchpadImagesDto>(LaunchpadImagesDto::class.java)
+        adapter.fromJson(json)?.toLaunchpadImagesDomain()
+    }
 } 
