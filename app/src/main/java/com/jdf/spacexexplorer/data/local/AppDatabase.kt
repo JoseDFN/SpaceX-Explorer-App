@@ -11,10 +11,11 @@ import com.jdf.spacexexplorer.data.local.entity.ShipEntity
 import com.jdf.spacexexplorer.data.local.entity.DragonEntity
 import com.jdf.spacexexplorer.data.local.entity.LandpadEntity
 import com.jdf.spacexexplorer.data.local.entity.LaunchpadEntity
+import com.jdf.spacexexplorer.data.local.entity.PayloadEntity
 
 @Database(
-    entities = [LaunchEntity::class, RocketEntity::class, CapsuleEntity::class, CoreEntity::class, CrewEntity::class, ShipEntity::class, DragonEntity::class, LandpadEntity::class, LaunchpadEntity::class],
-    version = 8,
+    entities = [LaunchEntity::class, RocketEntity::class, CapsuleEntity::class, CoreEntity::class, CrewEntity::class, ShipEntity::class, DragonEntity::class, LandpadEntity::class, LaunchpadEntity::class, PayloadEntity::class],
+    version = 9,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -27,4 +28,5 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun dragonDao(): DragonDao
     abstract fun landpadDao(): LandpadDao
     abstract fun launchpadDao(): LaunchpadDao
+    abstract fun payloadDao(): PayloadDao
 } 
