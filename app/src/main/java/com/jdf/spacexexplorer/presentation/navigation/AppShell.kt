@@ -349,6 +349,7 @@ private fun getScreenTitle(route: String?): String {
         Screen.Landpads.route -> "Landpads"
         Screen.Launchpads.route -> "Launchpads"
         Screen.Payloads.route -> "Payloads"
+        Screen.PayloadDetail.route -> "Payload Details"
         Screen.DragonDetail.route -> "Dragon Details"
         Screen.LandpadDetail.route -> "Landpad Details"
         Screen.LaunchpadDetail.route -> "Launchpad Details"

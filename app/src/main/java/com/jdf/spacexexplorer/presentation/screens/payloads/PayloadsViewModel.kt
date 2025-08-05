@@ -62,8 +62,9 @@ class PayloadsViewModel @Inject constructor(
                 clearError()
             }
             is PayloadsEvent.PayloadClicked -> {
-                // For now, we'll just handle the click without navigation
-                // TODO: Implement payload detail navigation when needed
+                viewModelScope.launch {
+                    _navigationEvents.send(NavigationEvent.NavigateToPayloadDetail(event.payload.id))
+                }
             }
         }
     }

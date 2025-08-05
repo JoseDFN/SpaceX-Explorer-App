@@ -40,4 +40,8 @@ sealed class NavigationEvent {
     data class NavigateToLaunchpadDetail(val launchpadId: String) : NavigationEvent() {
         val route: String = Screen.LaunchpadDetail.createRoute(launchpadId)
     }
+    
+    data class NavigateToPayloadDetail(val payloadId: String) : NavigationEvent() {
+        val route: String = Screen.PayloadDetail.createRoute(payloadId)
+    }
 } 

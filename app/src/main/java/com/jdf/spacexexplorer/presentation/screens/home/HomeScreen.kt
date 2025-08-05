@@ -76,6 +76,9 @@ fun HomeScreen(
                 is NavigationEvent.NavigateToLaunchpadDetail -> {
                     navController.navigate(event.route)
                 }
+                is NavigationEvent.NavigateToPayloadDetail -> {
+                    navController.navigate(event.route)
+                }
             }
         }
     }

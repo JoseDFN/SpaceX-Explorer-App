@@ -49,7 +49,9 @@ fun PayloadsScreen(
     LaunchedEffect(Unit) {
         viewModel.navigationEvents.collect { event ->
             when (event) {
-                // Handle navigation events when payload detail screen is implemented
+                is NavigationEvent.NavigateToPayloadDetail -> {
+                    navController.navigate(event.route)
+                }
                 else -> {
                     // Handle other navigation events if needed
                 }
