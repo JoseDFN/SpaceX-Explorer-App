@@ -8,17 +8,48 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/), y este pr
 
 ## [Próxima Versión] - En Desarrollo
 
-### 🚀 Nuevas Funcionalidades Planificadas
-
-- **Módulo de Plataformas de Aterrizaje (Landpads)**: Implementación completa de la funcionalidad para listar y ver detalles de las plataformas de aterrizaje.
-- **Módulo de Plataformas de Lanzamiento (Launchpads)**: Implementación completa de la funcionalidad para listar y ver detalles de las plataformas de lanzamiento.
-- **Módulo de Cargas Útiles (Payloads)**: Implementación completa de la funcionalidad para listar y ver detalles de las cargas útiles.
-
 ### 🔧 Mejoras de Funcionalidad
 
 - **Filtro y Ordenamiento de Lanzamientos**: Se añadirán controles en la UI para filtrar lanzamientos por año, estado de éxito y ordenar por fecha.
 - **Búsqueda Global**: Se implementará una funcionalidad de búsqueda en toda la aplicación para encontrar lanzamientos, cohetes, etc.
 - **Pantalla de Configuración**: Se creará una pantalla para gestionar opciones de la aplicación, como la limpieza del caché local.
+
+---
+
+## [0.3.0] - 2025-08-05
+
+### ✨ Añadido
+
+#### 🎯 Nuevos Módulos Completos
+- **Módulo de Plataformas de Aterrizaje (Landpads)**: Implementación completa de la funcionalidad para listar y ver detalles de las plataformas de aterrizaje con navegación completa y pantallas de detalle.
+- **Módulo de Plataformas de Lanzamiento (Launchpads)**: Implementación completa de la funcionalidad para listar y ver detalles de las plataformas de lanzamiento con navegación completa y pantallas de detalle.
+- **Módulo de Cargas Útiles (Payloads)**: Implementación completa de la funcionalidad para listar y ver detalles de las cargas útiles con navegación completa y pantallas de detalle.
+
+#### 🏗️ Arquitectura y Datos
+- **GetPayloadByIdUseCase**: Nuevo caso de uso para obtener cargas útiles específicas por ID.
+- **Componentes de UI Reutilizables**: Nuevos componentes `LandpadCard`, `LaunchpadCard` y `PayloadCard` para mostrar información en las listas.
+- **Estados y Eventos**: Implementación completa de estados y eventos para los tres nuevos módulos (Landpads, Launchpads, Payloads).
+
+#### 🧭 Navegación Mejorada
+- **Rutas de Navegación**: Nuevas rutas añadidas para Landpads, Launchpads y Payloads en el sistema de navegación.
+- **Eventos de Navegación**: Nuevos eventos de navegación para manejar la transición entre listas y pantallas de detalle.
+- **Menú de Navegación**: Actualización del menú lateral para incluir los nuevos módulos con sus respectivos iconos.
+
+### 🔄 Cambiado
+
+#### 🎨 Mejoras en la UI/UX
+- **Título en Pantalla de Lanzamientos**: Se añadió el título "Launches" a la pantalla de lanzamientos para mantener consistencia con otras pantallas.
+- **Estandarización de Diseño**: Todos los nuevos módulos siguen el mismo patrón de diseño establecido en el proyecto.
+
+#### 🏠 Pantalla de Inicio
+- **Panel de Control Expandido**: Se añadieron carruseles para Landpads, Launchpads y Payloads en la pantalla de inicio.
+- **Navegación Completa**: Se habilitó la navegación desde cada tarjeta en los nuevos carruseles hacia sus respectivas pantallas de detalle.
+
+### 🐛 Corregido
+
+#### 🔧 Errores de Compilación
+- **Manejo de Eventos de Navegación**: Se corrigió el manejo de eventos de navegación en HomeScreen para incluir el nuevo evento `NavigateToPayloadDetail`.
+- **Variables No Utilizadas**: Se eliminaron variables no utilizadas en NavGraph para evitar warnings de compilación.
 
 ---
 
