@@ -32,4 +32,16 @@ sealed class NavigationEvent {
     data class NavigateToDragonDetail(val dragonId: String) : NavigationEvent() {
         val route: String = Screen.DragonDetail.createRoute(dragonId)
     }
+    
+    data class NavigateToLandpadDetail(val landpadId: String) : NavigationEvent() {
+        val route: String = Screen.LandpadDetail.createRoute(landpadId)
+    }
+    
+    data class NavigateToLaunchpadDetail(val launchpadId: String) : NavigationEvent() {
+        val route: String = Screen.LaunchpadDetail.createRoute(launchpadId)
+    }
+    
+    data class NavigateToPayloadDetail(val payloadId: String) : NavigationEvent() {
+        val route: String = Screen.PayloadDetail.createRoute(payloadId)
+    }
 } 

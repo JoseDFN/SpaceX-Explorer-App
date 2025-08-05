@@ -601,7 +601,7 @@ fun DragonCarouselCard(
                 // Dragon details
                 Column {
                     Text(
-                        text = dragon.type ?: "Dragon",
+                        text = dragon.type,
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.White.copy(alpha = 0.8f)
                     )

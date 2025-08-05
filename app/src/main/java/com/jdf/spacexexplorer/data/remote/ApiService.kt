@@ -7,6 +7,9 @@ import com.jdf.spacexexplorer.data.remote.dto.CoreDto
 import com.jdf.spacexexplorer.data.remote.dto.CrewDto
 import com.jdf.spacexexplorer.data.remote.dto.ShipDto
 import com.jdf.spacexexplorer.data.remote.dto.DragonDto
+import com.jdf.spacexexplorer.data.remote.dto.LandpadDto
+import com.jdf.spacexexplorer.data.remote.dto.LaunchpadDto
+import com.jdf.spacexexplorer.data.remote.dto.PayloadDto
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -123,4 +126,40 @@ interface ApiService {
      */
     @GET("dragons/{id}")
     suspend fun getDragonById(@Path("id") id: String): DragonDto
+    
+    /**
+     * Get all landpads
+     */
+    @GET("landpads")
+    suspend fun getLandpads(): List<LandpadDto>
+    
+    /**
+     * Get a specific landpad by ID
+     */
+    @GET("landpads/{id}")
+    suspend fun getLandpadById(@Path("id") id: String): LandpadDto
+    
+    /**
+     * Get all launchpads
+     */
+    @GET("launchpads")
+    suspend fun getLaunchpads(): List<LaunchpadDto>
+    
+    /**
+     * Get a specific launchpad by ID
+     */
+    @GET("launchpads/{id}")
+    suspend fun getLaunchpadById(@Path("id") id: String): LaunchpadDto
+    
+    /**
+     * Get all payloads
+     */
+    @GET("payloads")
+    suspend fun getPayloads(): List<PayloadDto>
+    
+    /**
+     * Get a specific payload by ID
+     */
+    @GET("payloads/{id}")
+    suspend fun getPayloadById(@Path("id") id: String): PayloadDto
 } 

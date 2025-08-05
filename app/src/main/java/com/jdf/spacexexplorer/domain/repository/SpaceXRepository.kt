@@ -7,6 +7,9 @@ import com.jdf.spacexexplorer.domain.model.Core
 import com.jdf.spacexexplorer.domain.model.CrewMember
 import com.jdf.spacexexplorer.domain.model.Ship
 import com.jdf.spacexexplorer.domain.model.Dragon
+import com.jdf.spacexexplorer.domain.model.Landpad
+import com.jdf.spacexexplorer.domain.model.Launchpad
+import com.jdf.spacexexplorer.domain.model.Payload
 import com.jdf.spacexexplorer.domain.model.Result
 import kotlinx.coroutines.flow.Flow
 
@@ -145,4 +148,49 @@ interface SpaceXRepository {
      * Refresh dragons from the remote API
      */
     suspend fun refreshDragons(): Result<Unit>
+    
+    /**
+     * Get all landpads as a Flow for reactive updates with Result wrapper
+     */
+    fun getLandpads(): Flow<Result<List<Landpad>>>
+    
+    /**
+     * Get a specific landpad by ID with Result wrapper
+     */
+    suspend fun getLandpadById(id: String): Result<Landpad>
+    
+    /**
+     * Refresh landpads from the remote API
+     */
+    suspend fun refreshLandpads(): Result<Unit>
+    
+    /**
+     * Get all launchpads as a Flow for reactive updates with Result wrapper
+     */
+    fun getLaunchpads(): Flow<Result<List<Launchpad>>>
+    
+    /**
+     * Get a specific launchpad by ID with Result wrapper
+     */
+    suspend fun getLaunchpadById(id: String): Result<Launchpad>
+    
+    /**
+     * Refresh launchpads from the remote API
+     */
+    suspend fun refreshLaunchpads(): Result<Unit>
+    
+    /**
+     * Get all payloads as a Flow for reactive updates with Result wrapper
+     */
+    fun getPayloads(): Flow<Result<List<Payload>>>
+    
+    /**
+     * Get a specific payload by ID with Result wrapper
+     */
+    suspend fun getPayloadById(id: String): Result<Payload>
+    
+    /**
+     * Refresh payloads from the remote API
+     */
+    suspend fun refreshPayloads(): Result<Unit>
 } 

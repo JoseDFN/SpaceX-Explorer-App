@@ -22,6 +22,12 @@ import com.jdf.spacexexplorer.presentation.screens.ships.ShipsScreen
 import com.jdf.spacexexplorer.presentation.screens.ship_detail.ShipDetailScreen
 import com.jdf.spacexexplorer.presentation.screens.dragons.DragonsScreen
 import com.jdf.spacexexplorer.presentation.screens.dragon_detail.DragonDetailScreen
+import com.jdf.spacexexplorer.presentation.screens.landpads.LandpadsScreen
+import com.jdf.spacexexplorer.presentation.screens.landpad_detail.LandpadDetailScreen
+import com.jdf.spacexexplorer.presentation.screens.launchpads.LaunchpadsScreen
+import com.jdf.spacexexplorer.presentation.screens.launchpad_detail.LaunchpadDetailScreen
+import com.jdf.spacexexplorer.presentation.screens.payloads.PayloadsScreen
+import com.jdf.spacexexplorer.presentation.screens.payload_detail.PayloadDetailScreen
 import com.jdf.spacexexplorer.presentation.shared.SharedViewModel
 
 @Composable
@@ -65,6 +71,31 @@ fun SetupNavGraph(
         
         composable(route = Screen.Dragons.route) {
             DragonsScreen(navController = navController, sharedViewModel = sharedViewModel)
+        }
+        
+        composable(route = Screen.Landpads.route) {
+            LandpadsScreen(navController = navController, sharedViewModel = sharedViewModel)
+        }
+        
+        composable(route = Screen.Launchpads.route) {
+            LaunchpadsScreen(navController = navController, sharedViewModel = sharedViewModel)
+        }
+        
+        composable(route = Screen.Payloads.route) {
+            PayloadsScreen(navController = navController, sharedViewModel = sharedViewModel)
+        }
+        
+        composable(
+            route = Screen.PayloadDetail.route,
+            arguments = listOf(
+                navArgument("payloadId") {
+                    type = NavType.StringType
+                }
+            )
+        ) { _ ->
+            PayloadDetailScreen(
+                navController = navController
+            )
         }
         
         composable(
@@ -150,6 +181,28 @@ fun SetupNavGraph(
             )
         ) { _ ->
             DragonDetailScreen(navController = navController)
+        }
+        
+        composable(
+            route = Screen.LandpadDetail.route,
+            arguments = listOf(
+                navArgument("landpadId") {
+                    type = NavType.StringType
+                }
+            )
+        ) { _ ->
+            LandpadDetailScreen(navController = navController)
+        }
+        
+        composable(
+            route = Screen.LaunchpadDetail.route,
+            arguments = listOf(
+                navArgument("launchpadId") {
+                    type = NavType.StringType
+                }
+            )
+        ) { _ ->
+            LaunchpadDetailScreen(navController = navController)
         }
         
         // Add more composable destinations as needed

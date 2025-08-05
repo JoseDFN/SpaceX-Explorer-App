@@ -7,6 +7,9 @@ import com.jdf.spacexexplorer.data.local.CoreDao
 import com.jdf.spacexexplorer.data.local.CrewDao
 import com.jdf.spacexexplorer.data.local.ShipDao
 import com.jdf.spacexexplorer.data.local.DragonDao
+import com.jdf.spacexexplorer.data.local.LandpadDao
+import com.jdf.spacexexplorer.data.local.LaunchpadDao
+import com.jdf.spacexexplorer.data.local.PayloadDao
 import com.jdf.spacexexplorer.data.mappers.toDomain
 import com.jdf.spacexexplorer.data.mappers.toEntity
 import com.jdf.spacexexplorer.data.remote.ApiService
@@ -17,6 +20,9 @@ import com.jdf.spacexexplorer.domain.model.Core
 import com.jdf.spacexexplorer.domain.model.CrewMember
 import com.jdf.spacexexplorer.domain.model.Ship
 import com.jdf.spacexexplorer.domain.model.Dragon
+import com.jdf.spacexexplorer.domain.model.Landpad
+import com.jdf.spacexexplorer.domain.model.Launchpad
+import com.jdf.spacexexplorer.domain.model.Payload
 import com.jdf.spacexexplorer.domain.model.Result
 import com.jdf.spacexexplorer.domain.repository.SpaceXRepository
 import kotlinx.coroutines.flow.Flow
@@ -43,7 +49,10 @@ class SpaceXRepositoryImpl @Inject constructor(
     private val coreDao: CoreDao,
     private val crewDao: CrewDao,
     private val shipDao: ShipDao,
-    private val dragonDao: DragonDao
+    private val dragonDao: DragonDao,
+    private val landpadDao: LandpadDao,
+    private val launchpadDao: LaunchpadDao,
+    private val payloadDao: PayloadDao
 ) : SpaceXRepository {
     
     override fun getLaunches(): Flow<Result<List<Launch>>> {
@@ -616,6 +625,216 @@ class SpaceXRepositoryImpl @Inject constructor(
             // Log the error for debugging
             println("Error refreshing dragons from network: ${e.message}")
             e.printStackTrace()
+            // Silently handle network errors - local data will still be emitted
+            // The error will be handled by the UI layer if needed
+        }
+    }
+    
+    // Landpad implementations
+    
+    override fun getLandpads(): Flow<Result<List<Landpad>>> {
+        return landpadDao.getLandpads()
+            .onStart {
+                // Trigger network refresh when flow starts
+                try {
+                    refreshLandpadsFromNetwork()
+                } catch (e: Exception) {
+                    // Log the error but don't emit it here - let the database flow handle it
+                    println("Network refresh failed: ${e.message}")
+                }
+            }
+            .map { entities ->
+                val landpads = entities.map { it.toDomain() }
+                Result.success(landpads)
+            }
+            .catch { e ->
+                emit(Result.error(Exception(e)))
+            }
+    }
+    
+    override suspend fun getLandpadById(id: String): Result<Landpad> {
+        return try {
+            // Try to get from local database first
+            val localEntity = landpadDao.getLandpadById(id)
+            if (localEntity != null) {
+                return Result.success(localEntity.toDomain())
+            }
+            // If not found, fetch from API
+            val remoteDto = apiService.getLandpadById(id)
+            val entity = remoteDto.toEntity()
+            landpadDao.insertLandpads(listOf(entity))
+            Result.success(entity.toDomain())
+        } catch (e: Exception) {
+            Result.error(e)
+        }
+    }
+    
+    override suspend fun refreshLandpads(): Result<Unit> {
+        return try {
+            // Fetch fresh data from API
+            val remoteLandpads = apiService.getLandpads()
+            
+            // Convert DTOs to entities
+            val entities = remoteLandpads.map { it.toEntity() }
+            
+            // Use transactional "delete all and insert new" strategy
+            landpadDao.deleteAllAndInsertLandpads(entities)
+            
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.error(e)
+        }
+    }
+    
+    /**
+     * Private method to refresh landpads from network without blocking the flow
+     */
+    private suspend fun refreshLandpadsFromNetwork() {
+        try {
+            val remoteLandpads = apiService.getLandpads()
+            val entities = remoteLandpads.map { it.toEntity() }
+            landpadDao.deleteAllAndInsertLandpads(entities)
+        } catch (e: Exception) {
+            // Silently handle network errors - local data will still be emitted
+            // The error will be handled by the UI layer if needed
+        }
+    }
+    
+    // Launchpad implementations
+    
+    override fun getLaunchpads(): Flow<Result<List<Launchpad>>> {
+        return launchpadDao.getLaunchpads()
+            .onStart {
+                // Trigger network refresh when flow starts
+                try {
+                    refreshLaunchpadsFromNetwork()
+                } catch (e: Exception) {
+                    // Log the error but don't emit it here - let the database flow handle it
+                    println("Network refresh failed: ${e.message}")
+                }
+            }
+            .map { entities ->
+                val launchpads = entities.map { it.toDomain() }
+                Result.success(launchpads)
+            }
+            .catch { e ->
+                emit(Result.error(Exception(e)))
+            }
+    }
+    
+    override suspend fun getLaunchpadById(id: String): Result<Launchpad> {
+        return try {
+            // Try to get from local database first
+            val localEntity = launchpadDao.getLaunchpadById(id)
+            if (localEntity != null) {
+                return Result.success(localEntity.toDomain())
+            }
+            // If not found, fetch from API
+            val remoteDto = apiService.getLaunchpadById(id)
+            val entity = remoteDto.toEntity()
+            launchpadDao.insertLaunchpads(listOf(entity))
+            Result.success(entity.toDomain())
+        } catch (e: Exception) {
+            Result.error(e)
+        }
+    }
+    
+    override suspend fun refreshLaunchpads(): Result<Unit> {
+        return try {
+            // Fetch fresh data from API
+            val remoteLaunchpads = apiService.getLaunchpads()
+            
+            // Convert DTOs to entities
+            val entities = remoteLaunchpads.map { it.toEntity() }
+            
+            // Use transactional "delete all and insert new" strategy
+            launchpadDao.deleteAllAndInsertLaunchpads(entities)
+            
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.error(e)
+        }
+    }
+    
+    /**
+     * Private method to refresh launchpads from network without blocking the flow
+     */
+    private suspend fun refreshLaunchpadsFromNetwork() {
+        try {
+            val remoteLaunchpads = apiService.getLaunchpads()
+            val entities = remoteLaunchpads.map { it.toEntity() }
+            launchpadDao.deleteAllAndInsertLaunchpads(entities)
+        } catch (e: Exception) {
+            // Silently handle network errors - local data will still be emitted
+            // The error will be handled by the UI layer if needed
+        }
+    }
+    
+    // Payload implementations
+    
+    override fun getPayloads(): Flow<Result<List<Payload>>> {
+        return payloadDao.getPayloads()
+            .onStart {
+                // Trigger network refresh when flow starts
+                try {
+                    refreshPayloadsFromNetwork()
+                } catch (e: Exception) {
+                    // Log the error but don't emit it here - let the database flow handle it
+                    println("Network refresh failed: ${e.message}")
+                }
+            }
+            .map { entities ->
+                val payloads = entities.map { it.toDomain() }
+                Result.success(payloads)
+            }
+            .catch { e ->
+                emit(Result.error(Exception(e)))
+            }
+    }
+    
+    override suspend fun getPayloadById(id: String): Result<Payload> {
+        return try {
+            // Try to get from local database first
+            val localEntity = payloadDao.getPayloadById(id)
+            if (localEntity != null) {
+                return Result.success(localEntity.toDomain())
+            }
+            // If not found, fetch from API
+            val remoteDto = apiService.getPayloadById(id)
+            val entity = remoteDto.toEntity()
+            payloadDao.insertPayloads(listOf(entity))
+            Result.success(entity.toDomain())
+        } catch (e: Exception) {
+            Result.error(e)
+        }
+    }
+    
+    override suspend fun refreshPayloads(): Result<Unit> {
+        return try {
+            // Fetch fresh data from API
+            val remotePayloads = apiService.getPayloads()
+            
+            // Convert DTOs to entities
+            val entities = remotePayloads.map { it.toEntity() }
+            
+            // Use transactional "delete all and insert new" strategy
+            payloadDao.deleteAllAndInsertPayloads(entities)
+            
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.error(e)
+        }
+    }
+    
+    /**
+     * Private method to refresh payloads from network without blocking the flow
+     */
+    private suspend fun refreshPayloadsFromNetwork() {
+        try {
+            val remotePayloads = apiService.getPayloads()
+            val entities = remotePayloads.map { it.toEntity() }
+            payloadDao.deleteAllAndInsertPayloads(entities)
+        } catch (e: Exception) {
             // Silently handle network errors - local data will still be emitted
             // The error will be handled by the UI layer if needed
         }

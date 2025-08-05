@@ -70,6 +70,15 @@ fun HomeScreen(
                 is NavigationEvent.NavigateToDragonDetail -> {
                     navController.navigate(event.route)
                 }
+                is NavigationEvent.NavigateToLandpadDetail -> {
+                    navController.navigate(event.route)
+                }
+                is NavigationEvent.NavigateToLaunchpadDetail -> {
+                    navController.navigate(event.route)
+                }
+                is NavigationEvent.NavigateToPayloadDetail -> {
+                    navController.navigate(event.route)
+                }
             }
         }
     }
