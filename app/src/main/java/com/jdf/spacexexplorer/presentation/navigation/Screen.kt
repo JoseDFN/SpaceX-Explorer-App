@@ -30,5 +30,9 @@ sealed class Screen(val route: String) {
     object DragonDetail : Screen("dragon_detail_screen/{dragonId}") {
         fun createRoute(dragonId: String) = "dragon_detail_screen/$dragonId"
     }
+    object Landpads : Screen("landpads_screen")
+    object LandpadDetail : Screen("landpad_detail_screen/{landpadId}") {
+        fun createRoute(landpadId: String) = "landpad_detail_screen/$landpadId"
+    }
     // Add more screens as needed
 } 

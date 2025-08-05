@@ -10,6 +10,7 @@ import com.jdf.spacexexplorer.data.local.CoreDao
 import com.jdf.spacexexplorer.data.local.CrewDao
 import com.jdf.spacexexplorer.data.local.ShipDao
 import com.jdf.spacexexplorer.data.local.DragonDao
+import com.jdf.spacexexplorer.data.local.LandpadDao
 import com.jdf.spacexexplorer.data.remote.ApiService
 import com.jdf.spacexexplorer.data.repository.SpaceXRepositoryImpl
 import com.jdf.spacexexplorer.domain.repository.SpaceXRepository
@@ -129,6 +130,12 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideLandpadDao(database: AppDatabase): LandpadDao {
+        return database.landpadDao()
+    }
+
+    @Provides
+    @Singleton
     fun provideSpaceXRepository(
         apiService: ApiService,
         launchDao: LaunchDao,
@@ -137,8 +144,9 @@ object AppModule {
         coreDao: CoreDao,
         crewDao: CrewDao,
         shipDao: ShipDao,
-        dragonDao: DragonDao
+        dragonDao: DragonDao,
+        landpadDao: LandpadDao
     ): SpaceXRepository {
-        return SpaceXRepositoryImpl(apiService, launchDao, rocketDao, capsuleDao, coreDao, crewDao, shipDao, dragonDao)
+        return SpaceXRepositoryImpl(apiService, launchDao, rocketDao, capsuleDao, coreDao, crewDao, shipDao, dragonDao, landpadDao)
     }
 } 

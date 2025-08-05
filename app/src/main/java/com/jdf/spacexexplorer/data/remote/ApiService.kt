@@ -7,6 +7,7 @@ import com.jdf.spacexexplorer.data.remote.dto.CoreDto
 import com.jdf.spacexexplorer.data.remote.dto.CrewDto
 import com.jdf.spacexexplorer.data.remote.dto.ShipDto
 import com.jdf.spacexexplorer.data.remote.dto.DragonDto
+import com.jdf.spacexexplorer.data.remote.dto.LandpadDto
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -123,4 +124,16 @@ interface ApiService {
      */
     @GET("dragons/{id}")
     suspend fun getDragonById(@Path("id") id: String): DragonDto
+    
+    /**
+     * Get all landpads
+     */
+    @GET("landpads")
+    suspend fun getLandpads(): List<LandpadDto>
+    
+    /**
+     * Get a specific landpad by ID
+     */
+    @GET("landpads/{id}")
+    suspend fun getLandpadById(@Path("id") id: String): LandpadDto
 } 
