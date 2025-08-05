@@ -36,4 +36,8 @@ sealed class NavigationEvent {
     data class NavigateToLandpadDetail(val landpadId: String) : NavigationEvent() {
         val route: String = Screen.LandpadDetail.createRoute(landpadId)
     }
+    
+    data class NavigateToLaunchpadDetail(val launchpadId: String) : NavigationEvent() {
+        val route: String = Screen.LaunchpadDetail.createRoute(launchpadId)
+    }
 } 

@@ -8,6 +8,7 @@ import com.jdf.spacexexplorer.data.remote.dto.CrewDto
 import com.jdf.spacexexplorer.data.remote.dto.ShipDto
 import com.jdf.spacexexplorer.data.remote.dto.DragonDto
 import com.jdf.spacexexplorer.data.remote.dto.LandpadDto
+import com.jdf.spacexexplorer.data.remote.dto.LaunchpadDto
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -136,4 +137,16 @@ interface ApiService {
      */
     @GET("landpads/{id}")
     suspend fun getLandpadById(@Path("id") id: String): LandpadDto
+    
+    /**
+     * Get all launchpads
+     */
+    @GET("launchpads")
+    suspend fun getLaunchpads(): List<LaunchpadDto>
+    
+    /**
+     * Get a specific launchpad by ID
+     */
+    @GET("launchpads/{id}")
+    suspend fun getLaunchpadById(@Path("id") id: String): LaunchpadDto
 } 

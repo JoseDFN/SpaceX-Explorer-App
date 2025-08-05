@@ -8,6 +8,7 @@ import com.jdf.spacexexplorer.data.local.CrewDao
 import com.jdf.spacexexplorer.data.local.ShipDao
 import com.jdf.spacexexplorer.data.local.DragonDao
 import com.jdf.spacexexplorer.data.local.LandpadDao
+import com.jdf.spacexexplorer.data.local.LaunchpadDao
 import com.jdf.spacexexplorer.data.mappers.toDomain
 import com.jdf.spacexexplorer.data.mappers.toEntity
 import com.jdf.spacexexplorer.data.remote.ApiService
@@ -19,6 +20,7 @@ import com.jdf.spacexexplorer.domain.model.CrewMember
 import com.jdf.spacexexplorer.domain.model.Ship
 import com.jdf.spacexexplorer.domain.model.Dragon
 import com.jdf.spacexexplorer.domain.model.Landpad
+import com.jdf.spacexexplorer.domain.model.Launchpad
 import com.jdf.spacexexplorer.domain.model.Result
 import com.jdf.spacexexplorer.domain.repository.SpaceXRepository
 import kotlinx.coroutines.flow.Flow
@@ -46,7 +48,8 @@ class SpaceXRepositoryImpl @Inject constructor(
     private val crewDao: CrewDao,
     private val shipDao: ShipDao,
     private val dragonDao: DragonDao,
-    private val landpadDao: LandpadDao
+    private val landpadDao: LandpadDao,
+    private val launchpadDao: LaunchpadDao
 ) : SpaceXRepository {
     
     override fun getLaunches(): Flow<Result<List<Launch>>> {
@@ -688,6 +691,76 @@ class SpaceXRepositoryImpl @Inject constructor(
             val remoteLandpads = apiService.getLandpads()
             val entities = remoteLandpads.map { it.toEntity() }
             landpadDao.deleteAllAndInsertLandpads(entities)
+        } catch (e: Exception) {
+            // Silently handle network errors - local data will still be emitted
+            // The error will be handled by the UI layer if needed
+        }
+    }
+    
+    // Launchpad implementations
+    
+    override fun getLaunchpads(): Flow<Result<List<Launchpad>>> {
+        return launchpadDao.getLaunchpads()
+            .onStart {
+                // Trigger network refresh when flow starts
+                try {
+                    refreshLaunchpadsFromNetwork()
+                } catch (e: Exception) {
+                    // Log the error but don't emit it here - let the database flow handle it
+                    println("Network refresh failed: ${e.message}")
+                }
+            }
+            .map { entities ->
+                val launchpads = entities.map { it.toDomain() }
+                Result.success(launchpads)
+            }
+            .catch { e ->
+                emit(Result.error(Exception(e)))
+            }
+    }
+    
+    override suspend fun getLaunchpadById(id: String): Result<Launchpad> {
+        return try {
+            // Try to get from local database first
+            val localEntity = launchpadDao.getLaunchpadById(id)
+            if (localEntity != null) {
+                return Result.success(localEntity.toDomain())
+            }
+            // If not found, fetch from API
+            val remoteDto = apiService.getLaunchpadById(id)
+            val entity = remoteDto.toEntity()
+            launchpadDao.insertLaunchpads(listOf(entity))
+            Result.success(entity.toDomain())
+        } catch (e: Exception) {
+            Result.error(e)
+        }
+    }
+    
+    override suspend fun refreshLaunchpads(): Result<Unit> {
+        return try {
+            // Fetch fresh data from API
+            val remoteLaunchpads = apiService.getLaunchpads()
+            
+            // Convert DTOs to entities
+            val entities = remoteLaunchpads.map { it.toEntity() }
+            
+            // Use transactional "delete all and insert new" strategy
+            launchpadDao.deleteAllAndInsertLaunchpads(entities)
+            
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.error(e)
+        }
+    }
+    
+    /**
+     * Private method to refresh launchpads from network without blocking the flow
+     */
+    private suspend fun refreshLaunchpadsFromNetwork() {
+        try {
+            val remoteLaunchpads = apiService.getLaunchpads()
+            val entities = remoteLaunchpads.map { it.toEntity() }
+            launchpadDao.deleteAllAndInsertLaunchpads(entities)
         } catch (e: Exception) {
             // Silently handle network errors - local data will still be emitted
             // The error will be handled by the UI layer if needed

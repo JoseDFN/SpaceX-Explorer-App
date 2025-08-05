@@ -24,6 +24,8 @@ import com.jdf.spacexexplorer.presentation.screens.dragons.DragonsScreen
 import com.jdf.spacexexplorer.presentation.screens.dragon_detail.DragonDetailScreen
 import com.jdf.spacexexplorer.presentation.screens.landpads.LandpadsScreen
 import com.jdf.spacexexplorer.presentation.screens.landpad_detail.LandpadDetailScreen
+import com.jdf.spacexexplorer.presentation.screens.launchpads.LaunchpadsScreen
+import com.jdf.spacexexplorer.presentation.screens.launchpad_detail.LaunchpadDetailScreen
 import com.jdf.spacexexplorer.presentation.shared.SharedViewModel
 
 @Composable
@@ -71,6 +73,10 @@ fun SetupNavGraph(
         
         composable(route = Screen.Landpads.route) {
             LandpadsScreen(navController = navController, sharedViewModel = sharedViewModel)
+        }
+        
+        composable(route = Screen.Launchpads.route) {
+            LaunchpadsScreen(navController = navController, sharedViewModel = sharedViewModel)
         }
         
         composable(
@@ -167,6 +173,17 @@ fun SetupNavGraph(
             )
         ) { _ ->
             LandpadDetailScreen(navController = navController)
+        }
+        
+        composable(
+            route = Screen.LaunchpadDetail.route,
+            arguments = listOf(
+                navArgument("launchpadId") {
+                    type = NavType.StringType
+                }
+            )
+        ) { _ ->
+            LaunchpadDetailScreen(navController = navController)
         }
         
         // Add more composable destinations as needed
