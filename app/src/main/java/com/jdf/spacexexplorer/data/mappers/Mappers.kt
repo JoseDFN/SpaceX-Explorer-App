@@ -7,6 +7,7 @@ import com.jdf.spacexexplorer.data.local.entity.CoreEntity
 import com.jdf.spacexexplorer.data.local.entity.CrewEntity
 import com.jdf.spacexexplorer.data.local.entity.ShipEntity
 import com.jdf.spacexexplorer.data.local.entity.DragonEntity
+import com.jdf.spacexexplorer.data.local.entity.LandpadEntity
 import com.jdf.spacexexplorer.data.remote.dto.LaunchDto
 import com.jdf.spacexexplorer.data.remote.dto.RocketDto
 import com.jdf.spacexexplorer.data.remote.dto.CapsuleDto
@@ -14,6 +15,7 @@ import com.jdf.spacexexplorer.data.remote.dto.CoreDto
 import com.jdf.spacexexplorer.data.remote.dto.CrewDto
 import com.jdf.spacexexplorer.data.remote.dto.ShipDto
 import com.jdf.spacexexplorer.data.remote.dto.DragonDto
+import com.jdf.spacexexplorer.data.remote.dto.LandpadDto
 import com.jdf.spacexexplorer.domain.model.Launch
 import com.jdf.spacexexplorer.domain.model.Rocket
 import com.jdf.spacexexplorer.domain.model.Capsule
@@ -21,6 +23,7 @@ import com.jdf.spacexexplorer.domain.model.Core
 import com.jdf.spacexexplorer.domain.model.CrewMember
 import com.jdf.spacexexplorer.domain.model.Ship
 import com.jdf.spacexexplorer.domain.model.Dragon
+import com.jdf.spacexexplorer.domain.model.Landpad
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 
@@ -914,4 +917,95 @@ private fun String?.fromDiameterDtoJson(): com.jdf.spacexexplorer.data.remote.dt
         val adapter = moshi.adapter<com.jdf.spacexexplorer.data.remote.dto.DiameterDto>(com.jdf.spacexexplorer.data.remote.dto.DiameterDto::class.java)
         adapter.fromJson(json)
     }
+}
+
+// ============================================================================
+// LANDPAD MAPPERS
+// ============================================================================
+
+/**
+ * Convert LandpadDto to LandpadEntity for database storage
+ */
+fun LandpadDto.toEntity(): LandpadEntity {
+    return LandpadEntity(
+        id = id,
+        name = name,
+        fullName = fullName,
+        type = type,
+        locality = locality,
+        region = region,
+        latitude = latitude,
+        longitude = longitude,
+        landingAttempts = landingAttempts,
+        landingSuccesses = landingSuccesses,
+        wikipediaUrl = wikipediaUrl,
+        details = details,
+        status = status,
+        launches = launches.toStringJson()
+    )
+}
+
+/**
+ * Convert list of LandpadDto to list of LandpadEntity
+ */
+fun List<LandpadDto>.toLandpadEntities(): List<LandpadEntity> {
+    return this.map { it.toEntity() }
+}
+
+/**
+ * Convert LandpadEntity to Landpad domain model
+ */
+fun LandpadEntity.toDomain(): Landpad {
+    return Landpad(
+        id = id,
+        name = name,
+        fullName = fullName,
+        type = type,
+        locality = locality,
+        region = region,
+        latitude = latitude,
+        longitude = longitude,
+        landingAttempts = landingAttempts,
+        landingSuccesses = landingSuccesses,
+        wikipediaUrl = wikipediaUrl,
+        details = details,
+        status = status,
+        launches = launches.fromJsonString()
+    )
+}
+
+/**
+ * Convert list of LandpadEntity to list of Landpad domain models
+ */
+fun List<LandpadEntity>.toLandpadDomainsFromEntity(): List<Landpad> {
+    return this.map { it.toDomain() }
+}
+
+/**
+ * Convert LandpadDto to Landpad domain model
+ */
+fun LandpadDto.toDomain(): Landpad {
+    return Landpad(
+        id = id,
+        name = name,
+        fullName = fullName,
+        type = type,
+        locality = locality,
+        region = region,
+        latitude = latitude,
+        longitude = longitude,
+        landingAttempts = landingAttempts,
+        landingSuccesses = landingSuccesses,
+        wikipediaUrl = wikipediaUrl,
+        details = details,
+        status = status,
+        launches = launches
+    )
+}
+
+/**
+ * Convert list of LandpadDto to list of Landpad domain models
+ */
+fun List<LandpadDto>.toLandpadDomainsFromDto(): List<Landpad> {
+    return this.map { it.toDomain() }
 } 

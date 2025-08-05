@@ -7,6 +7,7 @@ import com.jdf.spacexexplorer.domain.model.Core
 import com.jdf.spacexexplorer.domain.model.CrewMember
 import com.jdf.spacexexplorer.domain.model.Ship
 import com.jdf.spacexexplorer.domain.model.Dragon
+import com.jdf.spacexexplorer.domain.model.Landpad
 import com.jdf.spacexexplorer.domain.model.Result
 import kotlinx.coroutines.flow.Flow
 
@@ -145,4 +146,19 @@ interface SpaceXRepository {
      * Refresh dragons from the remote API
      */
     suspend fun refreshDragons(): Result<Unit>
+    
+    /**
+     * Get all landpads as a Flow for reactive updates with Result wrapper
+     */
+    fun getLandpads(): Flow<Result<List<Landpad>>>
+    
+    /**
+     * Get a specific landpad by ID with Result wrapper
+     */
+    suspend fun getLandpadById(id: String): Result<Landpad>
+    
+    /**
+     * Refresh landpads from the remote API
+     */
+    suspend fun refreshLandpads(): Result<Unit>
 } 
