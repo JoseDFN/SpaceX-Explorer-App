@@ -9,6 +9,7 @@ import com.jdf.spacexexplorer.data.local.entity.ShipEntity
 import com.jdf.spacexexplorer.data.local.entity.DragonEntity
 import com.jdf.spacexexplorer.data.local.entity.LandpadEntity
 import com.jdf.spacexexplorer.data.local.entity.LaunchpadEntity
+import com.jdf.spacexexplorer.data.local.entity.PayloadEntity
 import com.jdf.spacexexplorer.data.remote.dto.LaunchDto
 import com.jdf.spacexexplorer.data.remote.dto.RocketDto
 import com.jdf.spacexexplorer.data.remote.dto.CapsuleDto
@@ -18,6 +19,9 @@ import com.jdf.spacexexplorer.data.remote.dto.ShipDto
 import com.jdf.spacexexplorer.data.remote.dto.DragonDto
 import com.jdf.spacexexplorer.data.remote.dto.LandpadDto
 import com.jdf.spacexexplorer.data.remote.dto.LaunchpadDto
+import com.jdf.spacexexplorer.data.remote.dto.PayloadDto
+import com.jdf.spacexexplorer.data.remote.dto.OrbitParamsDto
+import com.jdf.spacexexplorer.data.remote.dto.DragonPayloadDto
 import com.jdf.spacexexplorer.data.remote.dto.LaunchpadImagesDto
 import com.jdf.spacexexplorer.domain.model.Launch
 import com.jdf.spacexexplorer.domain.model.Rocket
@@ -29,6 +33,7 @@ import com.jdf.spacexexplorer.domain.model.Dragon
 import com.jdf.spacexexplorer.domain.model.Landpad
 import com.jdf.spacexexplorer.domain.model.Launchpad
 import com.jdf.spacexexplorer.domain.model.LaunchpadImages
+import com.jdf.spacexexplorer.domain.model.Payload
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 
@@ -1135,5 +1140,174 @@ private fun String?.fromLaunchpadImagesJson(): LaunchpadImages? {
         val moshi = Moshi.Builder().build()
         val adapter = moshi.adapter<LaunchpadImagesDto>(LaunchpadImagesDto::class.java)
         adapter.fromJson(json)?.toLaunchpadImagesDomain()
+    }
+}
+
+// ============================================================================
+// PAYLOAD MAPPERS
+// ============================================================================
+
+/**
+ * Convert PayloadDto to PayloadEntity for database storage
+ */
+fun PayloadDto.toEntity(): PayloadEntity {
+    return PayloadEntity(
+        id = id,
+        name = name,
+        type = type,
+        mass = mass,
+        orbit = orbit,
+        customers = customers.toStringJson(),
+        nationalities = nationalities.toStringJson(),
+        manufacturers = manufacturers.toStringJson(),
+        payloadMass = payloadMass,
+        payloadMassLbs = payloadMassLbs,
+        orbitParams = orbitParams?.toOrbitParamsJson(),
+        reused = reused,
+        launch = launch,
+        dragon = dragon?.toDragonPayloadJson()
+    )
+}
+
+/**
+ * Convert list of PayloadDto to list of PayloadEntity
+ */
+fun List<PayloadDto>.toPayloadEntities(): List<PayloadEntity> {
+    return this.map { it.toEntity() }
+}
+
+/**
+ * Convert PayloadEntity to Payload domain model
+ */
+fun PayloadEntity.toDomain(): Payload {
+    return Payload(
+        id = id,
+        name = name,
+        type = type,
+        mass = mass,
+        orbit = orbit,
+        customers = customers.fromJsonString(),
+        nationalities = nationalities.fromJsonString(),
+        manufacturers = manufacturers.fromJsonString(),
+        payloadMass = payloadMass,
+        payloadMassLbs = payloadMassLbs,
+        orbitParams = orbitParams?.fromOrbitParamsJson(),
+        reused = reused,
+        launch = launch,
+        dragon = dragon?.fromDragonPayloadJson()
+    )
+}
+
+/**
+ * Convert list of PayloadEntity to list of Payload domain models
+ */
+fun List<PayloadEntity>.toPayloadDomainsFromEntity(): List<Payload> {
+    return this.map { it.toDomain() }
+}
+
+/**
+ * Convert PayloadDto to Payload domain model
+ */
+fun PayloadDto.toDomain(): Payload {
+    return Payload(
+        id = id,
+        name = name,
+        type = type,
+        mass = mass,
+        orbit = orbit,
+        customers = customers,
+        nationalities = nationalities,
+        manufacturers = manufacturers,
+        payloadMass = payloadMass,
+        payloadMassLbs = payloadMassLbs,
+        orbitParams = orbitParams?.toOrbitParamsDomain(),
+        reused = reused,
+        launch = launch,
+        dragon = dragon?.toDragonPayloadDomain()
+    )
+}
+
+/**
+ * Convert list of PayloadDto to list of Payload domain models
+ */
+fun List<PayloadDto>.toPayloadDomainsFromDto(): List<Payload> {
+    return this.map { it.toDomain() }
+}
+
+/**
+ * Convert OrbitParamsDto to JSON string for database storage
+ */
+private fun OrbitParamsDto.toOrbitParamsJson(): String {
+    val moshi = Moshi.Builder().build()
+    val adapter = moshi.adapter<OrbitParamsDto>(OrbitParamsDto::class.java)
+    return adapter.toJson(this)
+}
+
+/**
+ * Convert OrbitParamsDto to OrbitParams domain model
+ */
+private fun OrbitParamsDto.toOrbitParamsDomain(): com.jdf.spacexexplorer.domain.model.OrbitParams {
+    return com.jdf.spacexexplorer.domain.model.OrbitParams(
+        referenceSystem = referenceSystem,
+        regime = regime,
+        longitude = longitude,
+        semiMajorAxisKm = semiMajorAxisKm,
+        eccentricity = eccentricity,
+        periapsisKm = periapsisKm,
+        apoapsisKm = apoapsisKm,
+        inclinationDeg = inclinationDeg,
+        periodMin = periodMin,
+        lifespanYears = lifespanYears,
+        epoch = epoch,
+        meanMotion = meanMotion,
+        raan = raan,
+        argOfPericenter = argOfPericenter,
+        meanAnomaly = meanAnomaly
+    )
+}
+
+/**
+ * Convert JSON string to OrbitParams for database retrieval
+ */
+private fun String?.fromOrbitParamsJson(): com.jdf.spacexexplorer.domain.model.OrbitParams? {
+    return this?.let { json ->
+        val moshi = Moshi.Builder().build()
+        val adapter = moshi.adapter<OrbitParamsDto>(OrbitParamsDto::class.java)
+        adapter.fromJson(json)?.toOrbitParamsDomain()
+    }
+}
+
+/**
+ * Convert DragonPayloadDto to JSON string for database storage
+ */
+private fun DragonPayloadDto.toDragonPayloadJson(): String {
+    val moshi = Moshi.Builder().build()
+    val adapter = moshi.adapter<DragonPayloadDto>(DragonPayloadDto::class.java)
+    return adapter.toJson(this)
+}
+
+/**
+ * Convert DragonPayloadDto to DragonPayload domain model
+ */
+private fun DragonPayloadDto.toDragonPayloadDomain(): com.jdf.spacexexplorer.domain.model.DragonPayload {
+    return com.jdf.spacexexplorer.domain.model.DragonPayload(
+        capsule = capsule,
+        massReturnedKg = massReturnedKg,
+        massReturnedLbs = massReturnedLbs,
+        flightTimeSec = flightTimeSec,
+        manifest = manifest,
+        waterLanding = waterLanding,
+        landLanding = landLanding
+    )
+}
+
+/**
+ * Convert JSON string to DragonPayload for database retrieval
+ */
+private fun String?.fromDragonPayloadJson(): com.jdf.spacexexplorer.domain.model.DragonPayload? {
+    return this?.let { json ->
+        val moshi = Moshi.Builder().build()
+        val adapter = moshi.adapter<DragonPayloadDto>(DragonPayloadDto::class.java)
+        adapter.fromJson(json)?.toDragonPayloadDomain()
     }
 } 

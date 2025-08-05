@@ -9,6 +9,7 @@ import com.jdf.spacexexplorer.data.local.ShipDao
 import com.jdf.spacexexplorer.data.local.DragonDao
 import com.jdf.spacexexplorer.data.local.LandpadDao
 import com.jdf.spacexexplorer.data.local.LaunchpadDao
+import com.jdf.spacexexplorer.data.local.PayloadDao
 import com.jdf.spacexexplorer.data.mappers.toDomain
 import com.jdf.spacexexplorer.data.mappers.toEntity
 import com.jdf.spacexexplorer.data.remote.ApiService
@@ -21,6 +22,7 @@ import com.jdf.spacexexplorer.domain.model.Ship
 import com.jdf.spacexexplorer.domain.model.Dragon
 import com.jdf.spacexexplorer.domain.model.Landpad
 import com.jdf.spacexexplorer.domain.model.Launchpad
+import com.jdf.spacexexplorer.domain.model.Payload
 import com.jdf.spacexexplorer.domain.model.Result
 import com.jdf.spacexexplorer.domain.repository.SpaceXRepository
 import kotlinx.coroutines.flow.Flow
@@ -49,7 +51,8 @@ class SpaceXRepositoryImpl @Inject constructor(
     private val shipDao: ShipDao,
     private val dragonDao: DragonDao,
     private val landpadDao: LandpadDao,
-    private val launchpadDao: LaunchpadDao
+    private val launchpadDao: LaunchpadDao,
+    private val payloadDao: PayloadDao
 ) : SpaceXRepository {
     
     override fun getLaunches(): Flow<Result<List<Launch>>> {
@@ -761,6 +764,76 @@ class SpaceXRepositoryImpl @Inject constructor(
             val remoteLaunchpads = apiService.getLaunchpads()
             val entities = remoteLaunchpads.map { it.toEntity() }
             launchpadDao.deleteAllAndInsertLaunchpads(entities)
+        } catch (e: Exception) {
+            // Silently handle network errors - local data will still be emitted
+            // The error will be handled by the UI layer if needed
+        }
+    }
+    
+    // Payload implementations
+    
+    override fun getPayloads(): Flow<Result<List<Payload>>> {
+        return payloadDao.getPayloads()
+            .onStart {
+                // Trigger network refresh when flow starts
+                try {
+                    refreshPayloadsFromNetwork()
+                } catch (e: Exception) {
+                    // Log the error but don't emit it here - let the database flow handle it
+                    println("Network refresh failed: ${e.message}")
+                }
+            }
+            .map { entities ->
+                val payloads = entities.map { it.toDomain() }
+                Result.success(payloads)
+            }
+            .catch { e ->
+                emit(Result.error(Exception(e)))
+            }
+    }
+    
+    override suspend fun getPayloadById(id: String): Result<Payload> {
+        return try {
+            // Try to get from local database first
+            val localEntity = payloadDao.getPayloadById(id)
+            if (localEntity != null) {
+                return Result.success(localEntity.toDomain())
+            }
+            // If not found, fetch from API
+            val remoteDto = apiService.getPayloadById(id)
+            val entity = remoteDto.toEntity()
+            payloadDao.insertPayloads(listOf(entity))
+            Result.success(entity.toDomain())
+        } catch (e: Exception) {
+            Result.error(e)
+        }
+    }
+    
+    override suspend fun refreshPayloads(): Result<Unit> {
+        return try {
+            // Fetch fresh data from API
+            val remotePayloads = apiService.getPayloads()
+            
+            // Convert DTOs to entities
+            val entities = remotePayloads.map { it.toEntity() }
+            
+            // Use transactional "delete all and insert new" strategy
+            payloadDao.deleteAllAndInsertPayloads(entities)
+            
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.error(e)
+        }
+    }
+    
+    /**
+     * Private method to refresh payloads from network without blocking the flow
+     */
+    private suspend fun refreshPayloadsFromNetwork() {
+        try {
+            val remotePayloads = apiService.getPayloads()
+            val entities = remotePayloads.map { it.toEntity() }
+            payloadDao.deleteAllAndInsertPayloads(entities)
         } catch (e: Exception) {
             // Silently handle network errors - local data will still be emitted
             // The error will be handled by the UI layer if needed
