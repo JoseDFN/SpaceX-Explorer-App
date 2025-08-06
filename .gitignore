@@ -34,3 +34,5 @@ google-services.json
 *.hprof
 
 .cursor/
+
+FILTER_SORT_SYSTEM.md

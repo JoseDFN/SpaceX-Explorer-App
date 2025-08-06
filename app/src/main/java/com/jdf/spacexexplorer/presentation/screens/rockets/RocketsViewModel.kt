@@ -2,7 +2,9 @@ package com.jdf.spacexexplorer.presentation.screens.rockets
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jdf.spacexexplorer.domain.model.FilterOption
 import com.jdf.spacexexplorer.domain.model.Result
+import com.jdf.spacexexplorer.domain.model.SortOption
 import com.jdf.spacexexplorer.domain.usecase.GetRocketsUseCase
 import com.jdf.spacexexplorer.domain.usecase.RefreshRocketsUseCase
 import com.jdf.spacexexplorer.presentation.navigation.NavigationEvent
@@ -43,8 +45,26 @@ class RocketsViewModel @Inject constructor(
     val navigationEvents = _navigationEvents.receiveAsFlow()
     
     init {
+        // Initialize available filters for rockets
+        initializeAvailableFilters()
         // Launch a coroutine to collect the flow from the use case
         loadRockets()
+    }
+    
+    /**
+     * Initialize the list of available filters for the rockets screen
+     */
+    private fun initializeAvailableFilters() {
+        val availableFilters = listOf<FilterOption>(
+            FilterOption.RocketActiveFilter(true),
+            FilterOption.RocketActiveFilter(false),
+            FilterOption.RocketTypeFilter("Falcon 9"),
+            FilterOption.RocketTypeFilter("Falcon Heavy"),
+            FilterOption.RocketTypeFilter("Starship")
+            // Add more filter options as needed
+        )
+        
+        _state.update { it.copy(availableFilters = availableFilters) }
     }
     
     /**
@@ -66,15 +86,86 @@ class RocketsViewModel @Inject constructor(
                     _navigationEvents.send(NavigationEvent.NavigateToRocketDetail(event.rocket.id))
                 }
             }
+            is RocketsEvent.UpdateFilter -> {
+                updateFilter(event.filter)
+            }
+            is RocketsEvent.RemoveFilter -> {
+                removeFilter(event.filterKey)
+            }
+            is RocketsEvent.ClearAllFilters -> {
+                clearAllFilters()
+            }
+            is RocketsEvent.UpdateSort -> {
+                updateSort(event.sort)
+            }
         }
+    }
+    
+    /**
+     * Update or add a filter to the active filters
+     */
+    private fun updateFilter(filter: FilterOption) {
+        val filterKey = when (filter) {
+            is FilterOption.RocketActiveFilter -> "active_${filter.active}"
+            is FilterOption.RocketTypeFilter -> "type_${filter.type}"
+            else -> filter::class.simpleName ?: "unknown"
+        }
+        
+        _state.update { currentState ->
+            currentState.copy(
+                activeFilters = currentState.activeFilters + (filterKey to filter)
+            )
+        }
+        
+        // Reload rockets with new filters
+        loadRockets()
+    }
+    
+    /**
+     * Remove a specific filter from active filters
+     */
+    private fun removeFilter(filterKey: String) {
+        _state.update { currentState ->
+            currentState.copy(
+                activeFilters = currentState.activeFilters - filterKey
+            )
+        }
+        
+        // Reload rockets with updated filters
+        loadRockets()
+    }
+    
+    /**
+     * Clear all active filters
+     */
+    private fun clearAllFilters() {
+        _state.update { it.copy(activeFilters = emptyMap()) }
+        
+        // Reload rockets without filters
+        loadRockets()
+    }
+    
+    /**
+     * Update the current sort option
+     */
+    private fun updateSort(sort: SortOption) {
+        _state.update { it.copy(currentSort = sort) }
+        
+        // Reload rockets with new sort
+        loadRockets()
     }
     
     /**
      * Load rockets from the use case
      */
     private fun loadRockets() {
+        val currentState = _state.value
+        
         viewModelScope.launch {
-            getRocketsUseCase().collect { result ->
+            getRocketsUseCase(
+                filters = currentState.activeFiltersList,
+                sort = currentState.currentSort
+            ).collect { result ->
                 when (result) {
                     is Result.Loading -> {
                         _state.update { currentState ->

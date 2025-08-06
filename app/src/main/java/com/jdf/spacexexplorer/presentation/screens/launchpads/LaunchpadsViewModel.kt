@@ -2,7 +2,9 @@ package com.jdf.spacexexplorer.presentation.screens.launchpads
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jdf.spacexexplorer.domain.model.FilterOption
 import com.jdf.spacexexplorer.domain.model.Result
+import com.jdf.spacexexplorer.domain.model.SortOption
 import com.jdf.spacexexplorer.domain.usecase.GetLaunchpadsUseCase
 import com.jdf.spacexexplorer.domain.usecase.RefreshLaunchpadsUseCase
 import com.jdf.spacexexplorer.presentation.navigation.NavigationEvent
@@ -11,8 +13,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -43,8 +45,29 @@ class LaunchpadsViewModel @Inject constructor(
     val navigationEvents = _navigationEvents.receiveAsFlow()
     
     init {
+        // Initialize available filters for launchpads
+        initializeAvailableFilters()
         // Launch a coroutine to collect the flow from the use case
         loadLaunchpads()
+    }
+    
+    /**
+     * Initialize the list of available filters for the launchpads screen
+     */
+    private fun initializeAvailableFilters() {
+        val availableFilters = listOf<FilterOption>(
+            FilterOption.LaunchpadStatusFilter("active"),
+            FilterOption.LaunchpadStatusFilter("inactive"),
+            FilterOption.LaunchpadStatusFilter("unknown"),
+            FilterOption.LaunchpadStatusFilter("retired"),
+            FilterOption.LaunchpadStatusFilter("lost"),
+            FilterOption.LaunchpadRegionFilter("Florida"),
+            FilterOption.LaunchpadRegionFilter("California"),
+            FilterOption.LaunchpadRegionFilter("Texas"),
+            FilterOption.LaunchpadRegionFilter("Vandenberg")
+        )
+        
+        _state.update { it.copy(availableFilters = availableFilters) }
     }
     
     /**
@@ -66,15 +89,86 @@ class LaunchpadsViewModel @Inject constructor(
                     _navigationEvents.send(NavigationEvent.NavigateToLaunchpadDetail(event.launchpad.id))
                 }
             }
+            is LaunchpadsEvent.UpdateFilter -> {
+                updateFilter(event.filter)
+            }
+            is LaunchpadsEvent.RemoveFilter -> {
+                removeFilter(event.filterKey)
+            }
+            is LaunchpadsEvent.ClearAllFilters -> {
+                clearAllFilters()
+            }
+            is LaunchpadsEvent.UpdateSort -> {
+                updateSort(event.sort)
+            }
         }
+    }
+    
+    /**
+     * Update or add a filter to the active filters
+     */
+    private fun updateFilter(filter: FilterOption) {
+        val filterKey = when (filter) {
+            is FilterOption.LaunchpadStatusFilter -> "status_${filter.status}"
+            is FilterOption.LaunchpadRegionFilter -> "region_${filter.region}"
+            else -> filter::class.simpleName ?: "unknown"
+        }
+        
+        _state.update { currentState ->
+            currentState.copy(
+                activeFilters = currentState.activeFilters + (filterKey to filter)
+            )
+        }
+        
+        // Reload launchpads with new filters
+        loadLaunchpads()
+    }
+    
+    /**
+     * Remove a specific filter from active filters
+     */
+    private fun removeFilter(filterKey: String) {
+        _state.update { currentState ->
+            currentState.copy(
+                activeFilters = currentState.activeFilters - filterKey
+            )
+        }
+        
+        // Reload launchpads with updated filters
+        loadLaunchpads()
+    }
+    
+    /**
+     * Clear all active filters
+     */
+    private fun clearAllFilters() {
+        _state.update { it.copy(activeFilters = emptyMap()) }
+        
+        // Reload launchpads without filters
+        loadLaunchpads()
+    }
+    
+    /**
+     * Update the current sort option
+     */
+    private fun updateSort(sort: SortOption) {
+        _state.update { it.copy(currentSort = sort) }
+        
+        // Reload launchpads with new sort
+        loadLaunchpads()
     }
     
     /**
      * Load launchpads from the use case
      */
     private fun loadLaunchpads() {
+        val currentState = _state.value
+        
         viewModelScope.launch {
-            getLaunchpadsUseCase().collect { result ->
+            getLaunchpadsUseCase(
+                filters = currentState.activeFiltersList,
+                sort = currentState.currentSort
+            ).collect { result ->
                 when (result) {
                     is Result.Loading -> {
                         _state.update { currentState ->

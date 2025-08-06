@@ -2,7 +2,9 @@ package com.jdf.spacexexplorer.presentation.screens.crew
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jdf.spacexexplorer.domain.model.FilterOption
 import com.jdf.spacexexplorer.domain.model.Result
+import com.jdf.spacexexplorer.domain.model.SortOption
 import com.jdf.spacexexplorer.domain.usecase.GetCrewUseCase
 import com.jdf.spacexexplorer.domain.usecase.RefreshCrewUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,7 +28,28 @@ class CrewViewModel @Inject constructor(
     val state: StateFlow<CrewState> = _state.asStateFlow()
 
     init {
+        // Initialize available filters for crew
+        initializeAvailableFilters()
         loadCrew()
+    }
+    
+    /**
+     * Initialize the list of available filters for the crew screen
+     */
+    private fun initializeAvailableFilters() {
+        val availableFilters = listOf<FilterOption>(
+            FilterOption.CrewAgencyFilter("NASA"),
+            FilterOption.CrewAgencyFilter("ESA"),
+            FilterOption.CrewAgencyFilter("JAXA"),
+            FilterOption.CrewAgencyFilter("CSA"),
+            FilterOption.CrewAgencyFilter("Roscosmos"),
+            FilterOption.CrewStatusFilter("active"),
+            FilterOption.CrewStatusFilter("inactive"),
+            FilterOption.CrewStatusFilter("retired"),
+            FilterOption.CrewStatusFilter("unknown")
+        )
+        
+        _state.update { it.copy(availableFilters = availableFilters) }
     }
 
     fun onEvent(event: CrewEvent) {
@@ -34,14 +57,85 @@ class CrewViewModel @Inject constructor(
             is CrewEvent.LoadCrew -> loadCrew()
             is CrewEvent.RefreshCrew -> refreshCrew()
             is CrewEvent.DismissError -> dismissError()
+            is CrewEvent.UpdateFilter -> {
+                updateFilter(event.filter)
+            }
+            is CrewEvent.RemoveFilter -> {
+                removeFilter(event.filterKey)
+            }
+            is CrewEvent.ClearAllFilters -> {
+                clearAllFilters()
+            }
+            is CrewEvent.UpdateSort -> {
+                updateSort(event.sort)
+            }
         }
+    }
+    
+    /**
+     * Update or add a filter to the active filters
+     */
+    private fun updateFilter(filter: FilterOption) {
+        val filterKey = when (filter) {
+            is FilterOption.CrewAgencyFilter -> "agency_${filter.agency}"
+            is FilterOption.CrewStatusFilter -> "status_${filter.status}"
+            else -> filter::class.simpleName ?: "unknown"
+        }
+        
+        _state.update { currentState ->
+            currentState.copy(
+                activeFilters = currentState.activeFilters + (filterKey to filter)
+            )
+        }
+        
+        // Reload crew with new filters
+        loadCrew()
+    }
+    
+    /**
+     * Remove a specific filter from active filters
+     */
+    private fun removeFilter(filterKey: String) {
+        _state.update { currentState ->
+            currentState.copy(
+                activeFilters = currentState.activeFilters - filterKey
+            )
+        }
+        
+        // Reload crew with updated filters
+        loadCrew()
+    }
+    
+    /**
+     * Clear all active filters
+     */
+    private fun clearAllFilters() {
+        _state.update { it.copy(activeFilters = emptyMap()) }
+        
+        // Reload crew without filters
+        loadCrew()
+    }
+    
+    /**
+     * Update the current sort option
+     */
+    private fun updateSort(sort: SortOption) {
+        _state.update { it.copy(currentSort = sort) }
+        
+        // Reload crew with new sort
+        loadCrew()
     }
 
     private fun loadCrew() {
+        val currentState = _state.value
+        
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
             
-            getCrewUseCase().collect { result ->
+            getCrewUseCase(
+                filters = currentState.activeFiltersList,
+                sort = currentState.currentSort
+            ).collect { result ->
                 when (result) {
                     is Result.Success -> {
                         _state.update { 

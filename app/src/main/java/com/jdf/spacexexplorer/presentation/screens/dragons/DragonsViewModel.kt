@@ -2,7 +2,9 @@ package com.jdf.spacexexplorer.presentation.screens.dragons
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jdf.spacexexplorer.domain.model.FilterOption
 import com.jdf.spacexexplorer.domain.model.Result
+import com.jdf.spacexexplorer.domain.model.SortOption
 import com.jdf.spacexexplorer.domain.usecase.GetDragonsUseCase
 import com.jdf.spacexexplorer.domain.usecase.RefreshDragonsUseCase
 import com.jdf.spacexexplorer.presentation.navigation.NavigationEvent
@@ -43,10 +45,27 @@ class DragonsViewModel @Inject constructor(
     val navigationEvents = _navigationEvents.receiveAsFlow()
     
     init {
+        // Initialize available filters for dragons
+        initializeAvailableFilters()
         // Set initial loading state
         _state.update { it.copy(isLoading = true) }
         // Launch a coroutine to collect the flow from the use case
         loadDragons()
+    }
+    
+    /**
+     * Initialize the list of available filters for the dragons screen
+     */
+    private fun initializeAvailableFilters() {
+        val availableFilters = listOf<FilterOption>(
+            FilterOption.DragonActiveFilter(true),
+            FilterOption.DragonActiveFilter(false),
+            FilterOption.DragonTypeFilter("Dragon 1.0"),
+            FilterOption.DragonTypeFilter("Dragon 1.1"),
+            FilterOption.DragonTypeFilter("Dragon 2.0")
+        )
+        
+        _state.update { it.copy(availableFilters = availableFilters) }
     }
     
     /**
@@ -65,18 +84,89 @@ class DragonsViewModel @Inject constructor(
             }
             is DragonsEvent.DragonClicked -> {
                 viewModelScope.launch {
-                    _navigationEvents.send(NavigationEvent.NavigateToDragonDetail(event.dragon.id))
+                    _navigationEvents.send(NavigationEvent.NavigateToDragonDetail(event.dragonId))
                 }
             }
+            is DragonsEvent.UpdateFilter -> {
+                updateFilter(event.filter)
+            }
+            is DragonsEvent.RemoveFilter -> {
+                removeFilter(event.filterKey)
+            }
+            is DragonsEvent.ClearAllFilters -> {
+                clearAllFilters()
+            }
+            is DragonsEvent.UpdateSort -> {
+                updateSort(event.sort)
+            }
         }
+    }
+    
+    /**
+     * Update or add a filter to the active filters
+     */
+    private fun updateFilter(filter: FilterOption) {
+        val filterKey = when (filter) {
+            is FilterOption.DragonActiveFilter -> "active_${filter.active}"
+            is FilterOption.DragonTypeFilter -> "type_${filter.type}"
+            else -> filter::class.simpleName ?: "unknown"
+        }
+        
+        _state.update { currentState ->
+            currentState.copy(
+                activeFilters = currentState.activeFilters + (filterKey to filter)
+            )
+        }
+        
+        // Reload dragons with new filters
+        loadDragons()
+    }
+    
+    /**
+     * Remove a specific filter from active filters
+     */
+    private fun removeFilter(filterKey: String) {
+        _state.update { currentState ->
+            currentState.copy(
+                activeFilters = currentState.activeFilters - filterKey
+            )
+        }
+        
+        // Reload dragons with updated filters
+        loadDragons()
+    }
+    
+    /**
+     * Clear all active filters
+     */
+    private fun clearAllFilters() {
+        _state.update { it.copy(activeFilters = emptyMap()) }
+        
+        // Reload dragons without filters
+        loadDragons()
+    }
+    
+    /**
+     * Update the current sort option
+     */
+    private fun updateSort(sort: SortOption) {
+        _state.update { it.copy(currentSort = sort) }
+        
+        // Reload dragons with new sort
+        loadDragons()
     }
     
     /**
      * Load dragons from the use case
      */
     private fun loadDragons() {
+        val currentState = _state.value
+        
         viewModelScope.launch {
-            getDragonsUseCase().collect { result ->
+            getDragonsUseCase(
+                filters = currentState.activeFiltersList,
+                sort = currentState.currentSort
+            ).collect { result ->
                 when (result) {
                     is Result.Loading -> {
                         _state.update { currentState ->

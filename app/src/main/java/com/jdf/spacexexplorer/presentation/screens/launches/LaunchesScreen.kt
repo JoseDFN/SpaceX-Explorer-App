@@ -24,6 +24,7 @@ import androidx.navigation.NavController
 import com.jdf.spacexexplorer.presentation.components.LaunchCard
 import com.jdf.spacexexplorer.presentation.components.LoadingIndicator
 import com.jdf.spacexexplorer.presentation.components.ErrorMessage
+import com.jdf.spacexexplorer.presentation.components.FilterSortBar
 import com.jdf.spacexexplorer.presentation.navigation.NavigationEvent
 import com.jdf.spacexexplorer.presentation.shared.SharedViewModel
 
@@ -122,33 +123,58 @@ fun LaunchesScreen(
                 }
             }
             else -> {
-                LazyColumn(
-                    state = listState,
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(paddingValues),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                        .padding(paddingValues)
                 ) {
-                    items(state.launches) { launch ->
-                        LaunchCard(
-                            launch = launch,
-                            onClick = {
-                                viewModel.onEvent(LaunchesEvent.LaunchClicked(launch.id))
-                            }
-                        )
-                    }
+                    // Filter and Sort Bar
+                    FilterSortBar(
+                        availableFilters = state.availableFilters,
+                        activeFilters = state.activeFilters,
+                        currentSort = state.currentSort,
+                        onFilterUpdate = { filter ->
+                            viewModel.onEvent(LaunchesEvent.UpdateFilter(filter))
+                        },
+                        onFilterRemove = { filterKey ->
+                            viewModel.onEvent(LaunchesEvent.RemoveFilter(filterKey))
+                        },
+                        onClearAllFilters = {
+                            viewModel.onEvent(LaunchesEvent.ClearAllFilters)
+                        },
+                        onSortUpdate = { sort ->
+                            viewModel.onEvent(LaunchesEvent.UpdateSort(sort))
+                        },
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    )
                     
-                    // Show loading indicator at the bottom when loading more
-                    if (state.isLoadingMore) {
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator()
+                    // Launches List
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(state.launches) { launch ->
+                            LaunchCard(
+                                launch = launch,
+                                onClick = {
+                                    viewModel.onEvent(LaunchesEvent.LaunchClicked(launch.id))
+                                }
+                            )
+                        }
+                        
+                        // Show loading indicator at the bottom when loading more
+                        if (state.isLoadingMore) {
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
                             }
                         }
                     }

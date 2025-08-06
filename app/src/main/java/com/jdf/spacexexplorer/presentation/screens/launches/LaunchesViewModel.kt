@@ -2,7 +2,9 @@ package com.jdf.spacexexplorer.presentation.screens.launches
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jdf.spacexexplorer.domain.model.FilterOption
 import com.jdf.spacexexplorer.domain.model.Result
+import com.jdf.spacexexplorer.domain.model.SortOption
 import com.jdf.spacexexplorer.domain.usecase.GetLaunchesUseCase
 import com.jdf.spacexexplorer.domain.usecase.GetLaunchesPageUseCase
 import com.jdf.spacexexplorer.domain.usecase.RefreshLaunchesUseCase
@@ -45,8 +47,26 @@ class LaunchesViewModel @Inject constructor(
     val navigationEvents = _navigationEvents.receiveAsFlow()
     
     init {
+        // Initialize available filters for launches
+        initializeAvailableFilters()
         // Launch a coroutine to collect the flow from the use case
         loadLaunches()
+    }
+    
+    /**
+     * Initialize the list of available filters for the launches screen
+     */
+    private fun initializeAvailableFilters() {
+        val availableFilters = listOf<FilterOption>(
+            FilterOption.LaunchYearFilter(2024), // Example year, could be dynamic
+            FilterOption.LaunchSuccessFilter(true),
+            FilterOption.LaunchSuccessFilter(false),
+            FilterOption.LaunchUpcomingFilter(true),
+            FilterOption.LaunchUpcomingFilter(false)
+            // Add more filter options as needed
+        )
+        
+        _state.update { it.copy(availableFilters = availableFilters) }
     }
     
     /**
@@ -71,15 +91,89 @@ class LaunchesViewModel @Inject constructor(
             is LaunchesEvent.LoadMore -> {
                 loadMoreLaunches()
             }
+            is LaunchesEvent.UpdateFilter -> {
+                updateFilter(event.filter)
+            }
+            is LaunchesEvent.RemoveFilter -> {
+                removeFilter(event.filterKey)
+            }
+            is LaunchesEvent.ClearAllFilters -> {
+                clearAllFilters()
+            }
+            is LaunchesEvent.UpdateSort -> {
+                updateSort(event.sort)
+            }
         }
+    }
+    
+    /**
+     * Update or add a filter to the active filters
+     */
+    private fun updateFilter(filter: FilterOption) {
+        val filterKey = when (filter) {
+            is FilterOption.LaunchYearFilter -> "year_${filter.year}"
+            is FilterOption.LaunchSuccessFilter -> "success_${filter.successful}"
+            is FilterOption.LaunchUpcomingFilter -> "upcoming_${filter.upcoming}"
+            is FilterOption.LaunchRocketFilter -> "rocket_${filter.rocketId}"
+            is FilterOption.LaunchDateRangeFilter -> "date_range_${filter.startDate}_${filter.endDate}"
+            else -> filter::class.simpleName ?: "unknown"
+        }
+        
+        _state.update { currentState ->
+            currentState.copy(
+                activeFilters = currentState.activeFilters + (filterKey to filter)
+            )
+        }
+        
+        // Reload launches with new filters
+        loadLaunches()
+    }
+    
+    /**
+     * Remove a specific filter from active filters
+     */
+    private fun removeFilter(filterKey: String) {
+        _state.update { currentState ->
+            currentState.copy(
+                activeFilters = currentState.activeFilters - filterKey
+            )
+        }
+        
+        // Reload launches with updated filters
+        loadLaunches()
+    }
+    
+    /**
+     * Clear all active filters
+     */
+    private fun clearAllFilters() {
+        _state.update { it.copy(activeFilters = emptyMap()) }
+        
+        // Reload launches without filters
+        loadLaunches()
+    }
+    
+    /**
+     * Update the current sort option
+     */
+    private fun updateSort(sort: SortOption) {
+        _state.update { it.copy(currentSort = sort) }
+        
+        // Reload launches with new sort
+        loadLaunches()
     }
     
     /**
      * Load launches from the use case
      */
     private fun loadLaunches() {
+        val currentState = _state.value
+        
         viewModelScope.launch {
-            getLaunchesUseCase().collect { result ->
+            getLaunchesUseCase(
+                filters = currentState.activeFiltersList,
+                sort = currentState.currentSort
+            ).collect { result ->
                 when (result) {
                     is Result.Loading -> {
                         _state.update { currentState ->

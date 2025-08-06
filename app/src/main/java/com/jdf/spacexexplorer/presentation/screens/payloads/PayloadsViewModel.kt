@@ -2,7 +2,9 @@ package com.jdf.spacexexplorer.presentation.screens.payloads
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jdf.spacexexplorer.domain.model.FilterOption
 import com.jdf.spacexexplorer.domain.model.Result
+import com.jdf.spacexexplorer.domain.model.SortOption
 import com.jdf.spacexexplorer.domain.usecase.GetPayloadsUseCase
 import com.jdf.spacexexplorer.domain.usecase.RefreshPayloadsUseCase
 import com.jdf.spacexexplorer.presentation.navigation.NavigationEvent
@@ -43,8 +45,31 @@ class PayloadsViewModel @Inject constructor(
     val navigationEvents = _navigationEvents.receiveAsFlow()
     
     init {
+        // Initialize available filters for payloads
+        initializeAvailableFilters()
         // Launch a coroutine to collect the flow from the use case
         loadPayloads()
+    }
+    
+    /**
+     * Initialize the list of available filters for the payloads screen
+     */
+    private fun initializeAvailableFilters() {
+        val availableFilters = listOf<FilterOption>(
+            FilterOption.PayloadTypeFilter("Satellite"),
+            FilterOption.PayloadTypeFilter("Dragon 1.0"),
+            FilterOption.PayloadTypeFilter("Dragon 1.1"),
+            FilterOption.PayloadTypeFilter("Dragon 2.0"),
+            FilterOption.PayloadTypeFilter("Crew Dragon"),
+            FilterOption.PayloadTypeFilter("Cargo Dragon"),
+            FilterOption.PayloadNationalityFilter("United States"),
+            FilterOption.PayloadNationalityFilter("Canada"),
+            FilterOption.PayloadNationalityFilter("Japan"),
+            FilterOption.PayloadNationalityFilter("European Space Agency"),
+            FilterOption.PayloadNationalityFilter("Russia")
+        )
+        
+        _state.update { it.copy(availableFilters = availableFilters) }
     }
     
     /**
@@ -66,15 +91,86 @@ class PayloadsViewModel @Inject constructor(
                     _navigationEvents.send(NavigationEvent.NavigateToPayloadDetail(event.payload.id))
                 }
             }
+            is PayloadsEvent.UpdateFilter -> {
+                updateFilter(event.filter)
+            }
+            is PayloadsEvent.RemoveFilter -> {
+                removeFilter(event.filterKey)
+            }
+            is PayloadsEvent.ClearAllFilters -> {
+                clearAllFilters()
+            }
+            is PayloadsEvent.UpdateSort -> {
+                updateSort(event.sort)
+            }
         }
+    }
+    
+    /**
+     * Update or add a filter to the active filters
+     */
+    private fun updateFilter(filter: FilterOption) {
+        val filterKey = when (filter) {
+            is FilterOption.PayloadTypeFilter -> "type_${filter.type}"
+            is FilterOption.PayloadNationalityFilter -> "nationality_${filter.nationality}"
+            else -> filter::class.simpleName ?: "unknown"
+        }
+        
+        _state.update { currentState ->
+            currentState.copy(
+                activeFilters = currentState.activeFilters + (filterKey to filter)
+            )
+        }
+        
+        // Reload payloads with new filters
+        loadPayloads()
+    }
+    
+    /**
+     * Remove a specific filter from active filters
+     */
+    private fun removeFilter(filterKey: String) {
+        _state.update { currentState ->
+            currentState.copy(
+                activeFilters = currentState.activeFilters - filterKey
+            )
+        }
+        
+        // Reload payloads with updated filters
+        loadPayloads()
+    }
+    
+    /**
+     * Clear all active filters
+     */
+    private fun clearAllFilters() {
+        _state.update { it.copy(activeFilters = emptyMap()) }
+        
+        // Reload payloads without filters
+        loadPayloads()
+    }
+    
+    /**
+     * Update the current sort option
+     */
+    private fun updateSort(sort: SortOption) {
+        _state.update { it.copy(currentSort = sort) }
+        
+        // Reload payloads with new sort
+        loadPayloads()
     }
     
     /**
      * Load payloads from the use case
      */
     private fun loadPayloads() {
+        val currentState = _state.value
+        
         viewModelScope.launch {
-            getPayloadsUseCase().collect { result ->
+            getPayloadsUseCase(
+                filters = currentState.activeFiltersList,
+                sort = currentState.currentSort
+            ).collect { result ->
                 when (result) {
                     is Result.Loading -> {
                         _state.update { currentState ->
