@@ -24,6 +24,8 @@ import com.jdf.spacexexplorer.domain.model.Landpad
 import com.jdf.spacexexplorer.domain.model.Launchpad
 import com.jdf.spacexexplorer.domain.model.Payload
 import com.jdf.spacexexplorer.domain.model.Result
+import com.jdf.spacexexplorer.domain.model.FilterOption
+import com.jdf.spacexexplorer.domain.model.SortOption
 import com.jdf.spacexexplorer.domain.repository.SpaceXRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -55,15 +57,16 @@ class SpaceXRepositoryImpl @Inject constructor(
     private val payloadDao: PayloadDao
 ) : SpaceXRepository {
     
-    override fun getLaunches(): Flow<Result<List<Launch>>> {
-        return launchDao.getAllLaunches()
+    override fun getLaunches(filters: List<FilterOption>, sort: SortOption): Flow<Result<List<Launch>>> {
+        return getFilteredLaunchesFlow(filters, sort)
             .onStart {
                 // Trigger network refresh when flow starts
                 refreshLaunchesFromNetwork()
             }
             .map { entities ->
                 val launches = entities.map { it.toDomain() }
-                Result.success(launches)
+                val sortedLaunches = applySorting(launches, sort)
+                Result.success(sortedLaunches)
             }
             .catch { e ->
                 emit(Result.error(Exception(e)))
@@ -213,7 +216,7 @@ class SpaceXRepositoryImpl @Inject constructor(
     
     // Rocket implementations
     
-    override fun getRockets(): Flow<Result<List<Rocket>>> {
+    override fun getRockets(filters: List<FilterOption>, sort: SortOption): Flow<Result<List<Rocket>>> {
         return rocketDao.getRockets()
             .onStart {
                 // Trigger network refresh when flow starts
@@ -221,7 +224,9 @@ class SpaceXRepositoryImpl @Inject constructor(
             }
             .map { entities ->
                 val rockets = entities.map { it.toDomain() }
-                Result.success(rockets)
+                val filteredRockets = applyRocketFilters(rockets, filters)
+                val sortedRockets = applyRocketSorting(filteredRockets, sort)
+                Result.success(sortedRockets)
             }
             .catch { e ->
                 emit(Result.error(Exception(e)))
@@ -278,7 +283,7 @@ class SpaceXRepositoryImpl @Inject constructor(
     
     // Capsule implementations
     
-    override fun getCapsules(): Flow<Result<List<Capsule>>> {
+    override fun getCapsules(filters: List<FilterOption>, sort: SortOption): Flow<Result<List<Capsule>>> {
         return capsuleDao.getCapsules()
             .onStart {
                 // Trigger network refresh when flow starts
@@ -286,7 +291,9 @@ class SpaceXRepositoryImpl @Inject constructor(
             }
             .map { entities ->
                 val capsules = entities.map { it.toDomain() }
-                Result.success(capsules)
+                val filteredCapsules = applyCapsuleFilters(capsules, filters)
+                val sortedCapsules = applyCapsuleSorting(filteredCapsules, sort)
+                Result.success(sortedCapsules)
             }
             .catch { e ->
                 emit(Result.error(Exception(e)))
@@ -343,7 +350,7 @@ class SpaceXRepositoryImpl @Inject constructor(
     
     // Core implementations
     
-    override fun getCores(): Flow<Result<List<Core>>> {
+    override fun getCores(filters: List<FilterOption>, sort: SortOption): Flow<Result<List<Core>>> {
         return coreDao.getCores()
             .onStart {
                 // Trigger network refresh when flow starts
@@ -351,7 +358,9 @@ class SpaceXRepositoryImpl @Inject constructor(
             }
             .map { entities ->
                 val cores = entities.map { it.toDomain() }
-                Result.success(cores)
+                val filteredCores = applyCoreFilters(cores, filters)
+                val sortedCores = applyCoreSorting(filteredCores, sort)
+                Result.success(sortedCores)
             }
             .catch { e ->
                 emit(Result.error(Exception(e)))
@@ -408,7 +417,7 @@ class SpaceXRepositoryImpl @Inject constructor(
     
     // Crew implementations
     
-    override fun getCrew(): Flow<Result<List<CrewMember>>> {
+    override fun getCrew(filters: List<FilterOption>, sort: SortOption): Flow<Result<List<CrewMember>>> {
         return crewDao.getCrew()
             .onStart {
                 // Trigger network refresh when flow starts
@@ -416,7 +425,9 @@ class SpaceXRepositoryImpl @Inject constructor(
             }
             .map { entities ->
                 val crew = entities.map { it.toDomain() }
-                Result.success(crew)
+                val filteredCrew = applyCrewFilters(crew, filters)
+                val sortedCrew = applyCrewSorting(filteredCrew, sort)
+                Result.success(sortedCrew)
             }
             .catch { e ->
                 emit(Result.error(Exception(e)))
@@ -473,7 +484,7 @@ class SpaceXRepositoryImpl @Inject constructor(
     
     // Ship implementations
     
-    override fun getShips(): Flow<Result<List<Ship>>> {
+    override fun getShips(filters: List<FilterOption>, sort: SortOption): Flow<Result<List<Ship>>> {
         return shipDao.getShips()
             .onStart {
                 // Trigger network refresh when flow starts
@@ -481,7 +492,9 @@ class SpaceXRepositoryImpl @Inject constructor(
             }
             .map { entities ->
                 val ships = entities.map { it.toDomain() }
-                Result.success(ships)
+                val filteredShips = applyShipFilters(ships, filters)
+                val sortedShips = applyShipSorting(filteredShips, sort)
+                Result.success(sortedShips)
             }
             .catch { e ->
                 emit(Result.error(Exception(e)))
@@ -538,7 +551,7 @@ class SpaceXRepositoryImpl @Inject constructor(
     
     // Dragon implementations
     
-    override fun getDragons(): Flow<Result<List<Dragon>>> {
+    override fun getDragons(filters: List<FilterOption>, sort: SortOption): Flow<Result<List<Dragon>>> {
         return dragonDao.getDragons()
             .onStart {
                 // Trigger network refresh when flow starts
@@ -553,7 +566,9 @@ class SpaceXRepositoryImpl @Inject constructor(
                 println("Retrieved ${entities.size} dragons from database")
                 val dragons = entities.map { it.toDomain() }
                 println("Converted to ${dragons.size} domain models")
-                Result.success(dragons)
+                val filteredDragons = applyDragonFilters(dragons, filters)
+                val sortedDragons = applyDragonSorting(filteredDragons, sort)
+                Result.success(sortedDragons)
             }
             .catch { e ->
                 println("Error in getDragons flow: ${e.message}")
@@ -632,7 +647,7 @@ class SpaceXRepositoryImpl @Inject constructor(
     
     // Landpad implementations
     
-    override fun getLandpads(): Flow<Result<List<Landpad>>> {
+    override fun getLandpads(filters: List<FilterOption>, sort: SortOption): Flow<Result<List<Landpad>>> {
         return landpadDao.getLandpads()
             .onStart {
                 // Trigger network refresh when flow starts
@@ -645,7 +660,9 @@ class SpaceXRepositoryImpl @Inject constructor(
             }
             .map { entities ->
                 val landpads = entities.map { it.toDomain() }
-                Result.success(landpads)
+                val filteredLandpads = applyLandpadFilters(landpads, filters)
+                val sortedLandpads = applyLandpadSorting(filteredLandpads, sort)
+                Result.success(sortedLandpads)
             }
             .catch { e ->
                 emit(Result.error(Exception(e)))
@@ -702,7 +719,7 @@ class SpaceXRepositoryImpl @Inject constructor(
     
     // Launchpad implementations
     
-    override fun getLaunchpads(): Flow<Result<List<Launchpad>>> {
+    override fun getLaunchpads(filters: List<FilterOption>, sort: SortOption): Flow<Result<List<Launchpad>>> {
         return launchpadDao.getLaunchpads()
             .onStart {
                 // Trigger network refresh when flow starts
@@ -715,7 +732,9 @@ class SpaceXRepositoryImpl @Inject constructor(
             }
             .map { entities ->
                 val launchpads = entities.map { it.toDomain() }
-                Result.success(launchpads)
+                val filteredLaunchpads = applyLaunchpadFilters(launchpads, filters)
+                val sortedLaunchpads = applyLaunchpadSorting(filteredLaunchpads, sort)
+                Result.success(sortedLaunchpads)
             }
             .catch { e ->
                 emit(Result.error(Exception(e)))
@@ -772,7 +791,7 @@ class SpaceXRepositoryImpl @Inject constructor(
     
     // Payload implementations
     
-    override fun getPayloads(): Flow<Result<List<Payload>>> {
+    override fun getPayloads(filters: List<FilterOption>, sort: SortOption): Flow<Result<List<Payload>>> {
         return payloadDao.getPayloads()
             .onStart {
                 // Trigger network refresh when flow starts
@@ -785,7 +804,9 @@ class SpaceXRepositoryImpl @Inject constructor(
             }
             .map { entities ->
                 val payloads = entities.map { it.toDomain() }
-                Result.success(payloads)
+                val filteredPayloads = applyPayloadFilters(payloads, filters)
+                val sortedPayloads = applyPayloadSorting(filteredPayloads, sort)
+                Result.success(sortedPayloads)
             }
             .catch { e ->
                 emit(Result.error(Exception(e)))
@@ -837,6 +858,330 @@ class SpaceXRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             // Silently handle network errors - local data will still be emitted
             // The error will be handled by the UI layer if needed
+        }
+    }
+    
+    /**
+     * Helper method to get the appropriate Flow based on filters
+     */
+    private fun getFilteredLaunchesFlow(filters: List<FilterOption>, sort: SortOption): Flow<List<com.jdf.spacexexplorer.data.local.entity.LaunchEntity>> {
+        return when {
+            filters.isEmpty() -> launchDao.getAllLaunches()
+            filters.size == 1 -> {
+                when (val filter = filters.first()) {
+                    is FilterOption.LaunchYearFilter -> launchDao.getLaunchesByYear(filter.year.toString())
+                    is FilterOption.LaunchSuccessFilter -> launchDao.getLaunchesBySuccess(filter.successful)
+                    is FilterOption.LaunchUpcomingFilter -> launchDao.getLaunchesByUpcoming(filter.upcoming)
+                    is FilterOption.LaunchRocketFilter -> launchDao.getLaunchesByRocket(filter.rocketId)
+                    is FilterOption.LaunchDateRangeFilter -> launchDao.getLaunchesByDateRange(filter.startDate, filter.endDate)
+                    else -> launchDao.getAllLaunches() // Default fallback
+                }
+            }
+            filters.size == 2 -> {
+                val yearFilter = filters.findIsInstance<FilterOption.LaunchYearFilter>()
+                val successFilter = filters.findIsInstance<FilterOption.LaunchSuccessFilter>()
+                val upcomingFilter = filters.findIsInstance<FilterOption.LaunchUpcomingFilter>()
+                
+                when {
+                    yearFilter != null && successFilter != null -> 
+                        launchDao.getLaunchesByYearAndSuccess(yearFilter.year.toString(), successFilter.successful)
+                    yearFilter != null && upcomingFilter != null -> 
+                        launchDao.getLaunchesByYearAndUpcoming(yearFilter.year.toString(), upcomingFilter.upcoming)
+                    successFilter != null && upcomingFilter != null -> 
+                        launchDao.getLaunchesBySuccessAndUpcoming(successFilter.successful, upcomingFilter.upcoming)
+                    else -> launchDao.getAllLaunches() // Default fallback
+                }
+            }
+            filters.size == 3 -> {
+                val yearFilter = filters.findIsInstance<FilterOption.LaunchYearFilter>()
+                val successFilter = filters.findIsInstance<FilterOption.LaunchSuccessFilter>()
+                val upcomingFilter = filters.findIsInstance<FilterOption.LaunchUpcomingFilter>()
+                
+                if (yearFilter != null && successFilter != null && upcomingFilter != null) {
+                    launchDao.getLaunchesByYearSuccessAndUpcoming(
+                        yearFilter.year.toString(), 
+                        successFilter.successful, 
+                        upcomingFilter.upcoming
+                    )
+                } else {
+                    launchDao.getAllLaunches() // Default fallback
+                }
+            }
+            else -> launchDao.getAllLaunches() // Default fallback for complex filters
+        }
+    }
+    
+    /**
+     * Helper method to apply sorting to the list of launches
+     */
+    private fun applySorting(launches: List<Launch>, sort: SortOption): List<Launch> {
+        return when (sort) {
+            SortOption.DATE_DESC -> launches.sortedByDescending { it.launchDateUnix }
+            SortOption.DATE_ASC -> launches.sortedBy { it.launchDateUnix }
+            SortOption.NAME_ASC -> launches.sortedBy { it.missionName }
+            SortOption.NAME_DESC -> launches.sortedByDescending { it.missionName }
+            SortOption.FLIGHT_NUMBER_ASC -> launches.sortedBy { it.flightNumber }
+            SortOption.FLIGHT_NUMBER_DESC -> launches.sortedByDescending { it.flightNumber }
+            else -> launches // Default to original order
+        }
+    }
+    
+    /**
+     * Extension function to find a specific filter type in the list
+     */
+    private inline fun <reified T : FilterOption> List<FilterOption>.findIsInstance(): T? {
+        return this.findIsInstance<T>()
+    }
+    
+    /**
+     * Helper method to apply filters to rockets
+     */
+    private fun applyRocketFilters(rockets: List<Rocket>, filters: List<FilterOption>): List<Rocket> {
+        return rockets.filter { rocket ->
+            filters.all { filter ->
+                when (filter) {
+                    is FilterOption.RocketActiveFilter -> rocket.active == filter.active
+                    is FilterOption.RocketTypeFilter -> rocket.type == filter.type
+                    else -> true // Ignore non-rocket filters
+                }
+            }
+        }
+    }
+    
+    /**
+     * Helper method to apply sorting to rockets
+     */
+    private fun applyRocketSorting(rockets: List<Rocket>, sort: SortOption): List<Rocket> {
+        return when (sort) {
+            SortOption.NAME_ASC -> rockets.sortedBy { it.name }
+            SortOption.NAME_DESC -> rockets.sortedByDescending { it.name }
+            SortOption.ROCKET_NAME_ASC -> rockets.sortedBy { it.name }
+            SortOption.ROCKET_NAME_DESC -> rockets.sortedByDescending { it.name }
+            else -> rockets // Default to original order
+        }
+    }
+    
+    /**
+     * Helper method to apply filters to capsules
+     */
+    private fun applyCapsuleFilters(capsules: List<Capsule>, filters: List<FilterOption>): List<Capsule> {
+        return capsules.filter { capsule ->
+            filters.all { filter ->
+                when (filter) {
+                    is FilterOption.CapsuleTypeFilter -> capsule.type == filter.type
+                    is FilterOption.CapsuleStatusFilter -> capsule.status == filter.status
+                    else -> true // Ignore non-capsule filters
+                }
+            }
+        }
+    }
+    
+    /**
+     * Helper method to apply sorting to capsules
+     */
+    private fun applyCapsuleSorting(capsules: List<Capsule>, sort: SortOption): List<Capsule> {
+        return when (sort) {
+            SortOption.NAME_ASC -> capsules.sortedBy { it.serial }
+            SortOption.NAME_DESC -> capsules.sortedByDescending { it.serial }
+            SortOption.CAPSULE_SERIAL_ASC -> capsules.sortedBy { it.serial }
+            SortOption.CAPSULE_SERIAL_DESC -> capsules.sortedByDescending { it.serial }
+            else -> capsules // Default to original order
+        }
+    }
+    
+    /**
+     * Helper method to apply filters to cores
+     */
+    private fun applyCoreFilters(cores: List<Core>, filters: List<FilterOption>): List<Core> {
+        return cores.filter { core ->
+            filters.all { filter ->
+                when (filter) {
+                    is FilterOption.CoreStatusFilter -> core.status == filter.status
+                    is FilterOption.CoreBlockFilter -> core.block == filter.block
+                    else -> true // Ignore non-core filters
+                }
+            }
+        }
+    }
+    
+    /**
+     * Helper method to apply sorting to cores
+     */
+    private fun applyCoreSorting(cores: List<Core>, sort: SortOption): List<Core> {
+        return when (sort) {
+            SortOption.NAME_ASC -> cores.sortedBy { it.serial }
+            SortOption.NAME_DESC -> cores.sortedByDescending { it.serial }
+            SortOption.CORE_SERIAL_ASC -> cores.sortedBy { it.serial }
+            SortOption.CORE_SERIAL_DESC -> cores.sortedByDescending { it.serial }
+            else -> cores // Default to original order
+        }
+    }
+    
+    /**
+     * Helper method to apply filters to crew
+     */
+    private fun applyCrewFilters(crew: List<CrewMember>, filters: List<FilterOption>): List<CrewMember> {
+        return crew.filter { crewMember ->
+            filters.all { filter ->
+                when (filter) {
+                    is FilterOption.CrewAgencyFilter -> crewMember.agency == filter.agency
+                    is FilterOption.CrewStatusFilter -> crewMember.status == filter.status
+                    else -> true // Ignore non-crew filters
+                }
+            }
+        }
+    }
+    
+    /**
+     * Helper method to apply sorting to crew
+     */
+    private fun applyCrewSorting(crew: List<CrewMember>, sort: SortOption): List<CrewMember> {
+        return when (sort) {
+            SortOption.NAME_ASC -> crew.sortedBy { it.name }
+            SortOption.NAME_DESC -> crew.sortedByDescending { it.name }
+            SortOption.CREW_NAME_ASC -> crew.sortedBy { it.name }
+            SortOption.CREW_NAME_DESC -> crew.sortedByDescending { it.name }
+            else -> crew // Default to original order
+        }
+    }
+    
+    /**
+     * Helper method to apply filters to ships
+     */
+    private fun applyShipFilters(ships: List<Ship>, filters: List<FilterOption>): List<Ship> {
+        return ships.filter { ship ->
+            filters.all { filter ->
+                when (filter) {
+                    is FilterOption.ShipActiveFilter -> ship.active == filter.active
+                    is FilterOption.ShipTypeFilter -> ship.type == filter.type
+                    else -> true // Ignore non-ship filters
+                }
+            }
+        }
+    }
+    
+    /**
+     * Helper method to apply sorting to ships
+     */
+    private fun applyShipSorting(ships: List<Ship>, sort: SortOption): List<Ship> {
+        return when (sort) {
+            SortOption.NAME_ASC -> ships.sortedBy { it.name }
+            SortOption.NAME_DESC -> ships.sortedByDescending { it.name }
+            SortOption.SHIP_NAME_ASC -> ships.sortedBy { it.name }
+            SortOption.SHIP_NAME_DESC -> ships.sortedByDescending { it.name }
+            else -> ships // Default to original order
+        }
+    }
+    
+    /**
+     * Helper method to apply filters to dragons
+     */
+    private fun applyDragonFilters(dragons: List<Dragon>, filters: List<FilterOption>): List<Dragon> {
+        return dragons.filter { dragon ->
+            filters.all { filter ->
+                when (filter) {
+                    is FilterOption.DragonActiveFilter -> dragon.active == filter.active
+                    is FilterOption.DragonTypeFilter -> dragon.type == filter.type
+                    else -> true // Ignore non-dragon filters
+                }
+            }
+        }
+    }
+    
+    /**
+     * Helper method to apply sorting to dragons
+     */
+    private fun applyDragonSorting(dragons: List<Dragon>, sort: SortOption): List<Dragon> {
+        return when (sort) {
+            SortOption.NAME_ASC -> dragons.sortedBy { it.name }
+            SortOption.NAME_DESC -> dragons.sortedByDescending { it.name }
+            SortOption.DRAGON_NAME_ASC -> dragons.sortedBy { it.name }
+            SortOption.DRAGON_NAME_DESC -> dragons.sortedByDescending { it.name }
+            else -> dragons // Default to original order
+        }
+    }
+    
+    /**
+     * Helper method to apply filters to landpads
+     */
+    private fun applyLandpadFilters(landpads: List<Landpad>, filters: List<FilterOption>): List<Landpad> {
+        return landpads.filter { landpad ->
+            filters.all { filter ->
+                when (filter) {
+                    is FilterOption.LandpadStatusFilter -> landpad.status == filter.status
+                    is FilterOption.LandpadTypeFilter -> landpad.type == filter.type
+                    else -> true // Ignore non-landpad filters
+                }
+            }
+        }
+    }
+    
+    /**
+     * Helper method to apply sorting to landpads
+     */
+    private fun applyLandpadSorting(landpads: List<Landpad>, sort: SortOption): List<Landpad> {
+        return when (sort) {
+            SortOption.NAME_ASC -> landpads.sortedBy { it.name }
+            SortOption.NAME_DESC -> landpads.sortedByDescending { it.name }
+            SortOption.LANDPAD_NAME_ASC -> landpads.sortedBy { it.name }
+            SortOption.LANDPAD_NAME_DESC -> landpads.sortedByDescending { it.name }
+            else -> landpads // Default to original order
+        }
+    }
+    
+    /**
+     * Helper method to apply filters to launchpads
+     */
+    private fun applyLaunchpadFilters(launchpads: List<Launchpad>, filters: List<FilterOption>): List<Launchpad> {
+        return launchpads.filter { launchpad ->
+            filters.all { filter ->
+                when (filter) {
+                    is FilterOption.LaunchpadStatusFilter -> launchpad.status == filter.status
+                    is FilterOption.LaunchpadRegionFilter -> launchpad.region == filter.region
+                    else -> true // Ignore non-launchpad filters
+                }
+            }
+        }
+    }
+    
+    /**
+     * Helper method to apply sorting to launchpads
+     */
+    private fun applyLaunchpadSorting(launchpads: List<Launchpad>, sort: SortOption): List<Launchpad> {
+        return when (sort) {
+            SortOption.NAME_ASC -> launchpads.sortedBy { it.name }
+            SortOption.NAME_DESC -> launchpads.sortedByDescending { it.name }
+            SortOption.LAUNCHPAD_NAME_ASC -> launchpads.sortedBy { it.name }
+            SortOption.LAUNCHPAD_NAME_DESC -> launchpads.sortedByDescending { it.name }
+            else -> launchpads // Default to original order
+        }
+    }
+    
+    /**
+     * Helper method to apply filters to payloads
+     */
+    private fun applyPayloadFilters(payloads: List<Payload>, filters: List<FilterOption>): List<Payload> {
+        return payloads.filter { payload ->
+            filters.all { filter ->
+                when (filter) {
+                    is FilterOption.PayloadTypeFilter -> payload.type == filter.type
+                    is FilterOption.PayloadNationalityFilter -> payload.nationality == filter.nationality
+                    else -> true // Ignore non-payload filters
+                }
+            }
+        }
+    }
+    
+    /**
+     * Helper method to apply sorting to payloads
+     */
+    private fun applyPayloadSorting(payloads: List<Payload>, sort: SortOption): List<Payload> {
+        return when (sort) {
+            SortOption.NAME_ASC -> payloads.sortedBy { it.name }
+            SortOption.NAME_DESC -> payloads.sortedByDescending { it.name }
+            SortOption.PAYLOAD_NAME_ASC -> payloads.sortedBy { it.name }
+            SortOption.PAYLOAD_NAME_DESC -> payloads.sortedByDescending { it.name }
+            else -> payloads // Default to original order
         }
     }
 } 

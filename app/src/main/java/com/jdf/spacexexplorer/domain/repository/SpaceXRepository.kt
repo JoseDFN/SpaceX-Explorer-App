@@ -11,6 +11,8 @@ import com.jdf.spacexexplorer.domain.model.Landpad
 import com.jdf.spacexexplorer.domain.model.Launchpad
 import com.jdf.spacexexplorer.domain.model.Payload
 import com.jdf.spacexexplorer.domain.model.Result
+import com.jdf.spacexexplorer.domain.model.FilterOption
+import com.jdf.spacexexplorer.domain.model.SortOption
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -21,8 +23,10 @@ interface SpaceXRepository {
     
     /**
      * Get all launches as a Flow for reactive updates with Result wrapper
+     * @param filters List of filter options to apply
+     * @param sort Sort option to apply
      */
-    fun getLaunches(): Flow<Result<List<Launch>>>
+    fun getLaunches(filters: List<FilterOption> = emptyList(), sort: SortOption = SortOption.DATE_DESC): Flow<Result<List<Launch>>>
     
     /**
      * Get launches with pagination support
@@ -61,8 +65,10 @@ interface SpaceXRepository {
     
     /**
      * Get all rockets as a Flow for reactive updates with Result wrapper
+     * @param filters List of filter options to apply
+     * @param sort Sort option to apply
      */
-    fun getRockets(): Flow<Result<List<Rocket>>>
+    fun getRockets(filters: List<FilterOption> = emptyList(), sort: SortOption = SortOption.NAME_ASC): Flow<Result<List<Rocket>>>
     
     /**
      * Get a specific rocket by ID with Result wrapper
@@ -76,8 +82,10 @@ interface SpaceXRepository {
     
     /**
      * Get all capsules as a Flow for reactive updates with Result wrapper
+     * @param filters List of filter options to apply
+     * @param sort Sort option to apply
      */
-    fun getCapsules(): Flow<Result<List<Capsule>>>
+    fun getCapsules(filters: List<FilterOption> = emptyList(), sort: SortOption = SortOption.NAME_ASC): Flow<Result<List<Capsule>>>
     
     /**
      * Get a specific capsule by ID with Result wrapper
@@ -91,8 +99,10 @@ interface SpaceXRepository {
     
     /**
      * Get all cores as a Flow for reactive updates with Result wrapper
+     * @param filters List of filter options to apply
+     * @param sort Sort option to apply
      */
-    fun getCores(): Flow<Result<List<Core>>>
+    fun getCores(filters: List<FilterOption> = emptyList(), sort: SortOption = SortOption.NAME_ASC): Flow<Result<List<Core>>>
     
     /**
      * Get a specific core by ID with Result wrapper
@@ -106,8 +116,10 @@ interface SpaceXRepository {
     
     /**
      * Get all crew members as a Flow for reactive updates with Result wrapper
+     * @param filters List of filter options to apply
+     * @param sort Sort option to apply
      */
-    fun getCrew(): Flow<Result<List<CrewMember>>>
+    fun getCrew(filters: List<FilterOption> = emptyList(), sort: SortOption = SortOption.NAME_ASC): Flow<Result<List<CrewMember>>>
     
     /**
      * Get a specific crew member by ID with Result wrapper
@@ -121,8 +133,10 @@ interface SpaceXRepository {
     
     /**
      * Get all ships as a Flow for reactive updates with Result wrapper
+     * @param filters List of filter options to apply
+     * @param sort Sort option to apply
      */
-    fun getShips(): Flow<Result<List<Ship>>>
+    fun getShips(filters: List<FilterOption> = emptyList(), sort: SortOption = SortOption.NAME_ASC): Flow<Result<List<Ship>>>
     
     /**
      * Get a specific ship by ID with Result wrapper
@@ -136,8 +150,10 @@ interface SpaceXRepository {
     
     /**
      * Get all dragons as a Flow for reactive updates with Result wrapper
+     * @param filters List of filter options to apply
+     * @param sort Sort option to apply
      */
-    fun getDragons(): Flow<Result<List<Dragon>>>
+    fun getDragons(filters: List<FilterOption> = emptyList(), sort: SortOption = SortOption.NAME_ASC): Flow<Result<List<Dragon>>>
     
     /**
      * Get a specific dragon by ID with Result wrapper
@@ -151,8 +167,10 @@ interface SpaceXRepository {
     
     /**
      * Get all landpads as a Flow for reactive updates with Result wrapper
+     * @param filters List of filter options to apply
+     * @param sort Sort option to apply
      */
-    fun getLandpads(): Flow<Result<List<Landpad>>>
+    fun getLandpads(filters: List<FilterOption> = emptyList(), sort: SortOption = SortOption.NAME_ASC): Flow<Result<List<Landpad>>>
     
     /**
      * Get a specific landpad by ID with Result wrapper
@@ -166,8 +184,10 @@ interface SpaceXRepository {
     
     /**
      * Get all launchpads as a Flow for reactive updates with Result wrapper
+     * @param filters List of filter options to apply
+     * @param sort Sort option to apply
      */
-    fun getLaunchpads(): Flow<Result<List<Launchpad>>>
+    fun getLaunchpads(filters: List<FilterOption> = emptyList(), sort: SortOption = SortOption.NAME_ASC): Flow<Result<List<Launchpad>>>
     
     /**
      * Get a specific launchpad by ID with Result wrapper
@@ -181,8 +201,10 @@ interface SpaceXRepository {
     
     /**
      * Get all payloads as a Flow for reactive updates with Result wrapper
+     * @param filters List of filter options to apply
+     * @param sort Sort option to apply
      */
-    fun getPayloads(): Flow<Result<List<Payload>>>
+    fun getPayloads(filters: List<FilterOption> = emptyList(), sort: SortOption = SortOption.NAME_ASC): Flow<Result<List<Payload>>>
     
     /**
      * Get a specific payload by ID with Result wrapper

@@ -14,6 +14,33 @@ interface LaunchDao {
     @Query("SELECT * FROM launches ORDER BY launchDateUnix DESC")
     fun getAllLaunches(): Flow<List<LaunchEntity>>
     
+    @Query("SELECT * FROM launches WHERE strftime('%Y', datetime(launchDateUnix, 'unixepoch')) = :year ORDER BY launchDateUnix DESC")
+    fun getLaunchesByYear(year: String): Flow<List<LaunchEntity>>
+    
+    @Query("SELECT * FROM launches WHERE wasSuccessful = :successful ORDER BY launchDateUnix DESC")
+    fun getLaunchesBySuccess(successful: Boolean): Flow<List<LaunchEntity>>
+    
+    @Query("SELECT * FROM launches WHERE isUpcoming = :upcoming ORDER BY launchDateUnix DESC")
+    fun getLaunchesByUpcoming(upcoming: Boolean): Flow<List<LaunchEntity>>
+    
+    @Query("SELECT * FROM launches WHERE rocketId = :rocketId ORDER BY launchDateUnix DESC")
+    fun getLaunchesByRocket(rocketId: String): Flow<List<LaunchEntity>>
+    
+    @Query("SELECT * FROM launches WHERE launchDateUnix BETWEEN :startDate AND :endDate ORDER BY launchDateUnix DESC")
+    fun getLaunchesByDateRange(startDate: Long, endDate: Long): Flow<List<LaunchEntity>>
+    
+    @Query("SELECT * FROM launches WHERE strftime('%Y', datetime(launchDateUnix, 'unixepoch')) = :year AND wasSuccessful = :successful ORDER BY launchDateUnix DESC")
+    fun getLaunchesByYearAndSuccess(year: String, successful: Boolean): Flow<List<LaunchEntity>>
+    
+    @Query("SELECT * FROM launches WHERE strftime('%Y', datetime(launchDateUnix, 'unixepoch')) = :year AND isUpcoming = :upcoming ORDER BY launchDateUnix DESC")
+    fun getLaunchesByYearAndUpcoming(year: String, upcoming: Boolean): Flow<List<LaunchEntity>>
+    
+    @Query("SELECT * FROM launches WHERE wasSuccessful = :successful AND isUpcoming = :upcoming ORDER BY launchDateUnix DESC")
+    fun getLaunchesBySuccessAndUpcoming(successful: Boolean, upcoming: Boolean): Flow<List<LaunchEntity>>
+    
+    @Query("SELECT * FROM launches WHERE strftime('%Y', datetime(launchDateUnix, 'unixepoch')) = :year AND wasSuccessful = :successful AND isUpcoming = :upcoming ORDER BY launchDateUnix DESC")
+    fun getLaunchesByYearSuccessAndUpcoming(year: String, successful: Boolean, upcoming: Boolean): Flow<List<LaunchEntity>>
+    
     @Query("SELECT * FROM launches WHERE isUpcoming = 1 ORDER BY launchDateUnix ASC")
     fun getUpcomingLaunches(): Flow<List<LaunchEntity>>
     
