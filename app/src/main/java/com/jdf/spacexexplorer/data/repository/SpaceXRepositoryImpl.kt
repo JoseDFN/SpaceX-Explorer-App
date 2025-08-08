@@ -26,11 +26,14 @@ import com.jdf.spacexexplorer.domain.model.Payload
 import com.jdf.spacexexplorer.domain.model.Result
 import com.jdf.spacexexplorer.domain.model.FilterOption
 import com.jdf.spacexexplorer.domain.model.SortOption
+import com.jdf.spacexexplorer.domain.model.SearchResult
 import com.jdf.spacexexplorer.domain.repository.SpaceXRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.async
 import javax.inject.Inject
 
 /**
@@ -1072,6 +1075,61 @@ class SpaceXRepositoryImpl @Inject constructor(
             SortOption.PAYLOAD_NAME_ASC -> payloads.sortedBy { it.name }
             SortOption.PAYLOAD_NAME_DESC -> payloads.sortedByDescending { it.name }
             else -> payloads // Default to original order
+        }
+    }
+    
+    override suspend fun searchAll(query: String): Result<List<SearchResult>> {
+        return try {
+            coroutineScope {
+                // Search all entities in parallel
+                val launchResults = async { launchDao.searchLaunches(query) }
+                val rocketResults = async { rocketDao.searchRockets(query) }
+                val capsuleResults = async { capsuleDao.searchCapsules(query) }
+                val coreResults = async { coreDao.searchCores(query) }
+                val crewResults = async { crewDao.searchCrew(query) }
+                val shipResults = async { shipDao.searchShips(query) }
+                val dragonResults = async { dragonDao.searchDragons(query) }
+                val landpadResults = async { landpadDao.searchLandpads(query) }
+                val launchpadResults = async { launchpadDao.searchLaunchpads(query) }
+                val payloadResults = async { payloadDao.searchPayloads(query) }
+                
+                // Wait for all results and map them to SearchResult types
+                val searchResults = mutableListOf<SearchResult>()
+                
+                // Add launch results
+                searchResults.addAll(launchResults.await().map { SearchResult.LaunchResult(it.toDomain()) })
+                
+                // Add rocket results
+                searchResults.addAll(rocketResults.await().map { SearchResult.RocketResult(it.toDomain()) })
+                
+                // Add capsule results
+                searchResults.addAll(capsuleResults.await().map { SearchResult.CapsuleResult(it.toDomain()) })
+                
+                // Add core results
+                searchResults.addAll(coreResults.await().map { SearchResult.CoreResult(it.toDomain()) })
+                
+                // Add crew results
+                searchResults.addAll(crewResults.await().map { SearchResult.CrewResult(it.toDomain()) })
+                
+                // Add ship results
+                searchResults.addAll(shipResults.await().map { SearchResult.ShipResult(it.toDomain()) })
+                
+                // Add dragon results
+                searchResults.addAll(dragonResults.await().map { SearchResult.DragonResult(it.toDomain()) })
+                
+                // Add landpad results
+                searchResults.addAll(landpadResults.await().map { SearchResult.LandpadResult(it.toDomain()) })
+                
+                // Add launchpad results
+                searchResults.addAll(launchpadResults.await().map { SearchResult.LaunchpadResult(it.toDomain()) })
+                
+                // Add payload results
+                searchResults.addAll(payloadResults.await().map { SearchResult.PayloadResult(it.toDomain()) })
+                
+                Result.success(searchResults)
+            }
+        } catch (e: Exception) {
+            Result.error(e)
         }
     }
 } 

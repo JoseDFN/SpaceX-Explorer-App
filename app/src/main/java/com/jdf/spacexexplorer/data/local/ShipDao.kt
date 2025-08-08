@@ -51,4 +51,10 @@ interface ShipDao {
      */
     @Query("SELECT * FROM ships WHERE active = 1 ORDER BY name ASC")
     fun getActiveShips(): Flow<List<ShipEntity>>
+    
+    /**
+     * Search ships by name, type, or home port
+     */
+    @Query("SELECT * FROM ships WHERE name LIKE '%' || :query || '%' OR type LIKE '%' || :query || '%' OR homePort LIKE '%' || :query || '%' ORDER BY name ASC")
+    suspend fun searchShips(query: String): List<ShipEntity>
 } 

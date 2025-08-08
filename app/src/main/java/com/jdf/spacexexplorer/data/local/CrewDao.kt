@@ -51,4 +51,10 @@ interface CrewDao {
      */
     @Query("SELECT * FROM crew WHERE status = 'active' ORDER BY name ASC")
     fun getActiveCrew(): Flow<List<CrewEntity>>
+    
+    /**
+     * Search crew members by name, agency, or status
+     */
+    @Query("SELECT * FROM crew WHERE name LIKE '%' || :query || '%' OR agency LIKE '%' || :query || '%' OR status LIKE '%' || :query || '%' ORDER BY name ASC")
+    suspend fun searchCrew(query: String): List<CrewEntity>
 } 
