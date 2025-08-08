@@ -7,6 +7,7 @@ import com.jdf.spacexexplorer.domain.model.Result
 import com.jdf.spacexexplorer.domain.model.SortOption
 import com.jdf.spacexexplorer.domain.usecase.GetRocketsUseCase
 import com.jdf.spacexexplorer.domain.usecase.RefreshRocketsUseCase
+import com.jdf.spacexexplorer.presentation.components.FilterEvent
 import com.jdf.spacexexplorer.presentation.navigation.NavigationEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -49,6 +50,10 @@ class RocketsViewModel @Inject constructor(
         initializeAvailableFilters()
         // Launch a coroutine to collect the flow from the use case
         loadRockets()
+        // Trigger initial refresh in background
+        viewModelScope.launch {
+            refreshRocketsUseCase()
+        }
     }
     
     /**
@@ -97,6 +102,23 @@ class RocketsViewModel @Inject constructor(
             }
             is RocketsEvent.UpdateSort -> {
                 updateSort(event.sort)
+            }
+        }
+    }
+    
+    /**
+     * Handle generic filter events from the FilterBar component
+     */
+    fun onFilterEvent(event: FilterEvent) {
+        when (event) {
+            is FilterEvent.UpdateFilter -> {
+                updateFilter(event.filter)
+            }
+            is FilterEvent.RemoveFilter -> {
+                removeFilter(event.filterKey)
+            }
+            is FilterEvent.ClearAllFilters -> {
+                clearAllFilters()
             }
         }
     }

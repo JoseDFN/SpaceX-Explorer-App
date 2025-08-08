@@ -7,13 +7,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.Sort
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -24,6 +25,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -88,7 +91,7 @@ fun FilterSortBar(
                     onClick = { showSortMenu = true }
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Sort,
+                        imageVector = Icons.AutoMirrored.Filled.Sort,
                         contentDescription = "Sort"
                     )
                     Spacer(modifier = Modifier.width(4.dp))
@@ -120,25 +123,73 @@ fun FilterSortBar(
                 }
             }
             
-            // Dropdown Menus
-            DropdownMenu(
-                expanded = showFilterMenu,
-                onDismissRequest = { showFilterMenu = false }
-            ) {
-                availableFilters.forEach { filter ->
-                    DropdownMenuItem(
-                        text = { 
-                            Text(
-                                text = getFilterDisplayName(filter),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        },
-                        onClick = {
-                            onFilterUpdate(filter)
-                            showFilterMenu = false
+            // Filter Checkbox Menu
+            if (showFilterMenu) {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(
+                            text = "Select Filters",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        
+                        availableFilters.forEach { filter ->
+                            val isActive = activeFilters.values.any { it::class == filter::class && it == filter }
+                            
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Checkbox(
+                                    checked = isActive,
+                                    onCheckedChange = { checked ->
+                                        if (checked) {
+                                            onFilterUpdate(filter)
+                                        } else {
+                                            // Find the key for this filter and remove it
+                                            val keyToRemove = activeFilters.entries.find { it.value::class == filter::class && it.value == filter }?.key
+                                            keyToRemove?.let { onFilterRemove(it) }
+                                        }
+                                    },
+                                    colors = CheckboxDefaults.colors(
+                                        checkedColor = MaterialTheme.colorScheme.primary,
+                                        uncheckedColor = MaterialTheme.colorScheme.outline
+                                    )
+                                )
+                                
+                                Text(
+                                    text = getFilterDisplayName(filter),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    modifier = Modifier.padding(start = 8.dp)
+                                )
+                            }
                         }
-                    )
+                        
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            TextButton(
+                                onClick = { showFilterMenu = false }
+                            ) {
+                                Text("Close")
+                            }
+                        }
+                    }
                 }
             }
             
@@ -152,7 +203,12 @@ fun FilterSortBar(
                             Text(
                                 text = getSortDisplayName(sortOption),
                                 maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
+                                overflow = TextOverflow.Ellipsis,
+                                color = if (sortOption == currentSort) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.onSurface
+                                }
                             )
                         },
                         onClick = {

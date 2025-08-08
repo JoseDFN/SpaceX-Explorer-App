@@ -97,20 +97,33 @@ fun LandpadsScreen(
                 }
             }
             else -> {
-                LazyColumn(
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(state.landpads) { landpad ->
-                        LandpadCard(
-                            landpad = landpad,
-                            onClick = {
-                                viewModel.onEvent(LandpadsEvent.LandpadClicked(landpad))
-                            }
-                        )
+                    // Generic Filter Bar
+                    FilterBar(
+                        filters = state.availableFilters,
+                        activeFilters = state.activeFilters,
+                        onEvent = viewModel::onFilterEvent,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    )
+                    
+                    // Landpads List
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(state.landpads) { landpad ->
+                            LandpadCard(
+                                landpad = landpad,
+                                onClick = {
+                                    viewModel.onEvent(LandpadsEvent.LandpadClicked(landpad))
+                                }
+                            )
+                        }
                     }
                 }
             }

@@ -19,6 +19,7 @@ import androidx.navigation.NavController
 import com.jdf.spacexexplorer.presentation.navigation.Screen
 
 import com.jdf.spacexexplorer.presentation.components.ErrorMessage
+import com.jdf.spacexexplorer.presentation.components.FilterBar
 import com.jdf.spacexexplorer.presentation.components.LoadingIndicator
 import com.jdf.spacexexplorer.presentation.components.ShipCard
 import com.jdf.spacexexplorer.presentation.shared.SharedViewModel
@@ -36,7 +37,7 @@ fun ShipsScreen(
     // Register refresh handler with SharedViewModel
     DisposableEffect(Unit) {
         sharedViewModel.registerRefreshHandler {
-            viewModel.onEvent(ShipsEvent.RefreshShips)
+            viewModel.onEvent(ShipsEvent.Refresh)
         }
         
         // Clean up when the screen is disposed
@@ -65,7 +66,7 @@ fun ShipsScreen(
                 state.error != null -> {
                     ErrorMessage(
                         message = state.error!!,
-                        onRetry = { viewModel.onEvent(ShipsEvent.LoadShips) }
+                        onRetry = { viewModel.onEvent(ShipsEvent.Retry) }
                     )
                 }
                 state.ships.isEmpty() -> {
@@ -84,25 +85,38 @@ fun ShipsScreen(
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(
-                            onClick = { viewModel.onEvent(ShipsEvent.RefreshShips) }
+                            onClick = { viewModel.onEvent(ShipsEvent.Refresh) }
                         ) {
                             Text("Refresh")
                         }
                     }
                 }
                 else -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    Column(
+                        modifier = Modifier.fillMaxSize()
                     ) {
-                        items(state.ships) { ship ->
-                            ShipCard(
-                                ship = ship,
-                                onClick = {
-                                    navController.navigate(Screen.ShipDetail.createRoute(ship.id))
-                                }
-                            )
+                        // Generic Filter Bar
+                        FilterBar(
+                            filters = state.availableFilters,
+                            activeFilters = state.activeFilters,
+                            onEvent = viewModel::onFilterEvent,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                        
+                        // Ships List
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            items(state.ships) { ship ->
+                                ShipCard(
+                                    ship = ship,
+                                    onClick = {
+                                        navController.navigate(Screen.ShipDetail.createRoute(ship.id))
+                                    }
+                                )
+                            }
                         }
                     }
                 }

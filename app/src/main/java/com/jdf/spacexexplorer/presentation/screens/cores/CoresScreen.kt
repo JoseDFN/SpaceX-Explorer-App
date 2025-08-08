@@ -97,20 +97,33 @@ fun CoresScreen(
                 }
             }
             else -> {
-                LazyColumn(
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(state.cores) { core ->
-                        CoreCard(
-                            core = core,
-                            onClick = {
-                                viewModel.onEvent(CoresEvent.CoreClicked(core))
-                            }
-                        )
+                    // Generic Filter Bar
+                    FilterBar(
+                        filters = state.availableFilters,
+                        activeFilters = state.activeFilters,
+                        onEvent = viewModel::onFilterEvent,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    )
+                    
+                    // Cores List
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(state.cores) { core ->
+                            CoreCard(
+                                core = core,
+                                onClick = {
+                                    viewModel.onEvent(CoresEvent.CoreClicked(core))
+                                }
+                            )
+                        }
                     }
                 }
             }

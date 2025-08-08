@@ -21,10 +21,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.jdf.spacexexplorer.presentation.components.FilterBar
 import com.jdf.spacexexplorer.presentation.components.LaunchCard
 import com.jdf.spacexexplorer.presentation.components.LoadingIndicator
 import com.jdf.spacexexplorer.presentation.components.ErrorMessage
-import com.jdf.spacexexplorer.presentation.components.FilterSortBar
 import com.jdf.spacexexplorer.presentation.navigation.NavigationEvent
 import com.jdf.spacexexplorer.presentation.shared.SharedViewModel
 
@@ -128,23 +128,11 @@ fun LaunchesScreen(
                         .fillMaxSize()
                         .padding(paddingValues)
                 ) {
-                    // Filter and Sort Bar
-                    FilterSortBar(
-                        availableFilters = state.availableFilters,
+                    // Generic Filter Bar
+                    FilterBar(
+                        filters = state.availableFilters,
                         activeFilters = state.activeFilters,
-                        currentSort = state.currentSort,
-                        onFilterUpdate = { filter ->
-                            viewModel.onEvent(LaunchesEvent.UpdateFilter(filter))
-                        },
-                        onFilterRemove = { filterKey ->
-                            viewModel.onEvent(LaunchesEvent.RemoveFilter(filterKey))
-                        },
-                        onClearAllFilters = {
-                            viewModel.onEvent(LaunchesEvent.ClearAllFilters)
-                        },
-                        onSortUpdate = { sort ->
-                            viewModel.onEvent(LaunchesEvent.UpdateSort(sort))
-                        },
+                        onEvent = viewModel::onFilterEvent,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                     )
                     

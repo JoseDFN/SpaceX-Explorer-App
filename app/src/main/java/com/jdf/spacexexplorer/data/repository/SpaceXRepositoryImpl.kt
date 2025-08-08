@@ -58,11 +58,7 @@ class SpaceXRepositoryImpl @Inject constructor(
 ) : SpaceXRepository {
     
     override fun getLaunches(filters: List<FilterOption>, sort: SortOption): Flow<Result<List<Launch>>> {
-        return getFilteredLaunchesFlow(filters, sort)
-            .onStart {
-                // Trigger network refresh when flow starts
-                refreshLaunchesFromNetwork()
-            }
+        return getFilteredLaunchesFlow(filters)
             .map { entities ->
                 val launches = entities.map { it.toDomain() }
                 val sortedLaunches = applySorting(launches, sort)
@@ -75,10 +71,6 @@ class SpaceXRepositoryImpl @Inject constructor(
     
     override fun getUpcomingLaunches(): Flow<Result<List<Launch>>> {
         return launchDao.getUpcomingLaunches()
-            .onStart {
-                // Trigger network refresh when flow starts
-                refreshUpcomingLaunchesFromNetwork()
-            }
             .map { entities ->
                 val launches = entities.map { it.toDomain() }
                 Result.success(launches)
@@ -118,25 +110,17 @@ class SpaceXRepositoryImpl @Inject constructor(
     
     override suspend fun getLaunchById(id: String): Result<Launch> {
         return try {
-            println("DEBUG REPOSITORY: Getting launch by ID: $id")
             // Try to get from local database first
             val localEntity = launchDao.getLaunchById(id)
             if (localEntity != null) {
-                println("DEBUG REPOSITORY: Found in local database")
-                println("DEBUG REPOSITORY: Local launch date: ${localEntity.launchDate}")
-                println("DEBUG REPOSITORY: Local isUpcoming: ${localEntity.isUpcoming}")
                 return Result.success(localEntity.toDomain())
             }
-            println("DEBUG REPOSITORY: Not found in local database, fetching from API")
             // If not found, fetch from API
             val remoteDto = apiService.getLaunchById(id)
-            println("DEBUG REPOSITORY: API launch date: ${remoteDto.dateUtc}")
-            println("DEBUG REPOSITORY: API upcoming: ${remoteDto.upcoming}")
             val entity = remoteDto.toEntity()
             launchDao.insertLaunch(entity)
             Result.success(entity.toDomain())
         } catch (e: Exception) {
-            println("DEBUG REPOSITORY: Error getting launch by ID: ${e.message}")
             Result.error(e)
         }
     }
@@ -218,10 +202,6 @@ class SpaceXRepositoryImpl @Inject constructor(
     
     override fun getRockets(filters: List<FilterOption>, sort: SortOption): Flow<Result<List<Rocket>>> {
         return rocketDao.getRockets()
-            .onStart {
-                // Trigger network refresh when flow starts
-                refreshRocketsFromNetwork()
-            }
             .map { entities ->
                 val rockets = entities.map { it.toDomain() }
                 val filteredRockets = applyRocketFilters(rockets, filters)
@@ -285,10 +265,6 @@ class SpaceXRepositoryImpl @Inject constructor(
     
     override fun getCapsules(filters: List<FilterOption>, sort: SortOption): Flow<Result<List<Capsule>>> {
         return capsuleDao.getCapsules()
-            .onStart {
-                // Trigger network refresh when flow starts
-                refreshCapsulesFromNetwork()
-            }
             .map { entities ->
                 val capsules = entities.map { it.toDomain() }
                 val filteredCapsules = applyCapsuleFilters(capsules, filters)
@@ -352,10 +328,6 @@ class SpaceXRepositoryImpl @Inject constructor(
     
     override fun getCores(filters: List<FilterOption>, sort: SortOption): Flow<Result<List<Core>>> {
         return coreDao.getCores()
-            .onStart {
-                // Trigger network refresh when flow starts
-                refreshCoresFromNetwork()
-            }
             .map { entities ->
                 val cores = entities.map { it.toDomain() }
                 val filteredCores = applyCoreFilters(cores, filters)
@@ -419,10 +391,6 @@ class SpaceXRepositoryImpl @Inject constructor(
     
     override fun getCrew(filters: List<FilterOption>, sort: SortOption): Flow<Result<List<CrewMember>>> {
         return crewDao.getCrew()
-            .onStart {
-                // Trigger network refresh when flow starts
-                refreshCrewFromNetwork()
-            }
             .map { entities ->
                 val crew = entities.map { it.toDomain() }
                 val filteredCrew = applyCrewFilters(crew, filters)
@@ -486,10 +454,6 @@ class SpaceXRepositoryImpl @Inject constructor(
     
     override fun getShips(filters: List<FilterOption>, sort: SortOption): Flow<Result<List<Ship>>> {
         return shipDao.getShips()
-            .onStart {
-                // Trigger network refresh when flow starts
-                refreshShipsFromNetwork()
-            }
             .map { entities ->
                 val ships = entities.map { it.toDomain() }
                 val filteredShips = applyShipFilters(ships, filters)
@@ -553,26 +517,13 @@ class SpaceXRepositoryImpl @Inject constructor(
     
     override fun getDragons(filters: List<FilterOption>, sort: SortOption): Flow<Result<List<Dragon>>> {
         return dragonDao.getDragons()
-            .onStart {
-                // Trigger network refresh when flow starts
-                try {
-                    refreshDragonsFromNetwork()
-                } catch (e: Exception) {
-                    // Log the error but don't emit it here - let the database flow handle it
-                    println("Network refresh failed: ${e.message}")
-                }
-            }
             .map { entities ->
-                println("Retrieved ${entities.size} dragons from database")
                 val dragons = entities.map { it.toDomain() }
-                println("Converted to ${dragons.size} domain models")
                 val filteredDragons = applyDragonFilters(dragons, filters)
                 val sortedDragons = applyDragonSorting(filteredDragons, sort)
                 Result.success(sortedDragons)
             }
             .catch { e ->
-                println("Error in getDragons flow: ${e.message}")
-                e.printStackTrace()
                 emit(Result.error(Exception(e)))
             }
     }
@@ -616,30 +567,10 @@ class SpaceXRepositoryImpl @Inject constructor(
      */
     private suspend fun refreshDragonsFromNetwork() {
         try {
-            println("Fetching dragons from API...")
             val remoteDragons = apiService.getDragons()
-            println("Received ${remoteDragons.size} dragons from API")
-            
-            if (remoteDragons.isNotEmpty()) {
-                println("First dragon: ${remoteDragons.first().name}")
-                println("First dragon ID: ${remoteDragons.first().id}")
-                println("First dragon type: ${remoteDragons.first().type}")
-            }
-            
-            try {
-                val entities = remoteDragons.map { it.toEntity() }
-                println("Converted to ${entities.size} entities")
-                dragonDao.deleteAllAndInsertDragons(entities)
-                println("Successfully saved dragons to database")
-            } catch (mappingError: Exception) {
-                println("Error during mapping: ${mappingError.message}")
-                mappingError.printStackTrace()
-                throw mappingError
-            }
+            val entities = remoteDragons.map { it.toEntity() }
+            dragonDao.deleteAllAndInsertDragons(entities)
         } catch (e: Exception) {
-            // Log the error for debugging
-            println("Error refreshing dragons from network: ${e.message}")
-            e.printStackTrace()
             // Silently handle network errors - local data will still be emitted
             // The error will be handled by the UI layer if needed
         }
@@ -649,15 +580,6 @@ class SpaceXRepositoryImpl @Inject constructor(
     
     override fun getLandpads(filters: List<FilterOption>, sort: SortOption): Flow<Result<List<Landpad>>> {
         return landpadDao.getLandpads()
-            .onStart {
-                // Trigger network refresh when flow starts
-                try {
-                    refreshLandpadsFromNetwork()
-                } catch (e: Exception) {
-                    // Log the error but don't emit it here - let the database flow handle it
-                    println("Network refresh failed: ${e.message}")
-                }
-            }
             .map { entities ->
                 val landpads = entities.map { it.toDomain() }
                 val filteredLandpads = applyLandpadFilters(landpads, filters)
@@ -721,15 +643,6 @@ class SpaceXRepositoryImpl @Inject constructor(
     
     override fun getLaunchpads(filters: List<FilterOption>, sort: SortOption): Flow<Result<List<Launchpad>>> {
         return launchpadDao.getLaunchpads()
-            .onStart {
-                // Trigger network refresh when flow starts
-                try {
-                    refreshLaunchpadsFromNetwork()
-                } catch (e: Exception) {
-                    // Log the error but don't emit it here - let the database flow handle it
-                    println("Network refresh failed: ${e.message}")
-                }
-            }
             .map { entities ->
                 val launchpads = entities.map { it.toDomain() }
                 val filteredLaunchpads = applyLaunchpadFilters(launchpads, filters)
@@ -793,15 +706,6 @@ class SpaceXRepositoryImpl @Inject constructor(
     
     override fun getPayloads(filters: List<FilterOption>, sort: SortOption): Flow<Result<List<Payload>>> {
         return payloadDao.getPayloads()
-            .onStart {
-                // Trigger network refresh when flow starts
-                try {
-                    refreshPayloadsFromNetwork()
-                } catch (e: Exception) {
-                    // Log the error but don't emit it here - let the database flow handle it
-                    println("Network refresh failed: ${e.message}")
-                }
-            }
             .map { entities ->
                 val payloads = entities.map { it.toDomain() }
                 val filteredPayloads = applyPayloadFilters(payloads, filters)
@@ -864,50 +768,36 @@ class SpaceXRepositoryImpl @Inject constructor(
     /**
      * Helper method to get the appropriate Flow based on filters
      */
-    private fun getFilteredLaunchesFlow(filters: List<FilterOption>, sort: SortOption): Flow<List<com.jdf.spacexexplorer.data.local.entity.LaunchEntity>> {
+    private fun getFilteredLaunchesFlow(filters: List<FilterOption>): Flow<List<com.jdf.spacexexplorer.data.local.entity.LaunchEntity>> {
         return when {
-            filters.isEmpty() -> launchDao.getAllLaunches()
-            filters.size == 1 -> {
-                when (val filter = filters.first()) {
-                    is FilterOption.LaunchYearFilter -> launchDao.getLaunchesByYear(filter.year.toString())
-                    is FilterOption.LaunchSuccessFilter -> launchDao.getLaunchesBySuccess(filter.successful)
-                    is FilterOption.LaunchUpcomingFilter -> launchDao.getLaunchesByUpcoming(filter.upcoming)
-                    is FilterOption.LaunchRocketFilter -> launchDao.getLaunchesByRocket(filter.rocketId)
-                    is FilterOption.LaunchDateRangeFilter -> launchDao.getLaunchesByDateRange(filter.startDate, filter.endDate)
-                    else -> launchDao.getAllLaunches() // Default fallback
+            filters.isEmpty() -> {
+                launchDao.getAllLaunches()
+            }
+            else -> {
+                // For any combination of filters, get all launches and apply filters in memory
+                launchDao.getAllLaunches().map { launches ->
+                    val filteredLaunches = launches.filter { launch ->
+                        filters.all { filter ->
+                            when (filter) {
+                                is FilterOption.LaunchYearFilter -> {
+                                    val launchYear = java.time.Instant.ofEpochSecond(launch.launchDateUnix)
+                                        .atZone(java.time.ZoneOffset.UTC)
+                                        .year
+                                    launchYear == filter.year
+                                }
+                                is FilterOption.LaunchSuccessFilter -> launch.wasSuccessful == filter.successful
+                                is FilterOption.LaunchUpcomingFilter -> launch.isUpcoming == filter.upcoming
+                                is FilterOption.LaunchRocketFilter -> launch.rocketId == filter.rocketId
+                                is FilterOption.LaunchDateRangeFilter -> {
+                                    launch.launchDateUnix >= filter.startDate && launch.launchDateUnix <= filter.endDate
+                                }
+                                else -> true // Ignore non-launch filters
+                            }
+                        }
+                    }
+                    filteredLaunches
                 }
             }
-            filters.size == 2 -> {
-                val yearFilter = filters.findIsInstance<FilterOption.LaunchYearFilter>()
-                val successFilter = filters.findIsInstance<FilterOption.LaunchSuccessFilter>()
-                val upcomingFilter = filters.findIsInstance<FilterOption.LaunchUpcomingFilter>()
-                
-                when {
-                    yearFilter != null && successFilter != null -> 
-                        launchDao.getLaunchesByYearAndSuccess(yearFilter.year.toString(), successFilter.successful)
-                    yearFilter != null && upcomingFilter != null -> 
-                        launchDao.getLaunchesByYearAndUpcoming(yearFilter.year.toString(), upcomingFilter.upcoming)
-                    successFilter != null && upcomingFilter != null -> 
-                        launchDao.getLaunchesBySuccessAndUpcoming(successFilter.successful, upcomingFilter.upcoming)
-                    else -> launchDao.getAllLaunches() // Default fallback
-                }
-            }
-            filters.size == 3 -> {
-                val yearFilter = filters.findIsInstance<FilterOption.LaunchYearFilter>()
-                val successFilter = filters.findIsInstance<FilterOption.LaunchSuccessFilter>()
-                val upcomingFilter = filters.findIsInstance<FilterOption.LaunchUpcomingFilter>()
-                
-                if (yearFilter != null && successFilter != null && upcomingFilter != null) {
-                    launchDao.getLaunchesByYearSuccessAndUpcoming(
-                        yearFilter.year.toString(), 
-                        successFilter.successful, 
-                        upcomingFilter.upcoming
-                    )
-                } else {
-                    launchDao.getAllLaunches() // Default fallback
-                }
-            }
-            else -> launchDao.getAllLaunches() // Default fallback for complex filters
         }
     }
     
@@ -930,7 +820,7 @@ class SpaceXRepositoryImpl @Inject constructor(
      * Extension function to find a specific filter type in the list
      */
     private inline fun <reified T : FilterOption> List<FilterOption>.findIsInstance(): T? {
-        return this.findIsInstance<T>()
+        return this.find { it is T } as? T
     }
     
     /**
@@ -1165,7 +1055,7 @@ class SpaceXRepositoryImpl @Inject constructor(
             filters.all { filter ->
                 when (filter) {
                     is FilterOption.PayloadTypeFilter -> payload.type == filter.type
-                    is FilterOption.PayloadNationalityFilter -> payload.nationality == filter.nationality
+                    is FilterOption.PayloadNationalityFilter -> payload.nationalities.contains(filter.nationality)
                     else -> true // Ignore non-payload filters
                 }
             }
