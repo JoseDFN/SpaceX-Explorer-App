@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.Satellite
 import androidx.compose.material.icons.filled.DirectionsBoat
 import androidx.compose.material.icons.filled.Flight
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -305,6 +306,26 @@ fun AppShell(
                         }
                     },
                     actions = {
+                        // Search button
+                        IconButton(
+                            onClick = {
+                                if (navController.currentDestination?.route == Screen.Search.route) {
+                                    // If already on search screen, navigate back to home
+                                    navController.navigate(Screen.Home.route) {
+                                        popUpTo(Screen.Search.route) { inclusive = true }
+                                    }
+                                } else {
+                                    // Navigate to search screen
+                                    navController.navigate(Screen.Search.route)
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "Search"
+                            )
+                        }
+                        
                         // Show refresh button when a refresh handler is available
                         if (sharedState.onRefresh != null) {
                             IconButton(
@@ -339,6 +360,7 @@ fun AppShell(
 private fun getScreenTitle(route: String?): String {
     return when (route) {
         Screen.Home.route -> "Home"
+        Screen.Search.route -> "Search"
         Screen.Launches.route -> "Launches"
         Screen.Rockets.route -> "Rockets"
         Screen.Capsules.route -> "Capsules"

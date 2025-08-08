@@ -34,8 +34,8 @@ interface PayloadDao {
     fun getReusedPayloads(): Flow<List<PayloadEntity>>
     
     /**
-     * Search payloads by name, type, or nationality
+     * Search payloads by name, type, or nationalities
      */
-    @Query("SELECT * FROM payloads WHERE name LIKE '%' || :query || '%' OR type LIKE '%' || :query || '%' OR nationality LIKE '%' || :query || '%' ORDER BY name ASC")
+    @Query("SELECT * FROM payloads WHERE name LIKE '%' || :query || '%' OR type LIKE '%' || :query || '%' OR nationalities LIKE '%' || :query || '%' ORDER BY name ASC")
     suspend fun searchPayloads(query: String): List<PayloadEntity>
 } 
