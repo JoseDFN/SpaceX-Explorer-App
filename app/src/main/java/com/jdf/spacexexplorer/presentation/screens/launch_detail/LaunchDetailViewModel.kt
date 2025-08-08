@@ -64,13 +64,6 @@ class LaunchDetailViewModel @Inject constructor(
 
             when (result) {
                 is Result.Success -> {
-                    // Debug: Print launch details
-                    println("DEBUG VIEWMODEL: Launch loaded - ID: ${result.data.id}")
-                    println("DEBUG VIEWMODEL: Mission: ${result.data.missionName}")
-                    println("DEBUG VIEWMODEL: Date: ${result.data.launchDate}")
-                    println("DEBUG VIEWMODEL: Is Upcoming: ${result.data.isUpcoming}")
-                    println("DEBUG VIEWMODEL: Was Successful: ${result.data.wasSuccessful}")
-                    
                     _state.update { currentState ->
                         currentState.copy(
                             isLoading = false,

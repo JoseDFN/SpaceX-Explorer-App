@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.jdf.spacexexplorer.presentation.components.FilterBar
 import com.jdf.spacexexplorer.presentation.components.LaunchCard
 import com.jdf.spacexexplorer.presentation.components.LoadingIndicator
 import com.jdf.spacexexplorer.presentation.components.ErrorMessage
@@ -122,33 +123,46 @@ fun LaunchesScreen(
                 }
             }
             else -> {
-                LazyColumn(
-                    state = listState,
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(paddingValues),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                        .padding(paddingValues)
                 ) {
-                    items(state.launches) { launch ->
-                        LaunchCard(
-                            launch = launch,
-                            onClick = {
-                                viewModel.onEvent(LaunchesEvent.LaunchClicked(launch.id))
-                            }
-                        )
-                    }
+                    // Generic Filter Bar
+                    FilterBar(
+                        filters = state.availableFilters,
+                        activeFilters = state.activeFilters,
+                        onEvent = viewModel::onFilterEvent,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    )
                     
-                    // Show loading indicator at the bottom when loading more
-                    if (state.isLoadingMore) {
-                        item {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator()
+                    // Launches List
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(state.launches) { launch ->
+                            LaunchCard(
+                                launch = launch,
+                                onClick = {
+                                    viewModel.onEvent(LaunchesEvent.LaunchClicked(launch.id))
+                                }
+                            )
+                        }
+                        
+                        // Show loading indicator at the bottom when loading more
+                        if (state.isLoadingMore) {
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
                             }
                         }
                     }

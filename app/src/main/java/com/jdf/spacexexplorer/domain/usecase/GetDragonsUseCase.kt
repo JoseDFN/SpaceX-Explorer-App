@@ -2,6 +2,8 @@ package com.jdf.spacexexplorer.domain.usecase
 
 import com.jdf.spacexexplorer.domain.model.Dragon
 import com.jdf.spacexexplorer.domain.model.Result
+import com.jdf.spacexexplorer.domain.model.FilterOption
+import com.jdf.spacexexplorer.domain.model.SortOption
 import com.jdf.spacexexplorer.domain.repository.SpaceXRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -16,9 +18,11 @@ class GetDragonsUseCase @Inject constructor(
 
     /**
      * Get all dragons as a Flow
+     * @param filters List of filter options to apply
+     * @param sort Sort option to apply
      * @return Flow of Result containing list of dragons
      */
-    operator fun invoke(): Flow<Result<List<Dragon>>> {
-        return repository.getDragons()
+    operator fun invoke(filters: List<FilterOption> = emptyList(), sort: SortOption = SortOption.NAME_ASC): Flow<Result<List<Dragon>>> {
+        return repository.getDragons(filters, sort)
     }
 } 

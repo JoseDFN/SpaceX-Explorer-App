@@ -19,6 +19,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.jdf.spacexexplorer.presentation.components.CrewCard
 import com.jdf.spacexexplorer.presentation.components.ErrorMessage
+import com.jdf.spacexexplorer.presentation.components.FilterBar
 import com.jdf.spacexexplorer.presentation.components.LoadingIndicator
 import com.jdf.spacexexplorer.presentation.navigation.Screen
 import com.jdf.spacexexplorer.presentation.shared.SharedViewModel
@@ -96,21 +97,34 @@ fun CrewScreen(
                     }
                 }
                 else -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    Column(
+                        modifier = Modifier.fillMaxSize()
                     ) {
-                        items(
-                            items = state.crew,
-                            key = { it.id }
-                        ) { crewMember ->
-                            CrewCard(
-                                crewMember = crewMember,
-                                modifier = Modifier.clickable {
-                                    navController.navigate(Screen.CrewDetail.createRoute(crewMember.id))
-                                }
-                            )
+                        // Generic Filter Bar
+                        FilterBar(
+                            filters = state.availableFilters,
+                            activeFilters = state.activeFilters,
+                            onEvent = viewModel::onFilterEvent,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                        
+                        // Crew List
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            items(
+                                items = state.crew,
+                                key = { it.id }
+                            ) { crewMember ->
+                                CrewCard(
+                                    crewMember = crewMember,
+                                    modifier = Modifier.clickable {
+                                        navController.navigate(Screen.CrewDetail.createRoute(crewMember.id))
+                                    }
+                                )
+                            }
                         }
                     }
                 }

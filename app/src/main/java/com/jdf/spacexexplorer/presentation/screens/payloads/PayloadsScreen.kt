@@ -97,20 +97,33 @@ fun PayloadsScreen(
                 }
             }
             else -> {
-                LazyColumn(
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(state.payloads) { payload ->
-                        PayloadCard(
-                            payload = payload,
-                            onClick = {
-                                viewModel.onEvent(PayloadsEvent.PayloadClicked(payload))
-                            }
-                        )
+                    // Generic Filter Bar
+                    FilterBar(
+                        filters = state.availableFilters,
+                        activeFilters = state.activeFilters,
+                        onEvent = viewModel::onFilterEvent,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    )
+                    
+                    // Payloads List
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(state.payloads) { payload ->
+                            PayloadCard(
+                                payload = payload,
+                                onClick = {
+                                    viewModel.onEvent(PayloadsEvent.PayloadClicked(payload))
+                                }
+                            )
+                        }
                     }
                 }
             }

@@ -97,20 +97,33 @@ fun RocketsScreen(
                 }
             }
             else -> {
-                LazyColumn(
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(state.rockets) { rocket ->
-                        RocketCard(
-                            rocket = rocket,
-                            onClick = {
-                                viewModel.onEvent(RocketsEvent.RocketClicked(rocket))
-                            }
-                        )
+                    // Generic Filter Bar
+                    FilterBar(
+                        filters = state.availableFilters,
+                        activeFilters = state.activeFilters,
+                        onEvent = viewModel::onFilterEvent,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    )
+                    
+                    // Rockets List
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(state.rockets) { rocket ->
+                            RocketCard(
+                                rocket = rocket,
+                                onClick = {
+                                    viewModel.onEvent(RocketsEvent.RocketClicked(rocket))
+                                }
+                            )
+                        }
                     }
                 }
             }
