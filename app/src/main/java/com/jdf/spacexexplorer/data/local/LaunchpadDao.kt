@@ -51,4 +51,10 @@ interface LaunchpadDao {
      */
     @Query("SELECT * FROM launchpads WHERE status = 'active' ORDER BY name ASC")
     fun getActiveLaunchpads(): Flow<List<LaunchpadEntity>>
+    
+    /**
+     * Search launchpads by name, full name, or locality
+     */
+    @Query("SELECT * FROM launchpads WHERE name LIKE '%' || :query || '%' OR fullName LIKE '%' || :query || '%' OR locality LIKE '%' || :query || '%' ORDER BY name ASC")
+    suspend fun searchLaunchpads(query: String): List<LaunchpadEntity>
 } 

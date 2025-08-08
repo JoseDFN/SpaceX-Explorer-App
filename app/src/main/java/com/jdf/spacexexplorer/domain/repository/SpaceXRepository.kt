@@ -13,6 +13,7 @@ import com.jdf.spacexexplorer.domain.model.Payload
 import com.jdf.spacexexplorer.domain.model.Result
 import com.jdf.spacexexplorer.domain.model.FilterOption
 import com.jdf.spacexexplorer.domain.model.SortOption
+import com.jdf.spacexexplorer.domain.model.SearchResult
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -215,4 +216,11 @@ interface SpaceXRepository {
      * Refresh payloads from the remote API
      */
     suspend fun refreshPayloads(): Result<Unit>
+    
+    /**
+     * Search across all entities with the given query
+     * @param query The search query string
+     * @return Result containing list of SearchResult items
+     */
+    suspend fun searchAll(query: String): Result<List<SearchResult>>
 } 

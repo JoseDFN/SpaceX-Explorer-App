@@ -51,4 +51,10 @@ interface CoreDao {
      */
     @Query("SELECT * FROM cores WHERE status = 'active' ORDER BY serial ASC")
     fun getActiveCores(): Flow<List<CoreEntity>>
+    
+    /**
+     * Search cores by serial, status, or block
+     */
+    @Query("SELECT * FROM cores WHERE serial LIKE '%' || :query || '%' OR status LIKE '%' || :query || '%' OR block LIKE '%' || :query || '%' ORDER BY serial ASC")
+    suspend fun searchCores(query: String): List<CoreEntity>
 } 

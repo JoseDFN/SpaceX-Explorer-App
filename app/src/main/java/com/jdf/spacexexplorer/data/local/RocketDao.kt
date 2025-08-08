@@ -51,4 +51,10 @@ interface RocketDao {
      */
     @Query("SELECT * FROM rockets WHERE active = 1 ORDER BY name ASC")
     fun getActiveRockets(): Flow<List<RocketEntity>>
+    
+    /**
+     * Search rockets by name, description, or company
+     */
+    @Query("SELECT * FROM rockets WHERE name LIKE '%' || :query || '%' OR description LIKE '%' || :query || '%' OR company LIKE '%' || :query || '%' ORDER BY name ASC")
+    suspend fun searchRockets(query: String): List<RocketEntity>
 } 

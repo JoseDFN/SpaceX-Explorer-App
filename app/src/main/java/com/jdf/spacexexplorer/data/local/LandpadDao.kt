@@ -51,4 +51,10 @@ interface LandpadDao {
      */
     @Query("SELECT * FROM landpads WHERE status = 'active' ORDER BY name ASC")
     fun getActiveLandpads(): Flow<List<LandpadEntity>>
+    
+    /**
+     * Search landpads by name, full name, or locality
+     */
+    @Query("SELECT * FROM landpads WHERE name LIKE '%' || :query || '%' OR fullName LIKE '%' || :query || '%' OR locality LIKE '%' || :query || '%' ORDER BY name ASC")
+    suspend fun searchLandpads(query: String): List<LandpadEntity>
 } 

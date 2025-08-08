@@ -35,4 +35,6 @@ google-services.json
 
 .cursor/
 
+.vscode/
+
 FILTER_SORT_SYSTEM.md

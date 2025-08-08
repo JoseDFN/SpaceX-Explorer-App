@@ -51,4 +51,10 @@ interface DragonDao {
      */
     @Query("SELECT * FROM dragons WHERE active = 1 ORDER BY name ASC")
     fun getActiveDragons(): Flow<List<DragonEntity>>
+    
+    /**
+     * Search dragons by name, type, or description
+     */
+    @Query("SELECT * FROM dragons WHERE name LIKE '%' || :query || '%' OR type LIKE '%' || :query || '%' OR description LIKE '%' || :query || '%' ORDER BY name ASC")
+    suspend fun searchDragons(query: String): List<DragonEntity>
 } 

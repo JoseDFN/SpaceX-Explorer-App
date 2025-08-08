@@ -51,4 +51,10 @@ interface CapsuleDao {
      */
     @Query("SELECT * FROM capsules WHERE status = 'active' ORDER BY serial ASC")
     fun getActiveCapsules(): Flow<List<CapsuleEntity>>
+    
+    /**
+     * Search capsules by serial, type, or status
+     */
+    @Query("SELECT * FROM capsules WHERE serial LIKE '%' || :query || '%' OR type LIKE '%' || :query || '%' OR status LIKE '%' || :query || '%' ORDER BY serial ASC")
+    suspend fun searchCapsules(query: String): List<CapsuleEntity>
 } 
