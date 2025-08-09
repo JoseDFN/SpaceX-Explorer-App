@@ -20,6 +20,7 @@ import kotlinx.coroutines.launch
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.jdf.spacexexplorer.presentation.screens.home.HomeScreen
@@ -39,6 +40,8 @@ fun AppShell(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val sharedState by sharedViewModel.state.collectAsState()
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
     
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -58,7 +61,7 @@ fun AppShell(
                 NavigationDrawerItem(
                     icon = { Icon(Icons.Default.Home, contentDescription = null) },
                     label = { Text("Home") },
-                    selected = navController.currentDestination?.route == Screen.Home.route,
+                    selected = currentRoute == Screen.Home.route,
                     onClick = {
                         scope.launch {
                             drawerState.close()
@@ -81,7 +84,7 @@ fun AppShell(
                 NavigationDrawerItem(
                     icon = { Icon(Icons.Default.Satellite, contentDescription = null) },
                     label = { Text("Launches") },
-                    selected = navController.currentDestination?.route == Screen.Launches.route,
+                    selected = currentRoute == Screen.Launches.route,
                     onClick = {
                         scope.launch {
                             drawerState.close()
@@ -100,7 +103,7 @@ fun AppShell(
                 NavigationDrawerItem(
                     icon = { Icon(Icons.Default.Rocket, contentDescription = null) },
                     label = { Text("Rockets") },
-                    selected = navController.currentDestination?.route == Screen.Rockets.route,
+                    selected = currentRoute == Screen.Rockets.route,
                     onClick = {
                         scope.launch {
                             drawerState.close()
@@ -119,7 +122,7 @@ fun AppShell(
                 NavigationDrawerItem(
                     icon = { Icon(Icons.Default.Satellite, contentDescription = null) },
                     label = { Text("Capsules") },
-                    selected = navController.currentDestination?.route == Screen.Capsules.route,
+                    selected = currentRoute == Screen.Capsules.route,
                     onClick = {
                         scope.launch {
                             drawerState.close()
@@ -138,7 +141,7 @@ fun AppShell(
                 NavigationDrawerItem(
                     icon = { Icon(Icons.Default.Rocket, contentDescription = null) },
                     label = { Text("Cores") },
-                    selected = navController.currentDestination?.route == Screen.Cores.route,
+                    selected = currentRoute == Screen.Cores.route,
                     onClick = {
                         scope.launch {
                             drawerState.close()
@@ -157,7 +160,7 @@ fun AppShell(
                 NavigationDrawerItem(
                     icon = { Icon(Icons.Default.Person, contentDescription = null) },
                     label = { Text("Crew") },
-                    selected = navController.currentDestination?.route == Screen.Crew.route,
+                    selected = currentRoute == Screen.Crew.route,
                     onClick = {
                         scope.launch {
                             drawerState.close()
@@ -176,7 +179,7 @@ fun AppShell(
                 NavigationDrawerItem(
                     icon = { Icon(Icons.Default.DirectionsBoat, contentDescription = null) },
                     label = { Text("Ships") },
-                    selected = navController.currentDestination?.route == Screen.Ships.route,
+                    selected = currentRoute == Screen.Ships.route,
                     onClick = {
                         scope.launch {
                             drawerState.close()
@@ -195,7 +198,7 @@ fun AppShell(
                 NavigationDrawerItem(
                     icon = { Icon(Icons.Default.Flight, contentDescription = null) },
                     label = { Text("Dragons") },
-                    selected = navController.currentDestination?.route == Screen.Dragons.route,
+                    selected = currentRoute == Screen.Dragons.route,
                     onClick = {
                         scope.launch {
                             drawerState.close()
@@ -214,7 +217,7 @@ fun AppShell(
                 NavigationDrawerItem(
                     icon = { Icon(Icons.Default.LocationOn, contentDescription = null) },
                     label = { Text("Landpads") },
-                    selected = navController.currentDestination?.route == Screen.Landpads.route,
+                    selected = currentRoute == Screen.Landpads.route,
                     onClick = {
                         scope.launch {
                             drawerState.close()
@@ -233,7 +236,7 @@ fun AppShell(
                 NavigationDrawerItem(
                     icon = { Icon(Icons.Default.Rocket, contentDescription = null) },
                     label = { Text("Launchpads") },
-                    selected = navController.currentDestination?.route == Screen.Launchpads.route,
+                    selected = currentRoute == Screen.Launchpads.route,
                     onClick = {
                         scope.launch {
                             drawerState.close()
@@ -252,7 +255,7 @@ fun AppShell(
                 NavigationDrawerItem(
                     icon = { Icon(Icons.Default.Satellite, contentDescription = null) },
                     label = { Text("Payloads") },
-                    selected = navController.currentDestination?.route == Screen.Payloads.route,
+                    selected = currentRoute == Screen.Payloads.route,
                     onClick = {
                         scope.launch {
                             drawerState.close()
@@ -271,7 +274,7 @@ fun AppShell(
                 NavigationDrawerItem(
                     icon = { Icon(Icons.Default.Settings, contentDescription = null) },
                     label = { Text("Settings") },
-                    selected = navController.currentDestination?.route == Screen.Settings.route,
+                    selected = currentRoute == Screen.Settings.route,
                     onClick = {
                         scope.launch { drawerState.close() }
                         navController.navigate(Screen.Settings.route) {
@@ -301,7 +304,7 @@ fun AppShell(
                 TopAppBar(
                     title = {
                         Text(
-                            text = getScreenTitle(navController.currentDestination?.route),
+                            text = getScreenTitle(currentRoute),
                             style = MaterialTheme.typography.headlineMedium,
                             fontWeight = FontWeight.Bold
                         )
@@ -325,7 +328,7 @@ fun AppShell(
                         // Search button
                         IconButton(
                             onClick = {
-                                if (navController.currentDestination?.route == Screen.Search.route) {
+                                if (currentRoute == Screen.Search.route) {
                                     // If already on search screen, navigate back to home
                                     navController.navigate(Screen.Home.route) {
                                         popUpTo(Screen.Search.route) { inclusive = true }

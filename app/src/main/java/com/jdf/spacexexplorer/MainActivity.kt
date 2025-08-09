@@ -10,7 +10,6 @@ import androidx.compose.material3.Surface
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.jdf.spacexexplorer.presentation.navigation.AppShell
 import com.jdf.spacexexplorer.presentation.ui.theme.SpaceXExplorerTheme
-import com.jdf.spacexexplorer.presentation.shared.SharedViewModel
 import com.jdf.spacexexplorer.presentation.theme.ThemeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -19,7 +18,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val sharedViewModel: SharedViewModel = hiltViewModel()
             val themeViewModel: ThemeViewModel = hiltViewModel()
             val theme by themeViewModel.theme.collectAsState()
 

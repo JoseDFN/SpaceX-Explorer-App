@@ -2,7 +2,9 @@ package com.jdf.spacexexplorer.presentation.screens.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jdf.spacexexplorer.domain.model.Theme
 import com.jdf.spacexexplorer.domain.usecase.ClearCacheUseCase
+import com.jdf.spacexexplorer.domain.usecase.SetThemeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.delay
@@ -14,7 +16,8 @@ import kotlinx.coroutines.launch
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val clearCacheUseCase: ClearCacheUseCase
+    private val clearCacheUseCase: ClearCacheUseCase,
+    private val setThemeUseCase: SetThemeUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SettingsState())
@@ -33,6 +36,12 @@ class SettingsViewModel @Inject constructor(
                 delay(3000)
                 _state.update { it.copy(cacheClearedMessageVisible = false) }
             }
+        }
+    }
+
+    fun onThemeSelected(theme: Theme) {
+        viewModelScope.launch {
+            setThemeUseCase(theme)
         }
     }
 }
