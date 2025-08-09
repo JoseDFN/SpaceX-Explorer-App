@@ -33,10 +33,15 @@ fun HomeScreen(
 ) {
     val state by viewModel.state.collectAsState()
     
+    // Ensure all data is refreshed whenever Home is entered (e.g., after cache clear)
+    LaunchedEffect(Unit) {
+        viewModel.onEvent(HomeEvent.Refresh)
+    }
+
     // Register refresh handler with SharedViewModel
     DisposableEffect(Unit) {
         sharedViewModel.registerRefreshHandler {
-            viewModel.onEvent(HomeEvent.Retry)
+            viewModel.onEvent(HomeEvent.Refresh)
         }
         
         // Clean up when the screen is disposed

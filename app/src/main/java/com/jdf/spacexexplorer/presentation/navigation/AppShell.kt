@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.DirectionsBoat
 import androidx.compose.material.icons.filled.Flight
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -266,6 +267,21 @@ fun AppShell(
                     },
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
+
+                NavigationDrawerItem(
+                    icon = { Icon(Icons.Default.Settings, contentDescription = null) },
+                    label = { Text("Settings") },
+                    selected = navController.currentDestination?.route == Screen.Settings.route,
+                    onClick = {
+                        scope.launch { drawerState.close() }
+                        navController.navigate(Screen.Settings.route) {
+                            popUpTo(navController.graph.startDestinationId) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
                 
                 Spacer(modifier = Modifier.weight(1f))
                 
@@ -365,6 +381,7 @@ private fun getScreenTitle(route: String?): String {
         Screen.Rockets.route -> "Rockets"
         Screen.Capsules.route -> "Capsules"
         Screen.Cores.route -> "Cores"
+        Screen.Settings.route -> "Settings"
         Screen.Crew.route -> "Crew"
         Screen.Ships.route -> "Ships"
         Screen.Dragons.route -> "Dragons"
