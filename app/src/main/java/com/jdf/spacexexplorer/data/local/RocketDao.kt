@@ -57,4 +57,7 @@ interface RocketDao {
      */
     @Query("SELECT * FROM rockets WHERE name LIKE '%' || :query || '%' OR description LIKE '%' || :query || '%' OR company LIKE '%' || :query || '%' ORDER BY name ASC")
     suspend fun searchRockets(query: String): List<RocketEntity>
+
+    @Query("DELETE FROM rockets")
+    suspend fun clearAll()
 } 

@@ -57,4 +57,7 @@ interface CoreDao {
      */
     @Query("SELECT * FROM cores WHERE serial LIKE '%' || :query || '%' OR status LIKE '%' || :query || '%' OR block LIKE '%' || :query || '%' ORDER BY serial ASC")
     suspend fun searchCores(query: String): List<CoreEntity>
+
+    @Query("DELETE FROM cores")
+    suspend fun clearAll()
 } 
