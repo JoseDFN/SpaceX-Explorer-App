@@ -60,6 +60,20 @@ class SpaceXRepositoryImpl @Inject constructor(
     private val payloadDao: PayloadDao
 ) : SpaceXRepository {
     
+    override suspend fun clearAllCaches() {
+        // Clear every DAO table
+        launchDao.clearAll()
+        rocketDao.clearAll()
+        capsuleDao.clearAll()
+        coreDao.clearAll()
+        crewDao.clearAll()
+        shipDao.clearAll()
+        dragonDao.clearAll()
+        landpadDao.clearAll()
+        launchpadDao.clearAll()
+        payloadDao.clearAll()
+    }
+    
     override fun getLaunches(filters: List<FilterOption>, sort: SortOption): Flow<Result<List<Launch>>> {
         return getFilteredLaunchesFlow(filters)
             .map { entities ->

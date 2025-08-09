@@ -7,6 +7,7 @@ sealed class Screen(val route: String) {
     object Rockets : Screen("rockets_screen")
     object Capsules : Screen("capsules_screen")
     object Cores : Screen("cores_screen")
+    object Settings : Screen("settings_screen")
     object LaunchDetail : Screen("launch_detail_screen/{launchId}") {
         fun createRoute(launchId: String) = "launch_detail_screen/$launchId"
     }

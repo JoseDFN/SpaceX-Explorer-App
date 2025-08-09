@@ -93,4 +93,7 @@ interface LaunchDao {
      */
     @Query("SELECT * FROM launches WHERE missionName LIKE '%' || :query || '%' OR details LIKE '%' || :query || '%' ORDER BY launchDateUnix DESC")
     suspend fun searchLaunches(query: String): List<LaunchEntity>
+
+    @Query("DELETE FROM launches")
+    suspend fun clearAll()
 } 

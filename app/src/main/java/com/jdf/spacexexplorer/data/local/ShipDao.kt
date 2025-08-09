@@ -57,4 +57,7 @@ interface ShipDao {
      */
     @Query("SELECT * FROM ships WHERE name LIKE '%' || :query || '%' OR type LIKE '%' || :query || '%' OR homePort LIKE '%' || :query || '%' ORDER BY name ASC")
     suspend fun searchShips(query: String): List<ShipEntity>
+
+    @Query("DELETE FROM ships")
+    suspend fun clearAll()
 } 

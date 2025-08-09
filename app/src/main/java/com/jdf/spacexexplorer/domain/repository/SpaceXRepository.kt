@@ -223,4 +223,9 @@ interface SpaceXRepository {
      * @return Result containing list of SearchResult items
      */
     suspend fun searchAll(query: String): Result<List<SearchResult>>
+
+    /**
+     * Clear all local caches (all Room tables)
+     */
+    suspend fun clearAllCaches()
 } 

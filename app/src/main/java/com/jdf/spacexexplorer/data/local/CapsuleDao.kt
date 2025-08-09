@@ -57,4 +57,7 @@ interface CapsuleDao {
      */
     @Query("SELECT * FROM capsules WHERE serial LIKE '%' || :query || '%' OR type LIKE '%' || :query || '%' OR status LIKE '%' || :query || '%' ORDER BY serial ASC")
     suspend fun searchCapsules(query: String): List<CapsuleEntity>
+
+    @Query("DELETE FROM capsules")
+    suspend fun clearAll()
 } 

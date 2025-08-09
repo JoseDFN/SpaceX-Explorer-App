@@ -29,6 +29,7 @@ import com.jdf.spacexexplorer.presentation.screens.launchpad_detail.LaunchpadDet
 import com.jdf.spacexexplorer.presentation.screens.payloads.PayloadsScreen
 import com.jdf.spacexexplorer.presentation.screens.payload_detail.PayloadDetailScreen
 import com.jdf.spacexexplorer.presentation.screens.search.SearchScreen
+import com.jdf.spacexexplorer.presentation.screens.settings.SettingsScreen
 import com.jdf.spacexexplorer.presentation.shared.SharedViewModel
 
 @Composable
@@ -88,6 +89,10 @@ fun SetupNavGraph(
         
         composable(route = Screen.Payloads.route) {
             PayloadsScreen(navController = navController, sharedViewModel = sharedViewModel)
+        }
+
+        composable(route = Screen.Settings.route) {
+            SettingsScreen()
         }
         
         composable(

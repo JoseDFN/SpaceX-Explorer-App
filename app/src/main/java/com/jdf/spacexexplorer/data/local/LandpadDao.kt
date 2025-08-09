@@ -57,4 +57,7 @@ interface LandpadDao {
      */
     @Query("SELECT * FROM landpads WHERE name LIKE '%' || :query || '%' OR fullName LIKE '%' || :query || '%' OR locality LIKE '%' || :query || '%' ORDER BY name ASC")
     suspend fun searchLandpads(query: String): List<LandpadEntity>
+
+    @Query("DELETE FROM landpads")
+    suspend fun clearAll()
 } 

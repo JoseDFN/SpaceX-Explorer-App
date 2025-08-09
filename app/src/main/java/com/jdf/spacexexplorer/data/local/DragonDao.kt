@@ -57,4 +57,7 @@ interface DragonDao {
      */
     @Query("SELECT * FROM dragons WHERE name LIKE '%' || :query || '%' OR type LIKE '%' || :query || '%' OR description LIKE '%' || :query || '%' ORDER BY name ASC")
     suspend fun searchDragons(query: String): List<DragonEntity>
+
+    @Query("DELETE FROM dragons")
+    suspend fun clearAll()
 } 
