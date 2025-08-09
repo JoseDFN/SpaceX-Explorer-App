@@ -14,6 +14,7 @@ import com.jdf.spacexexplorer.domain.model.Result
 import com.jdf.spacexexplorer.domain.model.FilterOption
 import com.jdf.spacexexplorer.domain.model.SortOption
 import com.jdf.spacexexplorer.domain.model.SearchResult
+import com.jdf.spacexexplorer.domain.model.Theme
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -228,4 +229,14 @@ interface SpaceXRepository {
      * Clear all local caches (all Room tables)
      */
     suspend fun clearAllCaches()
+
+    /**
+     * Persisted user UI theme.
+     */
+    fun getTheme(): Flow<Theme>
+
+    /**
+     * Set and persist user UI theme.
+     */
+    suspend fun setTheme(theme: Theme)
 } 

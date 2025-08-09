@@ -27,7 +27,12 @@ import com.jdf.spacexexplorer.domain.model.Result
 import com.jdf.spacexexplorer.domain.model.FilterOption
 import com.jdf.spacexexplorer.domain.model.SortOption
 import com.jdf.spacexexplorer.domain.model.SearchResult
+import com.jdf.spacexexplorer.domain.model.Theme
 import com.jdf.spacexexplorer.domain.repository.SpaceXRepository
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
@@ -57,8 +62,12 @@ class SpaceXRepositoryImpl @Inject constructor(
     private val dragonDao: DragonDao,
     private val landpadDao: LandpadDao,
     private val launchpadDao: LaunchpadDao,
-    private val payloadDao: PayloadDao
+    private val payloadDao: PayloadDao,
+    private val dataStore: DataStore<Preferences>
 ) : SpaceXRepository {
+    private companion object {
+        val THEME_KEY = stringPreferencesKey("theme")
+    }
     
     override suspend fun clearAllCaches() {
         // Clear every DAO table
@@ -72,6 +81,24 @@ class SpaceXRepositoryImpl @Inject constructor(
         landpadDao.clearAll()
         launchpadDao.clearAll()
         payloadDao.clearAll()
+    }
+
+    override fun getTheme(): Flow<Theme> {
+        return dataStore.data
+            .map { preferences ->
+                when (preferences[THEME_KEY]) {
+                    Theme.DARK.name -> Theme.DARK
+                    Theme.DARK_PURPLE.name -> Theme.DARK_PURPLE
+                    Theme.LIGHT.name -> Theme.LIGHT
+                    else -> Theme.LIGHT
+                }
+            }
+    }
+
+    override suspend fun setTheme(theme: Theme) {
+        dataStore.edit { prefs ->
+            prefs[THEME_KEY] = theme.name
+        }
     }
     
     override fun getLaunches(filters: List<FilterOption>, sort: SortOption): Flow<Result<List<Launch>>> {

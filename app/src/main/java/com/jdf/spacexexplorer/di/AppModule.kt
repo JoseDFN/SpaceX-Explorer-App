@@ -16,6 +16,14 @@ import com.jdf.spacexexplorer.data.local.PayloadDao
 import com.jdf.spacexexplorer.data.remote.ApiService
 import com.jdf.spacexexplorer.data.repository.SpaceXRepositoryImpl
 import com.jdf.spacexexplorer.domain.repository.SpaceXRepository
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.emptyPreferences
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import java.io.File
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -150,6 +158,20 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun providePreferencesDataStore(
+        @ApplicationContext context: Context
+    ): DataStore<Preferences> {
+        return PreferenceDataStoreFactory.create(
+            corruptionHandler = null,
+            scope = CoroutineScope(SupervisorJob()),
+            produceFile = {
+                File(context.filesDir, "datastore/settings.preferences_pb")
+            }
+        )
+    }
+
+    @Provides
+    @Singleton
     fun provideSpaceXRepository(
         apiService: ApiService,
         launchDao: LaunchDao,
@@ -161,8 +183,22 @@ object AppModule {
         dragonDao: DragonDao,
         landpadDao: LandpadDao,
         launchpadDao: LaunchpadDao,
-        payloadDao: PayloadDao
+        payloadDao: PayloadDao,
+        dataStore: DataStore<Preferences>
     ): SpaceXRepository {
-        return SpaceXRepositoryImpl(apiService, launchDao, rocketDao, capsuleDao, coreDao, crewDao, shipDao, dragonDao, landpadDao, launchpadDao, payloadDao)
+        return SpaceXRepositoryImpl(
+            apiService,
+            launchDao,
+            rocketDao,
+            capsuleDao,
+            coreDao,
+            crewDao,
+            shipDao,
+            dragonDao,
+            landpadDao,
+            launchpadDao,
+            payloadDao,
+            dataStore
+        )
     }
 } 
